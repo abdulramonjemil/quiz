@@ -51,12 +51,12 @@ function resolveJSXElement(tag, props, children) {
   throw new TypeError("`tag` must be a string or a function")
 }
 
-function createFragment(props, ...children) {
+function resolveFragment(props, ...children) {
   if (children.length === 1) return children[0]
   return children
 }
 
-const Fragment = createFragment
+const Fragment = resolveFragment
 const jsx = resolveJSXElement
 const jsxs = resolveJSXElement
 
