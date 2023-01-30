@@ -1,5 +1,5 @@
-const PROP_FOR_ELEMENT_OBJECT = "ref"
-const PROP_FOR_CLASS_INSTANCE = "instanceRef"
+const PROP_FOR_ELEMENT_REF = "elementRef"
+const PROP_FOR_INSTANCE_REF = "instanceRef"
 
 function appendJSXChildToParent(parent, child) {
   if (Array.isArray(child))
@@ -13,9 +13,9 @@ function appendJSXChildToParent(parent, child) {
 function createHTMLElement(tag, props, children) {
   const element = document.createElement(tag)
   Object.entries(props).forEach(([key, value]) => {
-    if (key === PROP_FOR_ELEMENT_OBJECT && typeof value === "object") {
-      const providedRef = value
-      providedRef.current = element
+    if (key === PROP_FOR_ELEMENT_REF && typeof value === "object") {
+      const providedElementRef = value
+      providedElementRef.current = element
     } else {
       if (typeof value === "string") element.setAttribute(key, value)
       element[key] = value
@@ -35,7 +35,7 @@ function resolveTagAsComponent(func, props, children) {
     return func(props, children)
   } catch (error) {
     const DefinedComponent = func
-    const { [PROP_FOR_CLASS_INSTANCE]: providedInstanceRef, ...otherProps } =
+    const { [PROP_FOR_INSTANCE_REF]: providedInstanceRef, ...otherProps } =
       props
     const componentInstance = new DefinedComponent(otherProps, children)
     if (typeof providedInstanceRef === "object")
