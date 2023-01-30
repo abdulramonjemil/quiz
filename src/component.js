@@ -4,6 +4,7 @@ export default class Component {
     this.$markup = this.$render(props, children)
   }
 
+  /** @protected */
   $render() {
     throw new Error(
       `${this.constructor.name} does not implement the \`$render\` method`
