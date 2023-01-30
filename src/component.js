@@ -4,6 +4,10 @@ export default class Component {
     this.$markup = this.$render(props, children)
   }
 
+  get markup() {
+    return this.$markup
+  }
+
   /** @protected */
   $render() {
     throw new Error(
@@ -11,7 +15,9 @@ export default class Component {
     )
   }
 
-  get markup() {
-    return this.$markup
+  reRender() {
+    const newMarkup = this.$render()
+    this.$markup.replaceWith(newMarkup)
+    this.$markup = newMarkup
   }
 }
