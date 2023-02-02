@@ -6,4 +6,4 @@
 
 import Quiz from "./index"
 
-window.$Quiz = Quiz
+window.Quiz = Quiz
