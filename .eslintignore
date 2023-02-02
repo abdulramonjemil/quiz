@@ -3,3 +3,12 @@
 
 # husky
 /.husky
+
+# package-lock.json
+package-lock.json
+
+# webpack dev build
+/dev
+
+# webpack prod build
+/build

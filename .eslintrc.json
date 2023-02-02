@@ -1,4 +1,12 @@
 {
   "extends": ["airbnb", "prettier"],
-  "env": { "browser": true }
+  "env": { "browser": true },
+  "parserOptions": {
+    "ecmaVersion": 2020
+  },
+  "rules": {
+    "import/extensions": ["error", "always", { "js": "never", "jsx": "never" }],
+    "react/react-in-jsx-scope": "off",
+    "react/no-unused-class-component-methods": "off"
+  }
 }

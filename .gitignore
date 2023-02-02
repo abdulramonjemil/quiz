@@ -1,2 +1,8 @@
 # dependencies
 /node_modules
+
+# webpack dev build
+/dev
+
+# webpack prod build (not ignored so Github can be used as cdn)
+# /build

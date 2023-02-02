@@ -6,30 +6,29 @@ function appendJSXChildToParent(parent, child) {
     child.forEach((innerChild) => appendJSXChildToParent(parent, innerChild))
   else if (typeof child !== "boolean" && child !== null && child !== undefined)
     parent.appendChild(
-      typeof child === "string" ? document.createTextNode(String(child)) : child
+      child instanceof HTMLElement
+        ? child
+        : document.createTextNode(String(child))
     )
 }
 
-function createHTMLElement(tag, props, children) {
-  const element = document.createElement(tag)
+function createHTMLElement(tagName, props, children) {
+  const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
     if (key === PROP_FOR_ELEMENT_REF && typeof value === "object") {
       const providedElementRef = value
       providedElementRef.current = element
     } else {
       if (typeof value === "string") element.setAttribute(key, value)
-      element[key] = value
+      if (typeof value !== "undefined") element[key] = value
     }
   })
 
-  children.forEach((child) => {
-    appendJSXChildToParent(element, child)
-  })
-
+  if (children) appendJSXChildToParent(element, children)
   return element
 }
 
-function resolveTagAsComponent(func, props, children) {
+function resolveTypeAsComponent(func, props, children) {
   try {
     // Will throw an error if it is a class
     return func(props, children)
@@ -40,24 +39,27 @@ function resolveTagAsComponent(func, props, children) {
     const componentInstance = new DefinedComponent(otherProps, children)
     if (typeof providedInstanceRef === "object")
       providedInstanceRef.current = componentInstance
-    return componentInstance.markup
+    return componentInstance.componentElement
   }
 }
 
-function resolveJSXElement(tag, props, children) {
-  if (typeof tag === "string") return createHTMLElement(tag, props, children)
-  if (typeof tag === "function")
-    return resolveTagAsComponent(tag, props, children)
-  throw new TypeError("`tag` must be a string or a function")
+/**
+ * Pass the 'key' as a prop directly to the resolver of the JSX element.
+ * Also pass 'children' as a separate parameter to it instead of as a prop.
+ */
+function resolveJSXElement(type, { children, ...otherProps }, key) {
+  const props = { ...otherProps, key }
+  if (typeof type === "string") return createHTMLElement(type, props, children)
+  if (typeof type === "function")
+    return resolveTypeAsComponent(type, props, children)
+  throw new TypeError("`type` must be a string or a function")
 }
 
-function resolveFragment(props, ...children) {
-  if (children.length === 1) return children[0]
+function resolveFragment(props, children) {
   return children
 }
 
 const Fragment = resolveFragment
 const jsx = resolveJSXElement
-const jsxs = resolveJSXElement
 
-export default { Fragment, jsx, jsxs }
+export { Fragment, jsx, jsx as jsxs }
