@@ -1,5 +1,9 @@
+import Component from "./component"
+
 const PROP_FOR_ELEMENT_REF = "elementRef"
 const PROP_FOR_INSTANCE_REF = "instanceRef"
+
+const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
 function appendJSXChildToParent(parent, child) {
   if (Array.isArray(child))
@@ -15,13 +19,14 @@ function appendJSXChildToParent(parent, child) {
 function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
-    if (key === PROP_FOR_ELEMENT_REF && typeof value === "object") {
+    if (key === PROP_FOR_ELEMENT_REF) {
+      if (!Component.isElementRef(value))
+        throw new Error("Invalid elementRef object")
       const providedElementRef = value
       providedElementRef.current = element
-    } else {
-      if (typeof value === "string") element.setAttribute(key, value)
-      if (typeof value !== "undefined") element[key] = value
-    }
+    } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
+      element.setAttribute(key, value)
+    else if (typeof value !== "undefined") element[key] = value
   })
 
   if (children) appendJSXChildToParent(element, children)
@@ -30,15 +35,18 @@ function createHTMLElement(tagName, props, children) {
 
 function resolveTypeAsComponent(func, props, children) {
   try {
-    // Will throw an error if it is a class
-    return func(props, children)
+    return func(props, children) // Will throw an error if it is a class
   } catch (error) {
     const DefinedComponent = func
-    const { [PROP_FOR_INSTANCE_REF]: providedInstanceRef, ...otherProps } =
+    const { [PROP_FOR_INSTANCE_REF]: providedInstanceRef, ...propsToPass } =
       props
-    const componentInstance = new DefinedComponent(otherProps, children)
-    if (typeof providedInstanceRef === "object")
-      providedInstanceRef.current = componentInstance
+    const componentInstance = new DefinedComponent(propsToPass, children)
+
+    if (Object.prototype.hasOwnProperty.call(props, PROP_FOR_INSTANCE_REF)) {
+      if (!Component.isInstanceRef(providedInstanceRef))
+        throw new Error("Invalid instanceRef object")
+      else providedInstanceRef.current = componentInstance
+    }
     return componentInstance.componentElement
   }
 }
