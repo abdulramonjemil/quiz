@@ -27,6 +27,10 @@ export default class Component {
 
   /** @private */
   static $$setElementRef(value) {
+    const currentRef = this[REF]
+    if (currentRef !== REF_DEFAULT_VALUE)
+      throw new Error("refs cannot be set twice")
+
     if (!(value instanceof Element))
       throw new TypeError("element ref must be an instance of 'Element'")
     this[REF] = value
@@ -34,6 +38,10 @@ export default class Component {
 
   /** @private */
   static $$setInstanceRef(value) {
+    const currentRef = this[REF]
+    if (currentRef !== REF_DEFAULT_VALUE)
+      throw new Error("refs cannot be set twice")
+
     if (!(value instanceof Component))
       throw new TypeError("instance ref must be an instance of 'Component'")
     this[REF] = value
