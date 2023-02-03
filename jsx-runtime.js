@@ -79,7 +79,7 @@ function resolveJSXElement(type, { children, ...otherProps }, key) {
   throw new TypeError("`type` must be a string or a function")
 }
 
-function resolveFragment(props, children) {
+function resolveFragment({ children }) {
   return children
 }
 
