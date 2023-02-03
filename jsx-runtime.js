@@ -1,4 +1,4 @@
-import { isElementRefObject, isInstanceRefObject } from "./component"
+import Component, { isElementRefObject, isInstanceRefObject } from "./component"
 
 const PROP_FOR_ELEMENT_REF = "elementRef"
 const PROP_FOR_INSTANCE_REF_OBJECT = "instanceRef"
@@ -55,6 +55,8 @@ function resolveTypeAsComponent(func, props, children) {
   } catch (error) {
     const DefinedComponent = func
     const component = new DefinedComponent(propsToPass, children)
+    if (!(component instanceof Component))
+      throw new Error(`${DefinedComponent.name} does not extend 'Component'`)
 
     if (instanceRefIsRequested) {
       if (!isInstanceRefObject(providedInstanceRefObject))
