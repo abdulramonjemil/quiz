@@ -40,14 +40,14 @@ function resolveTypeAsComponent(func, props, children) {
     const DefinedComponent = func
     const { [PROP_FOR_INSTANCE_REF]: providedInstanceRef, ...propsToPass } =
       props
-    const componentInstance = new DefinedComponent(propsToPass, children)
+    const component = new DefinedComponent(propsToPass, children)
 
     if (Object.prototype.hasOwnProperty.call(props, PROP_FOR_INSTANCE_REF)) {
       if (!Component.isInstanceRef(providedInstanceRef))
         throw new Error("Invalid instanceRef object")
-      else providedInstanceRef.current = componentInstance
+      else providedInstanceRef.current = component
     }
-    return componentInstance.componentElement
+    return component.composedNode
   }
 }
 

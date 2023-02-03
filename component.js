@@ -19,7 +19,7 @@ export default class Component {
     this.$children = children
 
     /** @protected */
-    this.$componentElement = this.$render(props, children)
+    this.$composedNode = this.$render(props, children)
   }
 
   static createElementRef() {
@@ -70,8 +70,8 @@ export default class Component {
     return true
   }
 
-  get componentElement() {
-    return this.$componentElement
+  get composedNode() {
+    return this.$composedNode
   }
 
   /** @protected */
@@ -82,8 +82,8 @@ export default class Component {
   }
 
   reRender() {
-    const newComponentElement = this.$render()
-    this.$componentElement.replaceWith(newComponentElement)
-    this.$componentElement = newComponentElement
+    const newComposedNode = this.$render()
+    this.$composedNode.replaceWith(newComposedNode)
+    this.$composedNode = newComposedNode
   }
 }
