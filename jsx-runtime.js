@@ -2,7 +2,7 @@ import { isElementRefObject, isInstanceRefObject } from "./component"
 
 const PROP_FOR_ELEMENT_REF = "elementRef"
 const PROP_FOR_INSTANCE_REF_OBJECT = "instanceRef"
-
+const REF_OBJECT_MAIN_KEY = "ref"
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
 function appendJSXChildToParent(parent, child) {
@@ -20,16 +20,16 @@ function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
     if (key === PROP_FOR_ELEMENT_REF) {
-      if (isElementRefObject(value))
+      if (!isElementRefObject(value))
         throw new Error("Invalid elementRef object")
-      const providedElementRef = value
-      providedElementRef.ref = element
+      const providedElementRefObject = value
+      providedElementRefObject[REF_OBJECT_MAIN_KEY] = element
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
     else if (typeof value !== "undefined") element[key] = value
   })
 
-  if (children) appendJSXChildToParent(element, children)
+  if (children !== undefined) appendJSXChildToParent(element, children)
   return element
 }
 
@@ -59,7 +59,7 @@ function resolveTypeAsComponent(func, props, children) {
     if (instanceRefIsRequested) {
       if (!isInstanceRefObject(providedInstanceRefObject))
         throw new Error("Invalid instanceRef object")
-      else providedInstanceRefObject.ref = component
+      else providedInstanceRefObject[REF_OBJECT_MAIN_KEY] = component
     }
     return component.composedNode
   }

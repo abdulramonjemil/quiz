@@ -1,14 +1,7 @@
-const ELEMENT_REF_SYMBOLS = {
-  KEY: Symbol("ELEMENT_REF_SYMBOL_KEY"),
-  VALUE: Symbol("ELEMENT_REF_SYMBOL_VALUE")
-}
-
-const INSTANCE_REF_SYMBOLS = {
-  KEY: Symbol("INSTANCE_REF_SYMBOL_KEY"),
-  VALUE: Symbol("INSTANCE_REF_SYMBOL_VALUE")
-}
-
+const REF_DEFAULT_VALUE = null
 const REF_OBJECT_MAIN_KEY = "ref"
+
+const REF = Symbol("REF")
 
 export default class Component {
   constructor(props, children) {
@@ -22,51 +15,125 @@ export default class Component {
     this.$composedNode = this.$render(props, children)
   }
 
+  /** @private */
+  static $$getElementRef() {
+    return this[REF]
+  }
+
+  /** @private */
+  static $$getInstanceRef() {
+    return this[REF]
+  }
+
+  /** @private */
+  static $$setElementRef(value) {
+    if (!(value instanceof Element))
+      throw new TypeError("element ref must be an instance of 'Element'")
+    this[REF] = value
+  }
+
+  /** @private */
+  static $$setInstanceRef(value) {
+    if (!(value instanceof Component))
+      throw new TypeError("instance ref must be an instance of 'Component'")
+    this[REF] = value
+  }
+
   static createElementRefObject() {
-    const elementRef = { [REF_OBJECT_MAIN_KEY]: null }
-    Object.defineProperty(elementRef, ELEMENT_REF_SYMBOLS.KEY, {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: ELEMENT_REF_SYMBOLS.VALUE
+    const elementRefObject = {}
+    const { $$getElementRef, $$setElementRef } = Component
+
+    Object.defineProperties(elementRefObject, {
+      [REF_OBJECT_MAIN_KEY]: {
+        enumerable: false,
+        configurable: false,
+        get: $$getElementRef,
+        set: $$setElementRef
+      },
+      [REF]: {
+        enumerable: false,
+        configurable: false,
+        writable: true,
+        value: REF_DEFAULT_VALUE
+      }
     })
-    return elementRef
+    return elementRefObject
   }
 
   static createInstanceRefObject() {
-    const instanceRef = { [REF_OBJECT_MAIN_KEY]: null }
-    Object.defineProperty(instanceRef, INSTANCE_REF_SYMBOLS.KEY, {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: INSTANCE_REF_SYMBOLS.VALUE
+    const instanceRefObject = {}
+    const { $$getInstanceRef, $$setInstanceRef } = Component
+
+    Object.defineProperties(instanceRefObject, {
+      [REF_OBJECT_MAIN_KEY]: {
+        enumerable: false,
+        configurable: false,
+        get: $$getInstanceRef,
+        set: $$setInstanceRef
+      },
+      [REF]: {
+        enumerable: false,
+        configurable: false,
+        writable: true,
+        value: REF_DEFAULT_VALUE
+      }
     })
-    return instanceRef
+    return instanceRefObject
   }
 
   static isElementRefObject(value) {
     if (typeof value !== "object") return false
-    const refSymbolValue = Object.getOwnPropertyDescriptor(
-      value,
-      ELEMENT_REF_SYMBOLS.KEY
-    )?.value
+    const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
 
-    if (refSymbolValue !== ELEMENT_REF_SYMBOLS.VALUE) return false
-    if (!Object.prototype.hasOwnProperty.call(value, REF_OBJECT_MAIN_KEY))
+    const {
+      [REF_OBJECT_MAIN_KEY]: descriptorForMainKey,
+      [REF]: descriptorForRef
+    } = objectPropertyDescriptors
+
+    if (descriptorForMainKey === undefined || descriptorForRef === undefined)
       return false
+
+    if (descriptorForMainKey.configurable !== false) return false
+    if (
+      descriptorForRef.writable !== true ||
+      descriptorForRef.configurable !== false
+    )
+      return false
+
+    const { get: definedElementRefGetter, set: definedElementRefSetter } =
+      descriptorForMainKey
+    const { $$getElementRef, $$setElementRef } = Component
+
+    if (definedElementRefGetter !== $$getElementRef) return false
+    if (definedElementRefSetter !== $$setElementRef) return false
     return true
   }
 
   static isInstanceRefObject(value) {
     if (typeof value !== "object") return false
-    const refSymbolValue = Object.getOwnPropertyDescriptor(
-      value,
-      INSTANCE_REF_SYMBOLS.KEY
-    )?.value
+    const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
 
-    if (refSymbolValue !== INSTANCE_REF_SYMBOLS.VALUE) return false
-    if (!Object.prototype.hasOwnProperty.call(value, REF_OBJECT_MAIN_KEY))
+    const {
+      [REF_OBJECT_MAIN_KEY]: descriptorForMainKey,
+      [REF]: descriptorForRef
+    } = objectPropertyDescriptors
+
+    if (descriptorForMainKey === undefined || descriptorForRef === undefined)
       return false
+
+    if (descriptorForMainKey.configurable !== false) return false
+    if (
+      descriptorForRef.writable !== true ||
+      descriptorForRef.configurable !== false
+    )
+      return false
+
+    const { get: definedInstanceRefGetter, set: definedInstanceRefSetter } =
+      descriptorForMainKey
+    const { $$getInstanceRef, $$setInstanceRef } = Component
+
+    if (definedInstanceRefGetter !== $$getInstanceRef) return false
+    if (definedInstanceRefSetter !== $$setInstanceRef) return false
     return true
   }
 
@@ -76,6 +143,7 @@ export default class Component {
 
   /** @protected */
   $render() {
+    // Method must be overidden by extenders
     throw new Error(
       `'${this.constructor.name}' does not implement the \`$render\` method`
     )
