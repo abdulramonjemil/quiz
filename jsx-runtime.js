@@ -83,7 +83,8 @@ function resolveFragment({ children }) {
   return children
 }
 
-const Fragment = resolveFragment
-const jsx = resolveJSXElement
-
-export { Fragment, jsx, jsx as jsxs }
+export {
+  resolveFragment as Fragment,
+  resolveJSXElement as jsx,
+  resolveJSXElement as jsxs
+}
