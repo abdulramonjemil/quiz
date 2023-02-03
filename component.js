@@ -8,7 +8,7 @@ const INSTANCE_REF_SYMBOLS = {
   VALUE: Symbol("INSTANCE_REF_SYMBOL_VALUE")
 }
 
-const REF_OBJECT_MAIN_KEY = "current"
+const REF_OBJECT_MAIN_KEY = "ref"
 
 export default class Component {
   constructor(props, children) {
@@ -22,7 +22,7 @@ export default class Component {
     this.$composedNode = this.$render(props, children)
   }
 
-  static createElementRef() {
+  static createElementRefObject() {
     const elementRef = { [REF_OBJECT_MAIN_KEY]: null }
     Object.defineProperty(elementRef, ELEMENT_REF_SYMBOLS.KEY, {
       enumerable: false,
@@ -33,8 +33,8 @@ export default class Component {
     return elementRef
   }
 
-  static createInstanceRef() {
-    const instanceRef = { current: null }
+  static createInstanceRefObject() {
+    const instanceRef = { [REF_OBJECT_MAIN_KEY]: null }
     Object.defineProperty(instanceRef, INSTANCE_REF_SYMBOLS.KEY, {
       enumerable: false,
       configurable: false,
@@ -44,7 +44,7 @@ export default class Component {
     return instanceRef
   }
 
-  static isElementRef(value) {
+  static isElementRefObject(value) {
     if (typeof value !== "object") return false
     const refSymbolValue = Object.getOwnPropertyDescriptor(
       value,
@@ -57,7 +57,7 @@ export default class Component {
     return true
   }
 
-  static isInstanceRef(value) {
+  static isInstanceRefObject(value) {
     if (typeof value !== "object") return false
     const refSymbolValue = Object.getOwnPropertyDescriptor(
       value,
@@ -87,3 +87,10 @@ export default class Component {
     this.$composedNode = newComposedNode
   }
 }
+
+export const {
+  createElementRefObject,
+  createInstanceRefObject,
+  isElementRefObject,
+  isInstanceRefObject
+} = Component

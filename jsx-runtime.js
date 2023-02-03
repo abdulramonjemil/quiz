@@ -1,7 +1,7 @@
-import Component from "./component"
+import { isElementRefObject, isInstanceRefObject } from "./component"
 
 const PROP_FOR_ELEMENT_REF = "elementRef"
-const PROP_FOR_INSTANCE_REF = "instanceRef"
+const PROP_FOR_INSTANCE_REF_OBJECT = "instanceRef"
 
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
@@ -20,10 +20,10 @@ function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
     if (key === PROP_FOR_ELEMENT_REF) {
-      if (!Component.isElementRef(value))
+      if (isElementRefObject(value))
         throw new Error("Invalid elementRef object")
       const providedElementRef = value
-      providedElementRef.current = element
+      providedElementRef.ref = element
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
     else if (typeof value !== "undefined") element[key] = value
@@ -34,18 +34,32 @@ function createHTMLElement(tagName, props, children) {
 }
 
 function resolveTypeAsComponent(func, props, children) {
+  const {
+    [PROP_FOR_INSTANCE_REF_OBJECT]: providedInstanceRefObject,
+    ...propsToPass
+  } = props
+  const instanceRefIsRequested = Object.prototype.hasOwnProperty.call(
+    props,
+    PROP_FOR_INSTANCE_REF_OBJECT
+  )
+
   try {
-    return func(props, children) // Will throw an error if it is a class
+    // Will throw an error if it is a class
+    const componentComposedNode = func(propsToPass, children)
+    const componentIsFunction = true // Error isn't thrown by calling func()
+    if (instanceRefIsRequested && componentIsFunction)
+      throw new Error(
+        "'instanceRef' cannot be requested for a function component"
+      )
+    return componentComposedNode
   } catch (error) {
     const DefinedComponent = func
-    const { [PROP_FOR_INSTANCE_REF]: providedInstanceRef, ...propsToPass } =
-      props
     const component = new DefinedComponent(propsToPass, children)
 
-    if (Object.prototype.hasOwnProperty.call(props, PROP_FOR_INSTANCE_REF)) {
-      if (!Component.isInstanceRef(providedInstanceRef))
+    if (instanceRefIsRequested) {
+      if (!isInstanceRefObject(providedInstanceRefObject))
         throw new Error("Invalid instanceRef object")
-      else providedInstanceRef.current = component
+      else providedInstanceRefObject.ref = component
     }
     return component.composedNode
   }
