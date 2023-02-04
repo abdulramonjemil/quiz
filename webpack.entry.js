@@ -5,5 +5,6 @@
  */
 
 import Quiz from "./index"
+import "./cq-polyfill" // Polyfill CSS @container queries
 
 window.Quiz = Quiz
