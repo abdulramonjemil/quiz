@@ -128,12 +128,17 @@ export default class Component {
     )
   }
 
-  renderIn(element) {
-    if (!(element instanceof HTMLElement) && !(element instanceof SVGElement))
-      throw new TypeError(
-        "'element' must be an instance of 'HTMLElement' or 'SVGElement'"
-      )
-    element.replaceChildren(this.$composedNode)
+  renderIn(node) {
+    if (!(node instanceof Node))
+      throw new TypeError("'node' must be an instance of 'Node'")
+
+    const composedNode = this.$composedNode
+    if (node instanceof Element) node.replaceChildren(composedNode)
+    else {
+      const removeNodeChild = node.removeChild.bind(node)
+      node.childNodes.forEach((childNode) => removeNodeChild(childNode))
+      node.appendChild(composedNode)
+    }
   }
 
   reRender() {
