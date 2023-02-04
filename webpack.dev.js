@@ -37,7 +37,7 @@ module.exports = merge(commonConfig, {
   },
   output: {
     filename: "quiz.bundle.js",
-    path: path.resolve(__dirname, "dev")
+    path: path.resolve(__dirname, "dist")
   },
   plugins: [
     new HTMLWebpackPlugin({
