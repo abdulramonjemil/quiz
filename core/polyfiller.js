@@ -1,5 +1,5 @@
 /**
- * This file imports a polyfill for @container CSS queries if not supported.
+ * This function imports a polyfill for @container CSS queries if not supported.
  * The polyfill used is at "https://github.com/GoogleChromeLabs/container-query-polyfill"
  */
 function polyfillContainerQueries() {
