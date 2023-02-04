@@ -47,11 +47,11 @@ export default class Component {
     this[REF] = value
   }
 
-  static createElementRefObject() {
-    const elementRefObject = {}
+  static createElementRefHolder() {
+    const elementRefHolder = {}
     const { $$getElementRef, $$setElementRef } = Component
 
-    Object.defineProperties(elementRefObject, {
+    Object.defineProperties(elementRefHolder, {
       [REF_OBJECT_MAIN_KEY]: {
         enumerable: false,
         configurable: false,
@@ -65,14 +65,14 @@ export default class Component {
         value: REF_DEFAULT_VALUE
       }
     })
-    return elementRefObject
+    return elementRefHolder
   }
 
-  static createInstanceRefObject() {
-    const instanceRefObject = {}
+  static createInstanceRefHolder() {
+    const instanceRefHolder = {}
     const { $$getInstanceRef, $$setInstanceRef } = Component
 
-    Object.defineProperties(instanceRefObject, {
+    Object.defineProperties(instanceRefHolder, {
       [REF_OBJECT_MAIN_KEY]: {
         enumerable: false,
         configurable: false,
@@ -86,10 +86,10 @@ export default class Component {
         value: REF_DEFAULT_VALUE
       }
     })
-    return instanceRefObject
+    return instanceRefHolder
   }
 
-  static isElementRefObject(value) {
+  static isElementRefHolder(value) {
     if (typeof value !== "object") return false
     const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
 
@@ -117,7 +117,7 @@ export default class Component {
     return true
   }
 
-  static isInstanceRefObject(value) {
+  static isInstanceRefHolder(value) {
     if (typeof value !== "object") return false
     const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
 
@@ -165,8 +165,8 @@ export default class Component {
 }
 
 export const {
-  createElementRefObject,
-  createInstanceRefObject,
-  isElementRefObject,
-  isInstanceRefObject
+  createElementRefHolder,
+  createInstanceRefHolder,
+  isElementRefHolder,
+  isInstanceRefHolder
 } = Component

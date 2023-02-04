@@ -1,4 +1,4 @@
-import Component, { isElementRefObject, isInstanceRefObject } from "./component"
+import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
 const PROP_FOR_ELEMENT_REF = "elementRef"
 const PROP_FOR_INSTANCE_REF_OBJECT = "instanceRef"
@@ -20,10 +20,10 @@ function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
     if (key === PROP_FOR_ELEMENT_REF) {
-      if (!isElementRefObject(value))
+      if (!isElementRefHolder(value))
         throw new Error("Invalid elementRef object")
-      const providedElementRefObject = value
-      providedElementRefObject[REF_OBJECT_MAIN_KEY] = element
+      const providedElementRefHolder = value
+      providedElementRefHolder[REF_OBJECT_MAIN_KEY] = element
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
     else if (typeof value !== "undefined") element[key] = value
@@ -35,7 +35,7 @@ function createHTMLElement(tagName, props, children) {
 
 function resolveTypeAsComponent(func, props, children) {
   const {
-    [PROP_FOR_INSTANCE_REF_OBJECT]: providedInstanceRefObject,
+    [PROP_FOR_INSTANCE_REF_OBJECT]: providedInstanceRefHolder,
     ...propsToPass
   } = props
   const instanceRefIsRequested = Object.prototype.hasOwnProperty.call(
@@ -59,9 +59,9 @@ function resolveTypeAsComponent(func, props, children) {
       throw new Error(`${DefinedComponent.name} does not extend 'Component'`)
 
     if (instanceRefIsRequested) {
-      if (!isInstanceRefObject(providedInstanceRefObject))
+      if (!isInstanceRefHolder(providedInstanceRefHolder))
         throw new Error("Invalid instanceRef object")
-      else providedInstanceRefObject[REF_OBJECT_MAIN_KEY] = component
+      else providedInstanceRefHolder[REF_OBJECT_MAIN_KEY] = component
     }
     return component.composedNode
   }
