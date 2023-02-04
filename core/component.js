@@ -128,9 +128,24 @@ export default class Component {
     )
   }
 
+  renderIn(element, fullSpace) {
+    if (!(element instanceof HTMLElement) && !(element instanceof SVGElement))
+      throw new TypeError(
+        "'element' must be an instance of 'HTMLElement' or 'SVGElement'"
+      )
+
+    /* eslint-disable-next-line no-param-reassign */
+    if (fullSpace) element.style.padding = "0"
+    element.replaceChildren(this.$composedNode)
+  }
+
   reRender() {
     const newComposedNode = this.$render()
-    this.$composedNode.replaceWith(newComposedNode)
+    const currentComposedNode = this.$composedNode
+    const parentOfComposedNode = currentComposedNode.parentNode
+
+    if (parentOfComposedNode !== null)
+      parentOfComposedNode.replaceChild(newComposedNode, currentComposedNode)
     this.$composedNode = newComposedNode
   }
 }
