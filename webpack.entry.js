@@ -7,5 +7,5 @@
 import Polyfiller from "./core/polyfiller"
 import Quiz from "./index"
 
-Polyfiller.polyfillBrowser()
+Polyfiller.polyfillForBrowser()
 window.Quiz = Quiz

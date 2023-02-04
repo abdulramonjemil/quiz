@@ -12,9 +12,9 @@ function polyfillContainerQueries() {
   if (!containerQueriesAreSupported) import(CQ_POLYFILL_URL)
 }
 
-function polyfillBrowser() {
+function polyfillForBrowser() {
   polyfillContainerQueries()
 }
 
-const Polyfiller = { polyfillBrowser }
+const Polyfiller = { polyfillForBrowser }
 export default Polyfiller
