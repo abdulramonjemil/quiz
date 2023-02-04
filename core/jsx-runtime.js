@@ -1,8 +1,6 @@
 import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
-const PROP_FOR_ELEMENT_REF = "elementRef"
-const PROP_FOR_INSTANCE_REF_OBJECT = "instanceRef"
-const REF_OBJECT_MAIN_KEY = "ref"
+const PROP_FOR_REF_HOLDER = "refHolder"
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
 function appendJSXChildToParent(parent, child) {
@@ -10,20 +8,18 @@ function appendJSXChildToParent(parent, child) {
     child.forEach((innerChild) => appendJSXChildToParent(parent, innerChild))
   else if (typeof child !== "boolean" && child !== null && child !== undefined)
     parent.appendChild(
-      child instanceof HTMLElement
-        ? child
-        : document.createTextNode(String(child))
+      child instanceof Node ? child : document.createTextNode(String(child))
     )
 }
 
 function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
-    if (key === PROP_FOR_ELEMENT_REF) {
+    if (key === PROP_FOR_REF_HOLDER) {
       if (!isElementRefHolder(value))
-        throw new Error("Invalid elementRef object")
+        throw new Error("Invalid element ref holder")
       const providedElementRefHolder = value
-      providedElementRefHolder[REF_OBJECT_MAIN_KEY] = element
+      providedElementRefHolder.ref = element
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
     else if (typeof value !== "undefined") element[key] = value
@@ -34,13 +30,11 @@ function createHTMLElement(tagName, props, children) {
 }
 
 function resolveTypeAsComponent(func, props, children) {
-  const {
-    [PROP_FOR_INSTANCE_REF_OBJECT]: providedInstanceRefHolder,
-    ...propsToPass
-  } = props
+  const { [PROP_FOR_REF_HOLDER]: providedInstanceRefHolder, ...propsToPass } =
+    props
   const instanceRefIsRequested = Object.prototype.hasOwnProperty.call(
     props,
-    PROP_FOR_INSTANCE_REF_OBJECT
+    PROP_FOR_REF_HOLDER
   )
 
   try {
@@ -49,7 +43,7 @@ function resolveTypeAsComponent(func, props, children) {
     const componentIsFunction = true // Error isn't thrown by calling func()
     if (instanceRefIsRequested && componentIsFunction)
       throw new Error(
-        "'instanceRef' cannot be requested for a function component"
+        "'instance ref' cannot be requested for a function component"
       )
     return componentComposedNode
   } catch (error) {
@@ -60,8 +54,8 @@ function resolveTypeAsComponent(func, props, children) {
 
     if (instanceRefIsRequested) {
       if (!isInstanceRefHolder(providedInstanceRefHolder))
-        throw new Error("Invalid instanceRef object")
-      else providedInstanceRefHolder[REF_OBJECT_MAIN_KEY] = component
+        throw new Error("Invalid instance ref holder")
+      else providedInstanceRefHolder.ref = component
     }
     return component.composedNode
   }
