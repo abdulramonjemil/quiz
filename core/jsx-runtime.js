@@ -1,15 +1,19 @@
+/* eslint-disable-next-line import/no-cycle */
 import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
 const PROP_FOR_REF_HOLDER = "refHolder"
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
-function appendJSXChildToParent(parent, child) {
-  if (Array.isArray(child))
-    child.forEach((innerChild) => appendJSXChildToParent(parent, innerChild))
-  else if (typeof child !== "boolean" && child !== null && child !== undefined)
-    parent.appendChild(
-      child instanceof Node ? child : document.createTextNode(String(child))
-    )
+function resolveToNode(value) {
+  if (Array.isArray(value))
+    return value.reduce((fragment, currentItem) => {
+      fragment.append(resolveToNode(currentItem))
+      return fragment
+    }, document.createDocumentFragment())
+
+  if (typeof value === "boolean" || value === null || value === undefined)
+    return document.createTextNode("")
+  return value instanceof Node ? value : document.createTextNode(String(value))
 }
 
 function createHTMLElement(tagName, props, children) {
@@ -25,7 +29,7 @@ function createHTMLElement(tagName, props, children) {
     else if (typeof value !== "undefined") element[key] = value
   })
 
-  if (children !== undefined) appendJSXChildToParent(element, children)
+  if (children !== undefined) element.appendChild(resolveToNode(children))
   return element
 }
 
@@ -80,5 +84,6 @@ function resolveFragment({ children }) {
 export {
   resolveFragment as Fragment,
   resolveJSXElement as jsx,
-  resolveJSXElement as jsxs
+  resolveJSXElement as jsxs,
+  resolveToNode
 }

@@ -1,3 +1,6 @@
+/* eslint-disable-next-line import/no-cycle */
+import { resolveToNode } from "./jsx-runtime"
+
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
 
@@ -12,7 +15,7 @@ export default class Component {
     this.$children = children
 
     /** @protected */
-    this.$composedNode = this.$render(props, children)
+    this.$composedNode = this.$$render()
   }
 
   /** @private */
@@ -120,6 +123,11 @@ export default class Component {
     return this.$composedNode
   }
 
+  /** @private */
+  $$render() {
+    return resolveToNode(this.$render())
+  }
+
   /** @protected */
   $render() {
     // Method must be overidden by extenders
@@ -142,7 +150,7 @@ export default class Component {
   }
 
   reRender() {
-    const newComposedNode = this.$render()
+    const newComposedNode = this.$$render()
     const currentComposedNode = this.$composedNode
     const parentOfComposedNode = currentComposedNode.parentNode
 
