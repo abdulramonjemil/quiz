@@ -1,5 +1,5 @@
 const REF_DEFAULT_VALUE = null
-const REF_OBJECT_MAIN_KEY = "ref"
+const REF_HOLDER_MAIN_KEY = "ref"
 
 const REF = Symbol("REF")
 
@@ -16,6 +16,27 @@ export default class Component {
   }
 
   /** @private */
+  static $$createRefHolder(refGetter, refSetter) {
+    const refHolder = {}
+
+    Object.defineProperties(refHolder, {
+      [REF_HOLDER_MAIN_KEY]: {
+        enumerable: false,
+        configurable: false,
+        get: refGetter,
+        set: refSetter
+      },
+      [REF]: {
+        enumerable: false,
+        configurable: false,
+        writable: true,
+        value: REF_DEFAULT_VALUE
+      }
+    })
+    return refHolder
+  }
+
+  /** @private */
   static $$getElementRef() {
     return this[REF]
   }
@@ -23,6 +44,34 @@ export default class Component {
   /** @private */
   static $$getInstanceRef() {
     return this[REF]
+  }
+
+  /** @private */
+  static $$isRefHolder(value, appropriateRefGetter, appropriateRefSetter) {
+    if (typeof value !== "object") return false
+    const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
+
+    const {
+      [REF_HOLDER_MAIN_KEY]: descriptorForMainKey,
+      [REF]: descriptorForRef
+    } = objectPropertyDescriptors
+
+    if (descriptorForMainKey === undefined || descriptorForRef === undefined)
+      return false
+
+    if (descriptorForMainKey.configurable !== false) return false
+    if (
+      descriptorForRef.writable !== true ||
+      descriptorForRef.configurable !== false
+    )
+      return false
+
+    const { get: definedRefGetter, set: definedRefSetter } =
+      descriptorForMainKey
+
+    if (definedRefGetter !== appropriateRefGetter) return false
+    if (definedRefSetter !== appropriateRefSetter) return false
+    return true
   }
 
   /** @private */
@@ -48,101 +97,23 @@ export default class Component {
   }
 
   static createElementRefHolder() {
-    const elementRefHolder = {}
-    const { $$getElementRef, $$setElementRef } = Component
-
-    Object.defineProperties(elementRefHolder, {
-      [REF_OBJECT_MAIN_KEY]: {
-        enumerable: false,
-        configurable: false,
-        get: $$getElementRef,
-        set: $$setElementRef
-      },
-      [REF]: {
-        enumerable: false,
-        configurable: false,
-        writable: true,
-        value: REF_DEFAULT_VALUE
-      }
-    })
-    return elementRefHolder
+    const { $$getElementRef, $$createRefHolder, $$setElementRef } = Component
+    return $$createRefHolder($$getElementRef, $$setElementRef)
   }
 
   static createInstanceRefHolder() {
-    const instanceRefHolder = {}
-    const { $$getInstanceRef, $$setInstanceRef } = Component
-
-    Object.defineProperties(instanceRefHolder, {
-      [REF_OBJECT_MAIN_KEY]: {
-        enumerable: false,
-        configurable: false,
-        get: $$getInstanceRef,
-        set: $$setInstanceRef
-      },
-      [REF]: {
-        enumerable: false,
-        configurable: false,
-        writable: true,
-        value: REF_DEFAULT_VALUE
-      }
-    })
-    return instanceRefHolder
+    const { $$getInstanceRef, $$createRefHolder, $$setInstanceRef } = Component
+    return $$createRefHolder($$getInstanceRef, $$setInstanceRef)
   }
 
   static isElementRefHolder(value) {
-    if (typeof value !== "object") return false
-    const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
-
-    const {
-      [REF_OBJECT_MAIN_KEY]: descriptorForMainKey,
-      [REF]: descriptorForRef
-    } = objectPropertyDescriptors
-
-    if (descriptorForMainKey === undefined || descriptorForRef === undefined)
-      return false
-
-    if (descriptorForMainKey.configurable !== false) return false
-    if (
-      descriptorForRef.writable !== true ||
-      descriptorForRef.configurable !== false
-    )
-      return false
-
-    const { get: definedElementRefGetter, set: definedElementRefSetter } =
-      descriptorForMainKey
-    const { $$getElementRef, $$setElementRef } = Component
-
-    if (definedElementRefGetter !== $$getElementRef) return false
-    if (definedElementRefSetter !== $$setElementRef) return false
-    return true
+    const { $$getElementRef, $$isRefHolder, $$setElementRef } = Component
+    return $$isRefHolder(value, $$getElementRef, $$setElementRef)
   }
 
   static isInstanceRefHolder(value) {
-    if (typeof value !== "object") return false
-    const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
-
-    const {
-      [REF_OBJECT_MAIN_KEY]: descriptorForMainKey,
-      [REF]: descriptorForRef
-    } = objectPropertyDescriptors
-
-    if (descriptorForMainKey === undefined || descriptorForRef === undefined)
-      return false
-
-    if (descriptorForMainKey.configurable !== false) return false
-    if (
-      descriptorForRef.writable !== true ||
-      descriptorForRef.configurable !== false
-    )
-      return false
-
-    const { get: definedInstanceRefGetter, set: definedInstanceRefSetter } =
-      descriptorForMainKey
-    const { $$getInstanceRef, $$setInstanceRef } = Component
-
-    if (definedInstanceRefGetter !== $$getInstanceRef) return false
-    if (definedInstanceRefSetter !== $$setInstanceRef) return false
-    return true
+    const { $$getInstanceRef, $$isRefHolder, $$setInstanceRef } = Component
+    return $$isRefHolder(value, $$getInstanceRef, $$setInstanceRef)
   }
 
   get composedNode() {
