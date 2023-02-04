@@ -128,14 +128,11 @@ export default class Component {
     )
   }
 
-  renderIn(element, fullSpace) {
+  renderIn(element) {
     if (!(element instanceof HTMLElement) && !(element instanceof SVGElement))
       throw new TypeError(
         "'element' must be an instance of 'HTMLElement' or 'SVGElement'"
       )
-
-    /* eslint-disable-next-line no-param-reassign */
-    if (fullSpace) element.style.padding = "0"
     element.replaceChildren(this.$composedNode)
   }
 
