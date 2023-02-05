@@ -1,4 +1,4 @@
-import Component from "./core/component"
+import Component from "../core/component"
 
 export default class Quiz extends Component {
   static create() {
