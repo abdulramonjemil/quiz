@@ -32,7 +32,13 @@ module.exports = merge(commonConfig, {
             }
           },
           {
-            loader: "sass-loader"
+            loader: "resolve-url-loader"
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true
+            }
           }
         ]
       },
@@ -51,7 +57,13 @@ module.exports = merge(commonConfig, {
             }
           },
           {
-            loader: "sass-loader"
+            loader: "resolve-url-loader"
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              sourceMap: true
+            }
           }
         ]
       }
