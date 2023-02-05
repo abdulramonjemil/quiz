@@ -3,7 +3,6 @@ import { resolveToNode } from "./jsx-runtime"
 
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
-
 const REF = Symbol("REF")
 
 export default class Component {
