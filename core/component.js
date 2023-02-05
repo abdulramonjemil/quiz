@@ -136,19 +136,6 @@ export default class Component {
     )
   }
 
-  renderIn(node) {
-    if (!(node instanceof Node))
-      throw new TypeError("'node' must be an instance of 'Node'")
-
-    const composedNode = this.$composedNode
-    if (node instanceof Element) node.replaceChildren(composedNode)
-    else {
-      const removeNodeChild = node.removeChild.bind(node)
-      node.childNodes.forEach((childNode) => removeNodeChild(childNode))
-      node.appendChild(composedNode)
-    }
-  }
-
   reRender() {
     const newComposedNode = this.$$render()
     const currentComposedNode = this.$composedNode
