@@ -17,7 +17,8 @@ module.exports = merge(commonConfig, {
   module: {
     rules: [
       {
-        test: /\.(sa|sc)ss$/,
+        test: /\.scss$/,
+        exclude: /\.module\.scss$/,
         use: [
           {
             loader: "style-loader"
@@ -25,7 +26,28 @@ module.exports = merge(commonConfig, {
           {
             loader: "css-loader",
             options: {
-              modules: true
+              modules: {
+                mode: "icss"
+              }
+            }
+          },
+          {
+            loader: "sass-loader"
+          }
+        ]
+      },
+      {
+        test: /\.module\.scss$/,
+        use: [
+          {
+            loader: "style-loader"
+          },
+          {
+            loader: "css-loader",
+            options: {
+              modules: {
+                mode: "local"
+              }
             }
           },
           {
