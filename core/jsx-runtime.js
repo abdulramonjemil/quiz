@@ -12,7 +12,7 @@ function resolveToNode(value) {
     }, document.createDocumentFragment())
 
   if (typeof value === "boolean" || value === null || value === undefined)
-    return document.createTextNode("")
+    return document.createDocumentFragment()
   return value instanceof Node ? value : document.createTextNode(String(value))
 }
 
