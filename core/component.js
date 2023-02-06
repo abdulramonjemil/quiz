@@ -1,3 +1,6 @@
+/* eslint-disable-next-line import/no-cycle */
+import { resolveToNode } from "./jsx-runtime"
+
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
 const REF = Symbol("REF")
@@ -115,27 +118,13 @@ export default class Component {
     return $$isRefHolder(value, $$getInstanceRef, $$setInstanceRef)
   }
 
-  static resolveToNode(value) {
-    if (Array.isArray(value))
-      return value.reduce((fragment, currentItem) => {
-        fragment.append(Component.resolveToNode(currentItem))
-        return fragment
-      }, document.createDocumentFragment())
-
-    if (typeof value === "boolean" || value === null || value === undefined)
-      return document.createTextNode("")
-    return value instanceof Node
-      ? value
-      : document.createTextNode(String(value))
-  }
-
   get composedNode() {
     return this.$composedNode
   }
 
   /** @private */
   $$render() {
-    return Component.resolveToNode(this.$render())
+    return resolveToNode(this.$render())
   }
 
   /** @protected */
@@ -161,6 +150,5 @@ export const {
   createElementRefHolder,
   createInstanceRefHolder,
   isElementRefHolder,
-  isInstanceRefHolder,
-  resolveToNode
+  isInstanceRefHolder
 } = Component
