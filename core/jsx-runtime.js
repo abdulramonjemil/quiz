@@ -5,15 +5,15 @@ const PROP_FOR_REF_HOLDER = "refHolder"
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
 function resolveToNode(value) {
+  if (value instanceof Node) return value
+  if (typeof value === "boolean" || value === null || value === undefined)
+    return document.createTextNode("")
   if (Array.isArray(value))
     return value.reduce((fragment, currentItem) => {
       fragment.append(resolveToNode(currentItem))
       return fragment
     }, document.createDocumentFragment())
-
-  if (typeof value === "boolean" || value === null || value === undefined)
-    return document.createDocumentFragment()
-  return value instanceof Node ? value : document.createTextNode(String(value))
+  return document.createTextNode(String(value))
 }
 
 function createHTMLElement(tagName, props, children) {
