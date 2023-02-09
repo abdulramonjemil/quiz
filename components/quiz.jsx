@@ -1,4 +1,5 @@
 import Component from "../core/component"
+import styles from "../scss/quiz.module.scss"
 
 export default class Quiz extends Component {
   static create() {
@@ -6,7 +7,12 @@ export default class Quiz extends Component {
   }
 
   /** @protected */
+  /* eslint-disable-next-line class-methods-use-this */
   $render() {
-    return this.$children
+    return (
+      <div className={styles.quiz}>
+        I am <code>Quiz</code>
+      </div>
+    )
   }
 }
