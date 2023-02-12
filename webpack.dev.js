@@ -5,6 +5,8 @@ const HTMLWebpackPlugin = require("html-webpack-plugin")
 const commonConfig = require("./webpack.config")
 /* eslint-enable import/no-extraneous-dependencies */
 
+const PATHS_TO_SASS_PARTIALS = ["partials"]
+
 module.exports = merge(commonConfig, {
   devServer: {
     open: true,
@@ -37,7 +39,10 @@ module.exports = merge(commonConfig, {
           {
             loader: "sass-loader",
             options: {
-              sourceMap: true
+              sourceMap: true,
+              sassOptions: {
+                loadPaths: PATHS_TO_SASS_PARTIALS
+              }
             }
           }
         ]
@@ -62,7 +67,10 @@ module.exports = merge(commonConfig, {
           {
             loader: "sass-loader",
             options: {
-              sourceMap: true
+              sourceMap: true,
+              sassOptions: {
+                loadPaths: PATHS_TO_SASS_PARTIALS
+              }
             }
           }
         ]
