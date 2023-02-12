@@ -1,7 +1,7 @@
 <!-- 
   This file is used with 'HTMLWebpack' plugin to test the Quiz app. The js and
-  css files generated are linked to this templated are spitted out into
-  dev/index.html which is served by the Webpack dev server.
+  css files generated are linked to this template and then served by the
+  Webpack dev server.
 
   File is put in 'public' folder so as to make webpack-dev-server trigger a full
   reload when it is changed
@@ -25,7 +25,7 @@
     <script>
       /** Put script to be used to test the Quiz app here. */
       const main = document.getElementById("quiz")
-      main.appendChild(new Quiz().$render())
+      main.replaceChildren(new Quiz().$render())
     </script>
   </body>
 </html>
