@@ -1,7 +1,7 @@
 $sans-serif-font: "Inter", sans-serif;
 $monospace-font: "Roboto Mono", monospace;
 
-@mixin use-family($type) {
+@mixin family($type) {
   @if $type == "monospace" {
     font-family: $monospace-font;
   } @else if $type == "sans-serif" {
