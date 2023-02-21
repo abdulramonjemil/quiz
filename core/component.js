@@ -140,7 +140,7 @@ export default class Component {
 
   reRender(overwritingProps, newChildren, useUndefinedChildren = false) {
     if (overwritingProps !== undefined && overwritingProps !== null) {
-      if (typeof overwritingProps !== "object" || overwritingProps === null)
+      if (typeof overwritingProps !== "object")
         throw new TypeError("'overwritingProps' must be an object")
       this.$props = { ...this.$props, ...overwritingProps }
     }
