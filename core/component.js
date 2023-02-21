@@ -20,7 +20,7 @@ export default class Component {
     this.$children = children
 
     /** @protected */
-    this.$composedNode = this.$$render()
+    this.$composedNode = resolveToNode(this.$render())
   }
 
   /** @private */
@@ -128,30 +128,25 @@ export default class Component {
     return this.$composedNode
   }
 
-  /** @private */
-  $$render() {
-    return resolveToNode(this.$render())
-  }
-
   /** @protected */
   $render() {
-    // Method must be overidden by extenders
+    // Method must be overwritten by extenders
     throw new Error(
       `'${this.constructor.name}' does not implement the \`$render\` method`
     )
   }
 
-  reRender(overwritingProps, newChildren, useUndefinedChildren = false) {
-    if (overwritingProps !== undefined && overwritingProps !== null) {
-      if (typeof overwritingProps !== "object")
-        throw new TypeError("'overwritingProps' must be an object")
-      this.$props = { ...this.$props, ...overwritingProps }
+  use(props, children, childrenCanBeUndefined = false) {
+    if (props !== undefined && props !== null) {
+      if (typeof props !== "object")
+        throw new TypeError("'props' must be an object")
+      this.$props = { ...this.$props, ...props }
     }
 
-    if (newChildren !== undefined || useUndefinedChildren)
-      this.$children = newChildren
+    if (children !== undefined || childrenCanBeUndefined)
+      this.$children = children
 
-    const newComposedNode = this.$$render()
+    const newComposedNode = resolveToNode(this.$render())
     const currentComposedNode = this.$composedNode
     const parentOfComposedNode = currentComposedNode.parentNode
 
