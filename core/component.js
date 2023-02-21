@@ -1,5 +1,6 @@
 /* eslint-disable-next-line import/no-cycle */
 import { resolveToNode } from "./jsx-runtime"
+import { isObject } from "./helpers"
 
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
@@ -9,6 +10,8 @@ export default class Component {
   constructor(props, children) {
     if (new.target === Component)
       throw new Error("An instance of 'Component' cannot be created directly")
+
+    if (!isObject(props)) throw new TypeError("'props' must be an object")
 
     /** @protected */
     this.$props = props
