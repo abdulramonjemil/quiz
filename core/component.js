@@ -7,6 +7,9 @@ const REF = Symbol("REF")
 
 export default class Component {
   constructor(props, children) {
+    if (new.target === Component)
+      throw new Error("An instance of 'Component' cannot be created directly")
+
     /** @protected */
     this.$props = props
 
@@ -135,7 +138,16 @@ export default class Component {
     )
   }
 
-  reRender() {
+  reRender(overwritingProps, newChildren, useUndefinedChildren = false) {
+    if (overwritingProps !== undefined && overwritingProps !== null) {
+      if (typeof overwritingProps !== "object" || overwritingProps === null)
+        throw new TypeError("'overwritingProps' must be an object")
+      this.$props = { ...this.$props, ...overwritingProps }
+    }
+
+    if (newChildren !== undefined || useUndefinedChildren)
+      this.$children = newChildren
+
     const newComposedNode = this.$$render()
     const currentComposedNode = this.$composedNode
     const parentOfComposedNode = currentComposedNode.parentNode
