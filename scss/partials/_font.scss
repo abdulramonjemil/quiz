@@ -2,11 +2,11 @@ $sans-serif-font: "Inter", sans-serif;
 $monospace-font: "Roboto Mono", monospace;
 
 @mixin family($type) {
-  @if $type == "monospace" {
+  @if $type == "monospace-variant" {
     font-family: $monospace-font;
-  } @else if $type == "sans-serif" {
+  } @else if $type == "sans-serif-variant" {
     font-family: $sans-serif-font;
   } @else {
-    @error "Font family must be either 'monospace' or 'sans-serif'";
+    @error "'$type' must be either 'monospace-variant' or 'sans-serif-variant'";
   }
 }

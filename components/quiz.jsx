@@ -11,7 +11,7 @@ export default class Quiz extends Component {
   $render() {
     return (
       <div className={styles.quiz}>
-        I am <code>Quiz</code>
+        I am <code>Quizy</code>
       </div>
     )
   }
