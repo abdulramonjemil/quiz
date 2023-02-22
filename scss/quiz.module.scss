@@ -6,6 +6,7 @@
 %reset-element {
   @include font.family("sans-serif-variant");
   font-size: 14px;
+  line-height: 30px;
   box-sizing: border-box;
   padding: 0;
   border: 0;
@@ -15,7 +16,7 @@
 .quiz {
   @extend %reset-element;
   background-color: $deep-dark-color;
-  padding: 25px 16px;
+  padding: 20px 16px;
   color: $soft-light-color;
   max-width: 1000px;
   margin: auto;
@@ -32,6 +33,6 @@
   code:not(pre code) {
     background-color: $light-grey-color;
     border-radius: 3px;
-    padding: 0 5px;
+    padding: 2px 5px 4px 5px;
   }
 }

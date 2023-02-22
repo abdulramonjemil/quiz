@@ -12,6 +12,7 @@ export default class Quiz extends Component {
     return (
       <div className={styles.quiz}>
         I am <code>Quizy</code>
+        <br /> Okay?
       </div>
     )
   }
