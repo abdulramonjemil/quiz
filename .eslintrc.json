@@ -6,7 +6,13 @@
   },
   "rules": {
     "import/extensions": ["error", "always", { "js": "never", "jsx": "never" }],
-    "react/react-in-jsx-scope": "off",
-    "react/no-unused-class-component-methods": "off"
+    "react/jsx-props-no-spreading": [
+      "error",
+      {
+        "html": "ignore"
+      }
+    ],
+    "react/no-unused-class-component-methods": "off",
+    "react/react-in-jsx-scope": "off"
   }
 }
