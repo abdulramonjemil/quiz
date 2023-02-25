@@ -1,2 +1,27 @@
-@forward "font" as font-*;
-@forward "variables";
+$colors: (
+  "deep-dark": rgb(15, 23, 42),
+  "soft-dark": rgb(37, 58, 92),
+  "deep-light": rgb(204, 204, 204),
+  "soft-light": rgb(255, 255, 255),
+  "light-grey": rgba(179, 179, 179, 0.2)
+);
+
+$font-families: (
+  "monospace": (
+    "Roboto Mono",
+    monospace
+  ),
+
+  "sans-serif": (
+    "Inter",
+    sans-serif
+  )
+);
+
+@mixin font-family($type) {
+  @if map-has-key($font-families, $type) {
+    font-family: map-get($font-families, $type);
+  } @else {
+    @error "'$type' must be a key in '$font-families'";
+  }
+}
