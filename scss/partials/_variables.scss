@@ -6,3 +6,15 @@ $colors: (
   "soft-light": rgb(255, 255, 255),
   "light-grey": rgba(179, 179, 179, 0.2)
 );
+
+$fonts: (
+  "monospace": (
+    "Roboto Mono",
+    monospace
+  ),
+
+  "sans-serif": (
+    "Inter",
+    sans-serif
+  )
+);
