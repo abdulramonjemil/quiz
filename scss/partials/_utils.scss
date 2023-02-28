@@ -19,9 +19,8 @@ $font-families: (
 );
 
 @mixin font-family($type) {
-  @if map-has-key($font-families, $type) {
-    font-family: map-get($font-families, $type);
-  } @else {
+  @if not map-has-key($font-families, $type) {
     @error "'$type' must be a key in '$font-families'";
   }
+  font-family: map-get($font-families, $type);
 }

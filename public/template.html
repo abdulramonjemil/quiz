@@ -23,13 +23,12 @@
   </head>
   <body>
     <main id="quiz"></main>
-    <template id="header">I <code>hatedd</code> food</template>
     <script>
       /** Put script to be used to test the Quiz app here. */
       const main = document.getElementById("quiz")
       main.replaceChildren(
         new Quiz({
-          headerContent: "##header"
+          headerContent: "~~I don't like the `getElementById` method"
         }).$render()
       )
     </script>

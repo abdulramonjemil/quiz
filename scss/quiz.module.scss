@@ -4,6 +4,7 @@
 
 %reset-element {
   @include font-family(sans-serif);
+  color: map-get($colors, deep-light);
   font-size: 14px;
   line-height: 2.2em;
   box-sizing: border-box;
@@ -16,7 +17,6 @@
   @extend %reset-element;
   background-color: map-get($colors, deep-dark);
   padding: 20px 16px;
-  color: map-get($colors, soft-light);
   max-width: 1000px;
   margin: auto;
 
