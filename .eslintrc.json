@@ -13,6 +13,7 @@
       }
     ],
     "react/no-unused-class-component-methods": "off",
+    "react/prop-types": "off",
     "react/react-in-jsx-scope": "off"
   }
 }
