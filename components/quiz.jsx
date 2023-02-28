@@ -12,10 +12,11 @@ export default class Quiz extends Component {
   /* eslint-disable-next-line class-methods-use-this */
   $render() {
     const { headerContent } = this.$props
+    const quizLabellingId = uniqueId()
 
     return (
-      <section className={styles.quiz}>
-        <Header labellingId={uniqueId()}>{headerContent}</Header>
+      <section className={styles.quiz} aria-labelledby={quizLabellingId}>
+        <Header labellingId={quizLabellingId}>{headerContent}</Header>
       </section>
     )
   }
