@@ -1,0 +1,10 @@
+@use "utils" as *;
+
+%reset-element {
+  @include font-family(sans-serif);
+  color: map-get($colors, deep-light);
+  box-sizing: border-box;
+  padding: 0;
+  border: none;
+  margin: 0;
+}

@@ -1,4 +1,7 @@
+@use "partials/reset";
+
 .header {
+  @extend %reset-element;
   font-size: 26px;
   font-weight: 700;
   text-align: center;
