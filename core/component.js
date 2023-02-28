@@ -20,7 +20,8 @@ export default class Component {
     this.$children = children
 
     /** @protected */
-    this.$composedNode = resolveToNode(this.$render())
+    this.$composedNode = null
+    this.reset()
   }
 
   /** @private */
@@ -136,23 +137,36 @@ export default class Component {
     )
   }
 
+  reset() {
+    const newNode = resolveToNode(this.$render())
+    const currentComposedNode = this.$composedNode
+    const parentOfComposedNode = currentComposedNode?.parentNode
+
+    if (parentOfComposedNode instanceof Node)
+      parentOfComposedNode.replaceChild(newNode, currentComposedNode)
+    this.$composedNode = newNode
+  }
+
   use(props, children, childrenCanBeUndefined = false) {
+    let passedNewProps = false
+    let passedNewChildren = false
+
     if (props !== undefined && props !== null) {
       if (typeof props !== "object")
         throw new TypeError("'props' must be an object")
+      passedNewProps = true
       this.$props = { ...this.$props, ...props }
     }
 
-    if (children !== undefined || childrenCanBeUndefined)
+    if (children !== undefined || childrenCanBeUndefined) {
+      passedNewChildren = true
       this.$children = children
+    }
 
-    const newComposedNode = resolveToNode(this.$render())
-    const currentComposedNode = this.$composedNode
-    const parentOfComposedNode = currentComposedNode.parentNode
+    if (!passedNewProps && !passedNewChildren)
+      throw new Error("No new props or children to use")
 
-    if (parentOfComposedNode !== null)
-      parentOfComposedNode.replaceChild(newComposedNode, currentComposedNode)
-    this.$composedNode = newComposedNode
+    this.reset()
   }
 }
 
