@@ -81,4 +81,13 @@ export default class Progress extends Component {
     currentProgressLevel.classList.add(PASSED_PROGRESS_LEVEL_CLASS)
     this.$currentProgressLevelIndex = $currentProgressLevelIndex + 1
   }
+
+  restart() {
+    const { $currentProgressLevelIndex, $progressLevels } = this
+    if ($currentProgressLevelIndex === 0) return
+
+    for (let i = 0; i < $currentProgressLevelIndex; i += 1)
+      $progressLevels[i].classList.remove(PASSED_PROGRESS_LEVEL_CLASS)
+    this.$currentProgressLevelIndex = 0
+  }
 }
