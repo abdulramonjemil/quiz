@@ -12,6 +12,7 @@
         "html": "ignore"
       }
     ],
+    "react/jsx-no-bind": "off",
     "react/no-unused-class-component-methods": "off",
     "react/prefer-stateless-function": "off",
     "react/prop-types": "off",
