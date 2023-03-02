@@ -39,7 +39,7 @@ export default class Progress extends Component {
     }
 
     return (
-      <div className={styles.progress} role="presentation">
+      <div className={styles.progress} aria-hidden="true">
         <ul className={styles.progress__list}>{[...$progressLevels]}</ul>
       </div>
     )
