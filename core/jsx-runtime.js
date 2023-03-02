@@ -5,7 +5,7 @@ const PROP_FOR_REF_HOLDER = "refHolder"
 const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 const START_OF_EVENT_ATTRIBUTES = "on"
-const END_OF_CAPTURING_EVENT_ATTRIBUTE = "Capture"
+const END_OF_CAPTURE_EVENT_ATTRIBUTE = "Capture"
 
 function resolveToNode(value) {
   if (value instanceof Node) return value
@@ -32,12 +32,12 @@ function getEventDetails(attribute) {
     throw new TypeError("'attribute' must be a string")
   const attributeWithoutOn = attribute.substring(2)
 
-  if (attributeWithoutOn.endsWith(END_OF_CAPTURING_EVENT_ATTRIBUTE))
+  if (attributeWithoutOn.endsWith(END_OF_CAPTURE_EVENT_ATTRIBUTE))
     return [
       attributeWithoutOn
         .substring(
           0,
-          attributeWithoutOn.length - END_OF_CAPTURING_EVENT_ATTRIBUTE.length
+          attributeWithoutOn.length - END_OF_CAPTURE_EVENT_ATTRIBUTE.length
         )
         .toLowerCase(),
       { capture: true }
