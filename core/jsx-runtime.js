@@ -4,6 +4,7 @@ import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 const PROP_FOR_REF_HOLDER = "refHolder"
 const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
+const START_OF_EVENT_ATTRIBUTES = "on"
 
 function resolveToNode(value) {
   if (value instanceof Node) return value
@@ -25,7 +26,7 @@ function getEventName(attribute) {
 
 function isEventAttribute(attribute) {
   if (typeof attribute !== "string") return false
-  if (!attribute.startsWith("on")) return false
+  if (!attribute.startsWith(START_OF_EVENT_ATTRIBUTES)) return false
   if (attribute.length < MINIMUM_EVENT_ATTRIBUTE_LENGTH) return false
   if (!/[A-Z]/.test(attribute[2])) return false // Third letter is uppercase
   return true
