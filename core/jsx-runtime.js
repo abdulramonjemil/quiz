@@ -2,6 +2,7 @@
 import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
 const PROP_FOR_REF_HOLDER = "refHolder"
+const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 
 function resolveToNode(value) {
@@ -16,6 +17,20 @@ function resolveToNode(value) {
   return document.createTextNode(String(value))
 }
 
+function getEventName(attribute) {
+  if (typeof attribute !== "string")
+    throw new TypeError("'attribute' must be a string")
+  return attribute.substring(2).toLowerCase()
+}
+
+function isEventAttribute(attribute) {
+  if (typeof attribute !== "string") return false
+  if (!attribute.startsWith("on")) return false
+  if (attribute.length < MINIMUM_EVENT_ATTRIBUTE_LENGTH) return false
+  if (!/[A-Z]/.test(attribute[2])) return false // Third letter is uppercase
+  return true
+}
+
 function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
@@ -26,6 +41,8 @@ function createHTMLElement(tagName, props, children) {
       providedElementRefHolder.ref = element
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
+    else if (isEventAttribute(key) && typeof value === "function")
+      element.addEventListener(getEventName(key), value)
     else if (typeof value !== "undefined") element[key] = value
   })
 
