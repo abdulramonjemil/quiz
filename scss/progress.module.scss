@@ -1,0 +1,94 @@
+@use "sass:math";
+@use "partials/utils" as *;
+
+$progress-number-span: 30px;
+$progress-element-thickness: 2px;
+$progress-element-transition-duration: 0.4s;
+$reached-progress-element-color: map-get($colors, deep-light);
+$unreached-progress-element-color: map-get($colors, soft-dark);
+
+.progress {
+  margin: auto;
+  margin-top: 20px;
+  max-width: 700px;
+
+  &__list {
+    display: flex;
+    list-style-type: none;
+    width: 100%;
+  }
+
+  &__level {
+    cursor: default;
+    display: block;
+    flex-grow: 1;
+    position: relative;
+
+    &:last-child {
+      flex-basis: $progress-number-span;
+      flex-grow: 0;
+    }
+
+    $width-of-reached-progress-number: calc(100% - $progress-number-span);
+
+    &:not(:last-child) {
+      @at-root %progress-bridge {
+        content: "";
+        display: block;
+        height: $progress-element-thickness;
+        position: absolute;
+        top: math.div($progress-number-span, 2);
+        transform: translateY(-(math.div($progress-element-thickness, 2)));
+        left: $progress-number-span;
+      }
+
+      &::before {
+        @extend %progress-bridge;
+        background-color: $unreached-progress-element-color;
+        width: $width-of-reached-progress-number;
+      }
+
+      &::after {
+        @extend %progress-bridge;
+        background-color: $reached-progress-element-color;
+        width: 0;
+        z-index: 1;
+        transition: width $progress-element-transition-duration;
+
+        @at-root .progress__level--passed#{&} {
+          width: $width-of-reached-progress-number;
+        }
+      }
+    }
+  }
+
+  &__number {
+    border: $progress-element-thickness solid $unreached-progress-element-color;
+    border-radius: 50%;
+    color: $unreached-progress-element-color;
+    height: $progress-number-span;
+    display: block;
+
+    $top-bottom-border-width: $progress-element-thickness * 2;
+    $content-height: $progress-number-span - $top-bottom-border-width;
+
+    line-height: $content-height;
+    text-align: center;
+    width: $progress-number-span;
+    transition: border-color $progress-element-transition-duration,
+      color $progress-element-transition-duration;
+
+    @at-root %reached-progress-number {
+      border-color: $reached-progress-element-color;
+      color: $reached-progress-element-color;
+    }
+
+    .progress__level:first-child & {
+      @extend %reached-progress-number;
+    }
+
+    .progress__level--passed + .progress__level & {
+      @extend %reached-progress-number;
+    }
+  }
+}

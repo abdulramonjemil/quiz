@@ -13,18 +13,14 @@ export default class Component {
     if (typeof props !== "object" || props === null)
       throw new TypeError("'props' must be an object")
 
-    /** @protected */
     this.$props = props
 
-    /** @protected */
     this.$children = children
 
-    /** @protected */
     this.$composedNode = null
     this.reset()
   }
 
-  /** @private */
   static $$createRefHolder(refGetter, refSetter) {
     const refHolder = {}
 
@@ -45,17 +41,15 @@ export default class Component {
     return refHolder
   }
 
-  /** @private */
+  /**  */
   static $$getElementRef() {
     return this[REF]
   }
 
-  /** @private */
   static $$getInstanceRef() {
     return this[REF]
   }
 
-  /** @private */
   static $$isRefHolder(value, appropriateRefGetter, appropriateRefSetter) {
     if (typeof value !== "object") return false
     const objectPropertyDescriptors = Object.getOwnPropertyDescriptors(value)
@@ -83,7 +77,6 @@ export default class Component {
     return true
   }
 
-  /** @private */
   static $$setElementRef(value) {
     const currentRef = this[REF]
     if (currentRef !== REF_DEFAULT_VALUE)
@@ -94,7 +87,6 @@ export default class Component {
     this[REF] = value
   }
 
-  /** @private */
   static $$setInstanceRef(value) {
     const currentRef = this[REF]
     if (currentRef !== REF_DEFAULT_VALUE)
@@ -129,7 +121,6 @@ export default class Component {
     return this.$composedNode
   }
 
-  /** @protected */
   $render() {
     // Method must be overwritten by extenders
     throw new Error(
