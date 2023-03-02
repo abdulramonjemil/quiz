@@ -54,7 +54,9 @@ export default class Progress extends Component {
       throw new Error("Currently undergoing a change")
 
     const { $currentProgressLevelIndex, $progressLevels } = this
-    if ($currentProgressLevelIndex < 1)
+    const indexOfHighestDecrementableLevel = 1
+
+    if ($currentProgressLevelIndex < indexOfHighestDecrementableLevel)
       throw new RangeError("No lower levels to reverse to")
 
     const lastPassedProgressLevelIndex = $currentProgressLevelIndex - 1
@@ -70,7 +72,9 @@ export default class Progress extends Component {
       throw new Error("Currently undergoing a change")
 
     const { $currentProgressLevelIndex, $progressLevels } = this
-    if ($currentProgressLevelIndex > $progressLevels.length - 2)
+    const indexOfHighestIncrementableLevel = $progressLevels.length - 2
+
+    if ($currentProgressLevelIndex > indexOfHighestIncrementableLevel)
       throw new RangeError("No higher levels to move to")
 
     const currentProgressLevel = $progressLevels[$currentProgressLevelIndex]
