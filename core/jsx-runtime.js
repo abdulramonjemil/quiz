@@ -5,6 +5,7 @@ const PROP_FOR_REF_HOLDER = "refHolder"
 const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 const START_OF_EVENT_ATTRIBUTES = "on"
+const END_OF_CAPTURING_EVENT_ATTRIBUTE = "Capture"
 
 function resolveToNode(value) {
   if (value instanceof Node) return value
@@ -26,6 +27,25 @@ function isEventAttribute(attribute) {
   return true
 }
 
+function getEventDetails(attribute) {
+  if (typeof attribute !== "string")
+    throw new TypeError("'attribute' must be a string")
+  const attributeWithoutOn = attribute.substring(2)
+
+  if (attributeWithoutOn.endsWith(END_OF_CAPTURING_EVENT_ATTRIBUTE))
+    return [
+      attributeWithoutOn
+        .substring(
+          0,
+          attributeWithoutOn.length - END_OF_CAPTURING_EVENT_ATTRIBUTE.length
+        )
+        .toLowerCase(),
+      { capture: true }
+    ]
+
+  return [attributeWithoutOn.toLowerCase(), { capture: false }]
+}
+
 function createHTMLElement(tagName, props, children) {
   const element = document.createElement(tagName)
   Object.entries(props).forEach(([key, value]) => {
@@ -36,9 +56,10 @@ function createHTMLElement(tagName, props, children) {
       providedElementRefHolder.ref = element
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
-    else if (isEventAttribute(key) && typeof value === "function")
-      element[key.toLocaleLowerCase] = value
-    else if (typeof value !== "undefined") element[key] = value
+    else if (isEventAttribute(key) && typeof value === "function") {
+      const eventDetails = getEventDetails(key)
+      element.addEventListener(eventDetails[0], value, eventDetails[1])
+    } else if (typeof value !== "undefined") element[key] = value
   })
 
   if (children !== undefined) element.appendChild(resolveToNode(children))
