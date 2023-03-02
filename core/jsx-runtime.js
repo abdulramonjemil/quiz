@@ -18,12 +18,6 @@ function resolveToNode(value) {
   return document.createTextNode(String(value))
 }
 
-function getEventName(attribute) {
-  if (typeof attribute !== "string")
-    throw new TypeError("'attribute' must be a string")
-  return attribute.substring(2).toLowerCase()
-}
-
 function isEventAttribute(attribute) {
   if (typeof attribute !== "string") return false
   if (!attribute.startsWith(START_OF_EVENT_ATTRIBUTES)) return false
@@ -43,7 +37,7 @@ function createHTMLElement(tagName, props, children) {
     } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
       element.setAttribute(key, value)
     else if (isEventAttribute(key) && typeof value === "function")
-      element.addEventListener(getEventName(key), value)
+      element[key.toLocaleLowerCase] = value
     else if (typeof value !== "undefined") element[key] = value
   })
 
