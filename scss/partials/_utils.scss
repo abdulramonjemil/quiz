@@ -1,9 +1,11 @@
+@use "sass:map";
+
 $colors: (
-  "deep-dark": rgb(15, 23, 42),
-  "soft-dark": rgb(37, 58, 92),
-  "deep-light": rgb(204, 204, 204),
-  "soft-light": rgb(255, 255, 255),
-  "light-grey": rgba(179, 179, 179, 0.2)
+  "deep-dark": rgb(15 23 42),
+  "soft-dark": rgb(37 58 92),
+  "deep-light": rgb(204 204 204),
+  "soft-light": rgb(255 255 255),
+  "light-grey": rgb(179 179 179 / 20%)
 );
 
 $font-families: (
@@ -18,9 +20,26 @@ $font-families: (
   )
 );
 
-@mixin font-family($type) {
-  @if not map-has-key($font-families, $type) {
-    @error "'$type' must be a key in '$font-families'";
+@function get-color($color) {
+  @if not map-has-key($colors, $color) {
+    @error "Unsupported color: '#{$color}'";
   }
-  font-family: map-get($font-families, $type);
+
+  @return map.get($colors, $color);
+}
+
+@function get-font-family($family) {
+  @if not map-has-key($font-families, $family) {
+    @error "Unsupported font family: '#{$family}'";
+  }
+
+  @return map.get($font-families, $family);
+}
+
+@mixin font-family($family) {
+  @if not map-has-key($font-families, $family) {
+    @error "Unsupported font family: '#{$family}'";
+  }
+
+  font-family: map.get($font-families, $family);
 }

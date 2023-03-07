@@ -1,11 +1,11 @@
 @use "sass:math";
-@use "partials/utils" as *;
+@use "partials/utils";
 
 $progress-number-span: 30px;
 $progress-element-thickness: 2px;
 $progress-element-transition-duration: 0.4s;
-$reached-progress-element-color: map-get($colors, deep-light);
-$unreached-progress-element-color: map-get($colors, soft-dark);
+$reached-progress-element-color: utils.get-color(deep-light);
+$unreached-progress-element-color: utils.get-color(soft-dark);
 
 .progress {
   margin: auto;
@@ -31,33 +31,33 @@ $unreached-progress-element-color: map-get($colors, soft-dark);
 
     $width-of-reached-progress-number: calc(100% - $progress-number-span);
 
-    &:not(:last-child) {
-      @at-root %progress-bridge {
-        content: "";
-        display: block;
-        height: $progress-element-thickness;
-        position: absolute;
-        top: math.div($progress-number-span, 2);
-        transform: translateY(-(math.div($progress-element-thickness, 2)));
-        left: $progress-number-span;
-      }
+    @at-root %progress-bridge {
+      content: "";
+      display: block;
+      height: $progress-element-thickness;
+      position: absolute;
+      top: math.div($progress-number-span, 2);
+      transform: translateY(-(math.div($progress-element-thickness, 2)));
+      left: $progress-number-span;
+    }
 
-      &::before {
-        @extend %progress-bridge;
-        background-color: $unreached-progress-element-color;
+    &:not(:last-child)::before {
+      @extend %progress-bridge;
+
+      background-color: $unreached-progress-element-color;
+      width: $width-of-reached-progress-number;
+    }
+
+    &:not(:last-child)::after {
+      @extend %progress-bridge;
+
+      background-color: $reached-progress-element-color;
+      width: 0;
+      z-index: 1;
+      transition: width $progress-element-transition-duration;
+
+      @at-root .progress__level--passed#{&} {
         width: $width-of-reached-progress-number;
-      }
-
-      &::after {
-        @extend %progress-bridge;
-        background-color: $reached-progress-element-color;
-        width: 0;
-        z-index: 1;
-        transition: width $progress-element-transition-duration;
-
-        @at-root .progress__level--passed#{&} {
-          width: $width-of-reached-progress-number;
-        }
       }
     }
   }

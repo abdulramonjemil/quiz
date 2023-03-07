@@ -1,21 +1,22 @@
-@use "partials/utils" as *;
-
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap");
+@use "partials/utils";
+@import "https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&display=swap";
 
 %reset-element {
-  @include font-family(sans-serif);
-  color: map-get($colors, deep-light);
+  @include utils.font-family(sans-serif);
+
+  color: utils.get-color(deep-light);
+  border: none;
   box-sizing: border-box;
   padding: 0;
-  border: none;
+  line-height: 1.6em;
   margin: 0;
 }
 
 .quiz {
   @extend %reset-element;
-  background-color: map-get($colors, deep-dark);
+
+  background-color: utils.get-color(deep-dark);
   font-size: 14px;
-  line-height: 1.6em;
   padding: 25px 16px;
   max-width: 1000px;
   margin: auto;
@@ -26,12 +27,12 @@
 
   pre,
   code {
-    @include font-family(monospace);
+    @include utils.font-family(monospace);
   }
 
   code:not(pre code) {
-    background-color: map-get($colors, light-grey);
+    background-color: utils.get-color(light-grey);
     border-radius: 0.25em;
-    padding: 0.15em 0.4em 0.3em 0.4em;
+    padding: 0.15em 0.4em 0.3em;
   }
 }

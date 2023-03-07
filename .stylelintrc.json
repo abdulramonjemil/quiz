@@ -1,0 +1,16 @@
+{
+  "extends": "stylelint-config-standard-scss",
+  "rules": {
+    "max-nesting-depth": 3,
+    "scss/at-if-no-null": null,
+    "scss/dollar-variable-empty-line-before": [
+      "always",
+      {
+        "except": ["first-nested", "after-comment"],
+        "ignore": ["after-dollar-variable"]
+      }
+    ],
+    "scss/at-use-no-unnamespaced": true,
+    "selector-class-pattern": null
+  }
+}

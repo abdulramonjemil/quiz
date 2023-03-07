@@ -1,6 +1,15 @@
 .header {
-  font-size: 26px;
-  font-weight: 700;
-  line-height: 1.4em;
-  text-align: center;
+  container-type: inline-size;
+  container-name: header;
+
+  &__main {
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.2em;
+    text-align: center;
+
+    @container header (inline-size <= 700px) {
+      font-size: 26px;
+    }
+  }
 }
