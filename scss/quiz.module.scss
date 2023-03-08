@@ -33,6 +33,7 @@
   code:not(pre code) {
     background-color: utils.get-color(light-grey);
     border-radius: 0.25em;
-    padding: 0.15em 0.4em 0.3em;
+    padding: 0.15em 0.4em;
+    margin: 0 0.4em;
   }
 }
