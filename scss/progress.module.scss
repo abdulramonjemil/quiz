@@ -64,7 +64,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
 
   &__number {
     border: $progress-element-thickness solid $unreached-progress-element-color;
-    border-radius: 50%;
+    border-radius: 2px;
     color: $unreached-progress-element-color;
     height: $progress-number-span;
     display: block;
