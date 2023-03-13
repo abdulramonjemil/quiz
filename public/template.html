@@ -17,7 +17,7 @@
     <style>
       body {
         margin: 0;
-        padding-top: 50px;
+        padding: 50px 0;
       }
     </style>
   </head>
@@ -26,11 +26,7 @@
     <script>
       /** Put script to be used to test the Quiz app here. */
       const main = document.getElementById("quiz")
-      main.replaceChildren(
-        new Quiz({
-          headerContent: "Your opinion matters"
-        }).$render()
-      )
+      Quiz.create(main)
     </script>
   </body>
 </html>

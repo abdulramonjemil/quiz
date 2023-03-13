@@ -1,16 +1,20 @@
 {
   "extends": "stylelint-config-standard-scss",
   "rules": {
-    "max-nesting-depth": 3,
-    "scss/at-if-no-null": null,
-    "scss/dollar-variable-empty-line-before": [
+    "at-rule-empty-line-before": [
       "always",
       {
-        "except": ["first-nested", "after-comment"],
-        "ignore": ["after-dollar-variable"]
+        "except": ["blockless-after-blockless", "first-nested"],
+        "ignore": ["after-comment", "inside-block"]
       }
     ],
+    "declaration-empty-line-before": null,
+    "max-nesting-depth": 3,
+    "scss/at-if-no-null": null,
     "scss/at-use-no-unnamespaced": true,
+    "scss/dollar-variable-empty-line-before": null,
+    "scss/double-slash-comment-empty-line-before": null,
+    "scss/operator-no-newline-after": null,
     "selector-class-pattern": null
   }
 }

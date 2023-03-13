@@ -1,0 +1,199 @@
+@use "sass:color";
+@use "sass:math";
+@use "partials/utils";
+
+$gap-between-question-elements: 10px;
+$min-option-width: 50px;
+$option-letter-span: 30px;
+
+.Question {
+  margin-top: 20px; // Must be removed later
+
+  &__Title {
+    display: block;
+    text-align: center;
+  }
+
+  &__OptionSet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $gap-between-question-elements;
+    margin-top: $gap-between-question-elements;
+  }
+}
+
+.Option {
+  $option-spacing-length: 8px;
+  $total-occupiable-horizontal-space: calc(
+    100% - $gap-between-question-elements
+  );
+  $half-of-occupiable-space: calc($total-occupiable-horizontal-space / 2);
+
+  flex: 1 max-content;
+  min-width: max($half-of-occupiable-space, $min-option-width);
+  position: relative;
+
+  .Question:disabled &:not(.Option_correct, .Option_incorrect) {
+    opacity: 0.8;
+  }
+
+  &__Input {
+    left: 0;
+    opacity: 0.001;
+    position: absolute;
+    top: 0;
+  }
+
+  $selected-option-dark-color: color.scale(
+    utils.get-color(soft-dark),
+    $lightness: -25%
+  );
+  $correct-option-color: rgb(15 90 40);
+  $incorrect-option-color: rgb(90 13 13);
+
+  &__Body {
+    border: 2px solid utils.get-color(soft-dark);
+    border-radius: utils.get-constant(border-radius);
+    cursor: pointer;
+    display: grid;
+    gap: $option-spacing-length;
+    grid-template-columns: $option-letter-span 1fr;
+    padding: $option-spacing-length;
+
+    &:hover {
+      background-color: utils.get-color(soft-dark);
+      border-color: utils.get-color(soft-dark);
+    }
+
+    .Option_correct & {
+      background-color: $correct-option-color;
+      border-color: $correct-option-color;
+    }
+
+    .Option_incorrect & {
+      background-color: $incorrect-option-color;
+      border-color: $incorrect-option-color;
+    }
+
+    .Option__Input:focus + & {
+      outline: 2px solid utils.get-color(deep-light);
+      outline-offset: 2px;
+    }
+
+    .Question:disabled & {
+      cursor: not-allowed;
+    }
+
+    .Option__Input:checked:not(.Option_correct *, .Option_incorrect *) + & {
+      background-color: $selected-option-dark-color;
+      border-color: $selected-option-dark-color;
+    }
+  }
+
+  &__Letter {
+    align-items: center;
+    background-color: utils.get-color(soft-dark);
+    border-radius: utils.get-constant(border-radius);
+    display: flex;
+    font-weight: 500;
+    justify-content: center;
+    line-height: $option-letter-span;
+
+    .Option_correct & {
+      background-color: utils.get-color(deep-light);
+      color: $correct-option-color;
+    }
+
+    .Option_incorrect & {
+      background-color: utils.get-color(deep-light);
+      color: $incorrect-option-color;
+    }
+
+    .Option__Body:hover & {
+      background-color: utils.get-color(deep-light);
+      color: utils.get-color(soft-dark);
+    }
+
+    .Option__Input:checked + .Option__Body & {
+      background-color: utils.get-color(deep-light);
+      color: $selected-option-dark-color;
+    }
+  }
+
+  &__Text {
+    align-items: center;
+    display: flex;
+    padding-left: math.div($option-spacing-length, 2);
+  }
+}
+
+.FeedBack {
+  background-color: utils.get-color(soft-dark);
+  border-radius: utils.get-constant(border-radius);
+  display: none;
+  margin-top: $gap-between-question-elements;
+  padding: 10px;
+
+  &_enabled {
+    display: block;
+  }
+
+  &__Toggler {
+    $toggler-default-bg-color: color.change(
+      utils.get-color(deep-dark),
+      $alpha: 0.4
+    );
+
+    $toggler-interaction-bg-color: color.change(
+      utils.get-color(deep-dark),
+      $alpha: 0.65
+    );
+
+    background-color: $toggler-default-bg-color;
+    border: 2px solid utils.get-color(deep-light);
+    border-radius: utils.get-constant(border-radius);
+    color: utils.get-color(deep-light);
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    padding: 6px 0;
+    transition: background-color linear 0.1s;
+    width: 160px;
+
+    &:focus {
+      background-color: $toggler-interaction-bg-color;
+      outline: 2px solid utils.get-color(deep-dark);
+      outline-offset: 2px;
+    }
+
+    &:hover {
+      background-color: $toggler-interaction-bg-color;
+    }
+  }
+
+  @mixin feedback-content-hidden-by-default {
+    display: none;
+
+    .FeedBack_shown & {
+      display: block;
+    }
+  }
+
+  &__Divider {
+    background-color: utils.get-color(deep-dark);
+    height: 1px;
+    margin-top: $gap-between-question-elements;
+    width: 100%;
+
+    @include feedback-content-hidden-by-default;
+  }
+
+  &__Content {
+    background-color: utils.get-color(deep-dark);
+    border-radius: utils.get-constant(border-radius);
+    margin-top: $gap-between-question-elements;
+    padding: 8px;
+
+    @include feedback-content-hidden-by-default;
+  }
+}

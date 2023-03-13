@@ -8,6 +8,10 @@ $colors: (
   "light-grey": rgb(179 179 179 / 20%)
 );
 
+$constants: (
+  "border-radius": 2px
+);
+
 $font-families: (
   "monospace": (
     "Roboto Mono",
@@ -24,15 +28,20 @@ $font-families: (
   @if not map-has-key($colors, $color) {
     @error "Unsupported color: '#{$color}'";
   }
-
   @return map.get($colors, $color);
+}
+
+@function get-constant($constant) {
+  @if not map-has-key($constants, $constant) {
+    @error "Unsupported constant: '#{$constant}'";
+  }
+  @return map.get($constants, $constant);
 }
 
 @function get-font-family($family) {
   @if not map-has-key($font-families, $family) {
     @error "Unsupported font family: '#{$family}'";
   }
-
   @return map.get($font-families, $family);
 }
 
@@ -40,6 +49,5 @@ $font-families: (
   @if not map-has-key($font-families, $family) {
     @error "Unsupported font family: '#{$family}'";
   }
-
   font-family: map.get($font-families, $family);
 }

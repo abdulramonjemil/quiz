@@ -1,0 +1,26 @@
+@use "sass:math";
+
+$-number-of-border-radius-turns-in-circle: 8;
+
+@function -circumference-of-circle($radius) {
+  @return 2 * math.$pi * $radius;
+}
+
+@function -real-circle-radius($border-radius) {
+  $real-circle-circumference: $border-radius *
+    $-number-of-border-radius-turns-in-circle;
+
+  // Since circumference of circle c = 2 * PI * radius, radius = c / (2 * PI)
+  $real-circle-radius: math.div($real-circle-circumference, 2 * math.$pi);
+  @return $real-circle-radius;
+}
+
+@function reduce-border-radius($border-radius, $length) {
+  $radius-of-new-circle: -real-circle-radius($border-radius) - $length;
+  $circumference-of-new-circle: -circumference-of-circle($radius-of-new-circle);
+  $border-radius-from-new-circle: math.div(
+    $circumference-of-new-circle,
+    $-number-of-border-radius-turns-in-circle
+  );
+  @return $border-radius-from-new-circle;
+}

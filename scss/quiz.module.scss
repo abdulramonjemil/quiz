@@ -8,11 +8,11 @@
   border: none;
   box-sizing: border-box;
   padding: 0;
-  line-height: 1.6em;
+  line-height: 1.8em;
   margin: 0;
 }
 
-.quiz {
+.Quiz {
   @extend %reset-element;
 
   background-color: utils.get-color(deep-dark);
@@ -33,7 +33,6 @@
   code:not(pre code) {
     background-color: utils.get-color(light-grey);
     border-radius: 0.25em;
-    padding: 0.15em 0.4em;
-    margin: 0 0.4em;
+    padding: 0.05em 0.3em;
   }
 }

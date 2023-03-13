@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "description": "A library for embedding quizzes within Hashnode blog posts",
-  "main": "index.jsx",
+  "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "build-dev": "webpack --config webpack.dev.js",

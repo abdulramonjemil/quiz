@@ -7,18 +7,18 @@ $progress-element-transition-duration: 0.4s;
 $reached-progress-element-color: utils.get-color(deep-light);
 $unreached-progress-element-color: utils.get-color(soft-dark);
 
-.progress {
+.Progress {
   margin: auto;
   margin-top: 20px;
-  max-width: 700px;
+  max-width: max(90%, 500px);
 
-  &__list {
+  &__List {
     display: flex;
     list-style-type: none;
     width: 100%;
   }
 
-  &__level {
+  &__Level {
     cursor: default;
     display: block;
     flex-grow: 1;
@@ -56,15 +56,15 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       z-index: 1;
       transition: width $progress-element-transition-duration;
 
-      @at-root .progress__level--passed#{&} {
+      @at-root .Progress__Level_passed#{&} {
         width: $width-of-reached-progress-number;
       }
     }
   }
 
-  &__number {
+  &__Number {
     border: $progress-element-thickness solid $unreached-progress-element-color;
-    border-radius: 2px;
+    border-radius: utils.get-constant(border-radius);
     color: $unreached-progress-element-color;
     height: $progress-number-span;
     display: block;
@@ -83,11 +83,11 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       color: $reached-progress-element-color;
     }
 
-    .progress__level:first-child & {
+    .Progress__Level:first-child & {
       @extend %reached-progress-number;
     }
 
-    .progress__level--passed + .progress__level & {
+    .Progress__Level_passed + .Progress__Level & {
       @extend %reached-progress-number;
     }
   }

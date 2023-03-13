@@ -1,18 +1,18 @@
 import Component from "../core/component"
-import styles from "../scss/progress.module.scss"
+import Styles from "../scss/progress.module.scss"
 
 const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
 const PROGRESS_BRIDGE_PSEUDO_ELEMENT = "::after"
-const PASSED_PROGRESS_LEVEL_CLASS = styles["progress__level--passed"]
+const PASSED_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_passed
 
 function ProgressLevel({ number, handleTransition }) {
   return (
     <li
-      className={styles.progress__level}
+      className={Styles.Progress__Level}
       onTransitionStart={handleTransition}
       onTransitionEnd={handleTransition}
     >
-      <div className={styles.progress__number}>{number}</div>
+      <div className={Styles.Progress__Number}>{number}</div>
     </li>
   )
 }
@@ -22,14 +22,14 @@ export default class Progress extends Component {
     const { propertyName, pseudoElement, type } = ev
     if (propertyName !== MAIN_PROGRESS_BRIDGE_PROPERTY) return
     if (pseudoElement !== PROGRESS_BRIDGE_PSEUDO_ELEMENT) return
-    if (type === "transitionstart") this.$hasRunningTransitions = true
-    if (type === "transitionend") this.$hasRunningTransitions = false
+    if (type === "transitionstart") this.$isChangeable = false
+    if (type === "transitionend") this.$isChangeable = true
   }
 
   $render() {
     this.$progressLevels = []
     this.$currentProgressLevelIndex = 0
-    this.$hasRunningTransitions = false
+    this.$isChangeable = true
 
     const {
       $handleTransition,
@@ -45,19 +45,21 @@ export default class Progress extends Component {
     }
 
     return (
-      <div className={styles.progress} aria-hidden="true">
-        <ul className={styles.progress__list}>{[...$progressLevels]}</ul>
+      /* The outer div is used to determine max-width of inner one in CSS */
+      <div>
+        <div className={Styles.Progress} aria-hidden="true">
+          <ul className={Styles.Progress__List}>{[...$progressLevels]}</ul>
+        </div>
       </div>
     )
   }
 
-  hasRunningTransitions() {
-    return this.$hasRunningTransitions
+  isChangeable() {
+    return this.$isChangeable
   }
 
   decrement() {
-    if (this.$hasRunningTransitions)
-      throw new Error("Currently undergoing a change")
+    if (!this.$isChangeable) throw new Error("Currently undergoing a change")
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     const indexOfHighestDecrementableLevel = 1
@@ -74,8 +76,7 @@ export default class Progress extends Component {
   }
 
   increment() {
-    if (this.$hasRunningTransitions)
-      throw new Error("Currently undergoing a change")
+    if (!this.$isChangeable) throw new Error("Currently undergoing a change")
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     const indexOfHighestIncrementableLevel = $progressLevels.length - 2
