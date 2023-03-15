@@ -7,7 +7,7 @@ $min-option-width: 50px;
 $option-letter-span: 30px;
 
 .Question {
-  margin-top: 20px; // Must be removed later
+  margin-top: 20px;
 
   &__Title {
     display: block;
@@ -129,7 +129,7 @@ $option-letter-span: 30px;
 .FeedBack {
   background-color: utils.get-color(soft-dark);
   border-radius: utils.get-constant(border-radius);
-  // display: none;
+  display: none;
   margin-top: $gap-between-question-elements;
   padding: 10px;
 

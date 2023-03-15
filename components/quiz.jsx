@@ -29,6 +29,7 @@ export default class Quiz extends Component {
       "~~I've never for any reason loved to use `webpack`"
 
     const questionRefHolder = createInstanceRefHolder()
+    const controlPanelRefHolder = createInstanceRefHolder()
 
     return (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
@@ -46,6 +47,7 @@ export default class Quiz extends Component {
           handlePrevButtonClick={() => console.log("Clicking Prev")}
           handleNextButtonClick={() => console.log("Clicking Next")}
           handleSubmitButtonClick={() => console.log("Clicking Submit")}
+          refHolder={controlPanelRefHolder}
         />
         {/* eslint-enable */}
       </section>

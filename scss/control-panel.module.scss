@@ -1,12 +1,22 @@
 @use "sass:color";
+@use "sass:string";
 @use "partials/utils";
+
+.ControlPanelContainer {
+  container-type: inline-size;
+}
 
 .ControlPanel {
   display: grid;
   gap: utils.get-constant(element-spacing);
-  grid-template-columns: max-content max-content 1fr max-content;
+  grid-template-columns: repeat(2, max-content) 1fr max-content;
   grid-template-areas: "prev next . submit";
   margin-top: utils.get-constant(element-spacing);
+
+  @container (width <= 420px) {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-areas: "prev next" "submit submit";
+  }
 }
 
 %control-button {
@@ -14,8 +24,13 @@
   cursor: pointer;
   font-weight: 500;
   outline-offset: 2px;
-  padding: 8px 30px;
+  padding: 10px 35px;
   transition: background-color linear 0.1s;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .Prev,
@@ -27,7 +42,7 @@
     outline: 2px solid utils.get-color(deep-light);
   }
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: color.change(utils.get-color(soft-dark), $alpha: 0.8);
   }
 }
@@ -44,7 +59,7 @@
     outline: 2px solid $interaction-color;
   }
 
-  &:hover {
+  &:not(:disabled):hover {
     background-color: $interaction-color;
   }
 }

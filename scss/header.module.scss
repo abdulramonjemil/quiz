@@ -1,6 +1,5 @@
 .Header {
   container-type: inline-size;
-  container-name: header;
 
   &__MainElement {
     font-size: 30px;
@@ -8,7 +7,7 @@
     line-height: 1.2em;
     text-align: center;
 
-    @container header (inline-size <= 700px) {
+    @container (width <= 700px) {
       font-size: 26px;
     }
   }
