@@ -140,7 +140,7 @@ $option-letter-span: 30px;
   &__Toggler {
     $toggler-default-bg-color: color.change(
       utils.get-color(deep-dark),
-      $alpha: 0.4
+      $alpha: 0.3
     );
 
     $toggler-interaction-bg-color: color.change(

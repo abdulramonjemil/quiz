@@ -1,0 +1,50 @@
+@use "sass:color";
+@use "partials/utils";
+
+.ControlPanel {
+  display: grid;
+  gap: utils.get-constant(element-spacing);
+  grid-template-columns: max-content max-content 1fr max-content;
+  grid-template-areas: "prev next . submit";
+  margin-top: utils.get-constant(element-spacing);
+}
+
+%control-button {
+  border-radius: utils.get-constant(border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  outline-offset: 2px;
+  padding: 8px 30px;
+  transition: background-color linear 0.1s;
+}
+
+.Prev,
+.Next {
+  @extend %control-button;
+  background-color: utils.get-color(soft-dark);
+
+  &:focus {
+    outline: 2px solid utils.get-color(deep-light);
+  }
+
+  &:hover {
+    background-color: color.change(utils.get-color(soft-dark), $alpha: 0.8);
+  }
+}
+
+.Submit {
+  @extend %control-button;
+  background-color: utils.get-color(deep-light);
+  color: utils.get-color(soft-dark);
+  grid-area: submit;
+
+  $interaction-color: color.change(utils.get-color(deep-light), $alpha: 0.8);
+
+  &:focus {
+    outline: 2px solid $interaction-color;
+  }
+
+  &:hover {
+    background-color: $interaction-color;
+  }
+}

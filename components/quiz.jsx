@@ -4,6 +4,7 @@ import Header from "./header"
 import { uniqueId } from "../core/library"
 import Progress from "./progress"
 import Question from "./question"
+import ControlPanel from "./control-panel"
 
 export default class Quiz extends Component {
   static create(container) {
@@ -40,6 +41,13 @@ export default class Quiz extends Component {
           refHolder={questionRefHolder}
           title={questionTitle}
         />
+        {/* eslint-disable */}
+        <ControlPanel
+          handlePrevButtonClick={() => console.log("Clicking Prev")}
+          handleNextButtonClick={() => console.log("Clicking Next")}
+          handleSubmitButtonClick={() => console.log("Clicking Submit")}
+        />
+        {/* eslint-enable */}
       </section>
     )
   }
