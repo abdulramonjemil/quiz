@@ -12,9 +12,6 @@ const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 const ENABLED_FEEDBACK_CLASS = Styles.FeedBack_enabled
 const SHOWN_FEEDBACK_CLASS = Styles.FeedBack_shown
 
-const CONTENT_OF_TOGGLER_OF_HIDDEN_FEEDBACK = "Show Explanations"
-const CONTENT_OF_TOGGLER_OF_SHOWN_FEEDBACK = "Hide Explanations"
-
 function Option({ letter, name, text }) {
   const optionLabellingId = uniqueId()
   return (
@@ -46,17 +43,9 @@ function QuestionBox({ title, answerOptions }) {
   )
 }
 
-function handleFeedBackTogglerClick(rootRefHolder, event) {
+function handleFeedBackTogglerClick(rootRefHolder) {
   const feedBackRoot = rootRefHolder.ref
-  const toggler = event.target
-
-  if (feedBackRoot.classList.contains(SHOWN_FEEDBACK_CLASS)) {
-    feedBackRoot.classList.remove(SHOWN_FEEDBACK_CLASS)
-    toggler.innerText = CONTENT_OF_TOGGLER_OF_HIDDEN_FEEDBACK
-  } else {
-    feedBackRoot.classList.add(SHOWN_FEEDBACK_CLASS)
-    toggler.innerText = CONTENT_OF_TOGGLER_OF_SHOWN_FEEDBACK
-  }
+  feedBackRoot.classList.toggle(SHOWN_FEEDBACK_CLASS)
 }
 
 function FeedBack({ content, rootRefHolder }) {
@@ -68,7 +57,7 @@ function FeedBack({ content, rootRefHolder }) {
         onClick={handleFeedBackTogglerClick.bind(null, rootRefHolder)}
         type="button"
       >
-        {CONTENT_OF_TOGGLER_OF_HIDDEN_FEEDBACK}
+        Toggle Explanations
       </button>
       <hr className={Styles.FeedBack__Divider} />
       <div className={Styles.FeedBack__Content}>{phraseToNode(content)}</div>
