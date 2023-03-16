@@ -6,6 +6,7 @@ const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
 const START_OF_EVENT_ATTRIBUTES = "on"
 const END_OF_CAPTURE_EVENT_ATTRIBUTE = "Capture"
+const SVG_NAMESPACE_URI = "http://www.w3.org/2000/svg"
 
 function resolveToNode(value) {
   if (value instanceof Node) return value
@@ -46,8 +47,11 @@ function getEventDetails(attribute) {
   return [attributeWithoutOn.toLowerCase(), { capture: false }]
 }
 
-function createHTMLElement(tagName, props, children) {
-  const element = document.createElement(tagName)
+function createElement(tagName, props, children) {
+  let element = document.createElement(tagName)
+  if (element instanceof HTMLUnknownElement)
+    element = document.createElementNS(SVG_NAMESPACE_URI, tagName)
+
   Object.entries(props).forEach(([key, value]) => {
     if (key === PROP_FOR_REF_HOLDER) {
       if (!isElementRefHolder(value))
@@ -104,7 +108,7 @@ function resolveTypeAsComponent(func, props, children) {
  */
 function resolveJSXElement(type, { children, ...otherProps }, key) {
   const props = { ...otherProps, key }
-  if (typeof type === "string") return createHTMLElement(type, props, children)
+  if (typeof type === "string") return createElement(type, props, children)
   if (typeof type === "function")
     return resolveTypeAsComponent(type, props, children)
   throw new TypeError("`type` must be a string or a function")
