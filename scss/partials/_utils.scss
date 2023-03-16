@@ -5,12 +5,13 @@ $colors: (
   "soft-dark": rgb(37 58 92),
   "deep-light": rgb(204 204 204),
   "soft-light": rgb(255 255 255),
-  "light-grey": rgb(179 179 179 / 20%)
+  "light-grey": rgb(46 52 64)
 );
 
 $constants: (
   "border-radius": 2px,
-  "element-spacing": 10px
+  "element-spacing": 10px,
+  "line-height": 1.8em
 );
 
 $font-families: (

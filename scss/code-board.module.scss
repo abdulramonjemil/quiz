@@ -1,0 +1,118 @@
+@use "sass:math";
+@use "partials/utils";
+@import "https://cdn.jsdelivr.net/gh/GalenWong/nord-prism-js/prism-nord.css";
+
+$code-board-background: utils.get-color(light-grey);
+$code-board-scrollbar-main-size: 6px;
+$code-board-horizontal-padding: 12px;
+$code-board-vertical-padding: 10px;
+
+.CodeBoard {
+  margin-top: 20px;
+  border-radius: utils.get-constant(border-radius);
+
+  &__Title {
+    text-align: center;
+  }
+}
+
+.CodeWrapper {
+  position: relative;
+
+  $mid-transitioning-horizontal-position: math.div(
+    $code-board-horizontal-padding,
+    2
+  );
+
+  $mid-transitioning-vertical-position: math.div(
+    $code-board-vertical-padding,
+    2
+  );
+
+  @at-root %code-board-overlay {
+    content: "";
+    border-radius: utils.get-constant(border-radius);
+    left: 0;
+    top: 0;
+    position: absolute;
+    z-index: 2;
+  }
+
+  &::after {
+    @extend %code-board-overlay;
+    background: linear-gradient(
+      to bottom,
+      $code-board-background $mid-transitioning-vertical-position,
+      transparent
+    );
+    height: $code-board-vertical-padding;
+    width: calc(100% - $code-board-scrollbar-main-size);
+  }
+
+  &::before {
+    @extend %code-board-overlay;
+    background: linear-gradient(
+      to right,
+      $code-board-background $mid-transitioning-horizontal-position,
+      transparent
+    );
+    height: calc(100% - $code-board-scrollbar-main-size);
+    width: $code-board-horizontal-padding;
+  }
+}
+
+.Code {
+  border-radius: utils.get-constant(border-radius);
+
+  &:focus {
+    outline: 2px solid utils.get-color(deep-light);
+  }
+
+  &::-webkit-scrollbar {
+    width: $code-board-scrollbar-main-size;
+  }
+
+  &::-webkit-scrollbar:horizontal {
+    height: $code-board-scrollbar-main-size;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: utils.get-color(deep-light);
+    border-radius: utils.get-constant(border-radius);
+  }
+}
+
+/* PrismJS selectors start here */
+
+$code-line-height: utils.get-constant(line-height) - 0.2em;
+
+code[class*="language-"],
+pre[class*="language-"],
+code[class*="language-"] *,
+pre[class*="language-"] * {
+  background: $code-board-background;
+  font-family: utils.get-font-family(monospace);
+  line-height: $code-line-height;
+}
+
+pre[class*="language-"] {
+  padding: $code-board-vertical-padding $code-board-horizontal-padding;
+  margin: utils.get-constant(element-spacing) 0 0;
+
+  $max-immediately-visible-lines: 10;
+  $total-code-board-vertical-padding: $code-board-vertical-padding * 2;
+  max-height: calc(
+    $code-line-height * $max-immediately-visible-lines +
+      $total-code-board-vertical-padding
+  );
+}
+
+/* PrismJS selectors end here */
