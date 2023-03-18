@@ -1,15 +1,38 @@
 /* eslint-disable-next-line import/no-cycle */
 import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
+const PROP_FOR_REF_HOLDER = "refHolder"
+const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
+
 const END_OF_CAPTURE_EVENT_ATTRIBUTE = "Capture"
 const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
-const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
-const PROP_FOR_REF_HOLDER = "refHolder"
 const START_OF_EVENT_ATTRIBUTES = "on"
+
+const SEPARATOR_IN_REGISTERED_NAMESPACE = "@&#%"
+const REGISTERED_NAMESPACES = []
 
 const MATHML_NAMESPACE_URI = "http://www.w3.org/1998/Math/MathML"
 const SVG_NAMESPACE_URI = "http://www.w3.org/2000/svg"
+
 const XML_NAMESPACE_PROP = "xmlns"
+
+function registerNamespace(namespaceURI) {
+  if (typeof namespaceURI !== "string" || namespaceURI === "")
+    throw new TypeError("namespaceURI must be a string")
+
+  // Add random number with separator to prevent hardcoding
+  const namespaceToRegister = `${Math.random()}${SEPARATOR_IN_REGISTERED_NAMESPACE}${namespaceURI}`
+  REGISTERED_NAMESPACES.push(namespaceToRegister)
+  return namespaceToRegister
+}
+
+function retrieveRealNSFromRegistered(namespace) {
+  /* eslint-disable-next-line no-unused-vars */
+  const [randomNumber, realNamespace] = namespace.split(
+    SEPARATOR_IN_REGISTERED_NAMESPACE
+  )
+  return realNamespace
+}
 
 function resolveToNode(value) {
   if (value instanceof Node) return value
@@ -50,30 +73,12 @@ function getEventDetails(attribute) {
   return [attributeWithoutOn.toLowerCase(), { capture: false }]
 }
 
-function createElement(tagName, props, children) {
-  const elementNamespace = props[XML_NAMESPACE_PROP]
-  let element = null
-
-  if (typeof elementNamespace === "string" && elementNamespace !== "") {
-    element = document.createElementNS(elementNamespace, tagName)
-  } else {
-    element = document.createElement(tagName)
-    if (element instanceof HTMLUnknownElement) {
-      element = document.createElementNS(SVG_NAMESPACE_URI, tagName)
-      if (element.constructor === SVGElement)
-        // The element is not identified as an SVG element (SVGElement is generic)
-        element = document.createElementNS(MATHML_NAMESPACE_URI, tagName)
-    }
-  }
-
+function assignAttributesFromProps(element, props) {
   Object.entries(props).forEach(([key, value]) => {
-    if (key === PROP_FOR_REF_HOLDER) {
-      if (!isElementRefHolder(value))
-        throw new Error("Invalid element ref holder")
-      const providedElementRefHolder = value
-      providedElementRefHolder.ref = element
-    } else if (typeof value === "string" || typeof value === "number")
-      if (MUST_CHAIN_HTML_KEYS.includes(key)) element[key] = value
+    if (typeof value === "string" || typeof value === "number")
+      if (MUST_CHAIN_HTML_KEYS.includes(key))
+        /* eslint-disable-next-line no-param-reassign */
+        element[key] = value
       else element.setAttribute(key, value)
     else if (typeof value === "boolean") {
       if (value === true) element.setAttribute(key, key)
@@ -82,7 +87,54 @@ function createElement(tagName, props, children) {
       element.addEventListener(eventDetails[0], value, eventDetails[1])
     }
   })
+}
 
+function createElement(tagName, props, children) {
+  const {
+    [XML_NAMESPACE_PROP]: elementNamespace,
+    [PROP_FOR_REF_HOLDER]: providedElementRefHolder,
+    ...propsToPass
+  } = props
+
+  const registeredNamespaceToUse =
+    REGISTERED_NAMESPACES[REGISTERED_NAMESPACES.length - 1]
+  let element = null
+
+  if (typeof elementNamespace === "string" && elementNamespace !== "") {
+    if (elementNamespace !== registeredNamespaceToUse) {
+      element = document.createElementNS(elementNamespace, tagName)
+      propsToPass[XML_NAMESPACE_PROP] = elementNamespace
+    } else {
+      REGISTERED_NAMESPACES.pop()
+      const realNamespaceToUse = retrieveRealNSFromRegistered(
+        registeredNamespaceToUse
+      )
+      element = document.createElementNS(realNamespaceToUse, tagName)
+      propsToPass[XML_NAMESPACE_PROP] = realNamespaceToUse
+    }
+  } else if (registeredNamespaceToUse !== undefined) {
+    const realNamespaceToUse = retrieveRealNSFromRegistered(
+      registeredNamespaceToUse
+    )
+    element = document.createElementNS(realNamespaceToUse, tagName)
+  } else {
+    element = document.createElement(tagName)
+    if (element instanceof HTMLUnknownElement) {
+      // The element is not identified as an HTML element
+      element = document.createElementNS(SVG_NAMESPACE_URI, tagName)
+      if (element.constructor === SVGElement)
+        // The element is not identified as an SVG element since SVGElement is generic
+        element = document.createElementNS(MATHML_NAMESPACE_URI, tagName)
+    }
+  }
+
+  if (providedElementRefHolder !== undefined) {
+    if (!isElementRefHolder(providedElementRefHolder))
+      throw new TypeError("Invalid element ref holder")
+    providedElementRefHolder.ref = element
+  }
+
+  assignAttributesFromProps(element, propsToPass)
   if (children !== undefined) element.appendChild(resolveToNode(children))
   return element
 }
@@ -90,10 +142,7 @@ function createElement(tagName, props, children) {
 function resolveTypeAsComponent(func, props, children) {
   const { [PROP_FOR_REF_HOLDER]: providedInstanceRefHolder, ...propsToPass } =
     props
-  const instanceRefIsRequested = Object.prototype.hasOwnProperty.call(
-    props,
-    PROP_FOR_REF_HOLDER
-  )
+  const instanceRefIsRequested = providedInstanceRefHolder !== undefined
 
   try {
     // Will throw an error if it is a class
@@ -136,6 +185,7 @@ function resolveFragment(_, children) {
 }
 
 export {
+  registerNamespace as ns,
   resolveFragment as Fragment,
   resolveJSXElement as jsx,
   resolveJSXElement as jsxs,
