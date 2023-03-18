@@ -66,20 +66,7 @@ function FeedBack({ content, rootRefHolder }) {
 }
 
 export default class Question extends Component {
-  $setFeedbackState(state) {
-    if (state === "enabled")
-      this.$feedBackElement.classList.add(ENABLED_FEEDBACK_CLASS)
-    else if (state === "disabled")
-      this.$feedBackElement.classList.remove(ENABLED_FEEDBACK_CLASS)
-  }
-
-  $setAnswerSelectionState(state) {
-    if (state === "enabled") this.$fieldSet.disabled = false
-    else if (state === "disabled") this.$fieldSet.disabled = true
-  }
-
-  /* eslint-disable-next-line class-methods-use-this */
-  $styleAnswerInputOption(answerInput, type) {
+  static $styleAnswerInputOption(answerInput, type) {
     const answerInputLabel = answerInput.closest("label")
     if (type === "correct") {
       answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
@@ -91,6 +78,18 @@ export default class Question extends Component {
       answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
       answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
     }
+  }
+
+  $setFeedbackState(state) {
+    if (state === "enabled")
+      this.$feedBackElement.classList.add(ENABLED_FEEDBACK_CLASS)
+    else if (state === "disabled")
+      this.$feedBackElement.classList.remove(ENABLED_FEEDBACK_CLASS)
+  }
+
+  $setAnswerSelectionState(state) {
+    if (state === "enabled") this.$fieldSet.disabled = false
+    else if (state === "disabled") this.$fieldSet.disabled = true
   }
 
   $render() {
@@ -146,10 +145,10 @@ export default class Question extends Component {
     const selectedAnswerInput = $answerInputs.find((input) => input.checked)
     if (selectedAnswerInput !== undefined) {
       selectedAnswerInput.checked = false
-      this.$styleAnswerInputOption(selectedAnswerInput, "reset")
+      Question.$styleAnswerInputOption(selectedAnswerInput, "reset")
     }
 
-    this.$styleAnswerInputOption($correctAnswerInput, "reset")
+    Question.$styleAnswerInputOption($correctAnswerInput, "reset")
     this.$setFeedbackState("disabled")
     this.$setAnswerSelectionState("enabled")
   }
@@ -162,8 +161,8 @@ export default class Question extends Component {
       throw new Error("No answer is selected")
 
     if (selectedAnswerInput !== $correctAnswerInput)
-      this.$styleAnswerInputOption(selectedAnswerInput, "incorrect")
-    this.$styleAnswerInputOption($correctAnswerInput, "correct")
+      Question.$styleAnswerInputOption(selectedAnswerInput, "incorrect")
+    Question.$styleAnswerInputOption($correctAnswerInput, "correct")
 
     this.$setFeedbackState("enabled")
     this.$setAnswerSelectionState("disabled")
