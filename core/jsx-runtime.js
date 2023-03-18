@@ -1,12 +1,15 @@
 /* eslint-disable-next-line import/no-cycle */
 import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
-const PROP_FOR_REF_HOLDER = "refHolder"
+const END_OF_CAPTURE_EVENT_ATTRIBUTE = "Capture"
 const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
+const PROP_FOR_REF_HOLDER = "refHolder"
 const START_OF_EVENT_ATTRIBUTES = "on"
-const END_OF_CAPTURE_EVENT_ATTRIBUTE = "Capture"
+
+const MATHML_NAMESPACE_URI = "http://www.w3.org/1998/Math/MathML"
 const SVG_NAMESPACE_URI = "http://www.w3.org/2000/svg"
+const XML_NAMESPACE_PROP = "xmlns"
 
 function resolveToNode(value) {
   if (value instanceof Node) return value
@@ -48,9 +51,20 @@ function getEventDetails(attribute) {
 }
 
 function createElement(tagName, props, children) {
-  let element = document.createElement(tagName)
-  if (element instanceof HTMLUnknownElement)
-    element = document.createElementNS(SVG_NAMESPACE_URI, tagName)
+  const elementNamespace = props[XML_NAMESPACE_PROP]
+  let element = null
+
+  if (typeof elementNamespace === "string" && elementNamespace !== "") {
+    element = document.createElementNS(elementNamespace, tagName)
+  } else {
+    element = document.createElement(tagName)
+    if (element instanceof HTMLUnknownElement) {
+      element = document.createElementNS(SVG_NAMESPACE_URI, tagName)
+      if (element.constructor === SVGElement)
+        // The element is not identified as an SVG element (SVGElement is generic)
+        element = document.createElementNS(MATHML_NAMESPACE_URI, tagName)
+    }
+  }
 
   Object.entries(props).forEach(([key, value]) => {
     if (key === PROP_FOR_REF_HOLDER) {
@@ -58,12 +72,15 @@ function createElement(tagName, props, children) {
         throw new Error("Invalid element ref holder")
       const providedElementRefHolder = value
       providedElementRefHolder.ref = element
-    } else if (typeof value === "string" && !MUST_CHAIN_HTML_KEYS.includes(key))
-      element.setAttribute(key, value)
-    else if (isEventAttribute(key) && typeof value === "function") {
+    } else if (typeof value === "string" || typeof value === "number")
+      if (MUST_CHAIN_HTML_KEYS.includes(key)) element[key] = value
+      else element.setAttribute(key, value)
+    else if (typeof value === "boolean") {
+      if (value === true) element.setAttribute(key, key)
+    } else if (isEventAttribute(key) && typeof value === "function") {
       const eventDetails = getEventDetails(key)
       element.addEventListener(eventDetails[0], value, eventDetails[1])
-    } else if (typeof value !== "undefined") element[key] = value
+    }
   })
 
   if (children !== undefined) element.appendChild(resolveToNode(children))
