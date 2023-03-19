@@ -82,9 +82,14 @@ function assignAttributesFromProps(element, props) {
       else element.setAttribute(key, value)
     else if (typeof value === "boolean") {
       if (value === true) element.setAttribute(key, key)
-    } else if (isEventAttribute(key) && typeof value === "function") {
-      const eventDetails = getEventDetails(key)
-      element.addEventListener(eventDetails[0], value, eventDetails[1])
+    } else if (typeof value === "function") {
+      if (isEventAttribute(key)) {
+        const [eventName, eventOptions] = getEventDetails(key)
+        element.addEventListener(eventName, value, eventOptions)
+      } else {
+        /* eslint-disable-next-line no-param-reassign */
+        element[key] = value
+      }
     }
   })
 }
