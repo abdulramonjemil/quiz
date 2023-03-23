@@ -20,7 +20,7 @@ export default function CodeBoard({ content, language, title }) {
       <p className={Styles.CodeBoard__Title}>{phraseToNode(title)}</p>
       <div className={Styles.CodeWrapper}>
         <pre className={Styles.Code}>
-          <code refHolder={codeRefHolder} className={`language-${language}`}>
+          <code className={`language-${language}`} refHolder={codeRefHolder}>
             {content.trim()}
           </code>
         </pre>

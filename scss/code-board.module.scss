@@ -2,7 +2,7 @@
 @use "partials/utils";
 @import "https://cdn.jsdelivr.net/gh/GalenWong/nord-prism-js/prism-nord.css";
 
-$code-board-background: utils.get-color(light-grey);
+$code-board-background: utils.get-color(dark-grey);
 $code-board-scrollbar-main-size: 6px;
 $code-board-horizontal-padding: 12px;
 $code-board-vertical-padding: 10px;

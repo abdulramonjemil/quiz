@@ -1,11 +1,12 @@
 @use "sass:map";
 
 $colors: (
+  "dark-grey": rgb(46 52 64),
   "deep-dark": rgb(15 23 42),
-  "soft-dark": rgb(37 58 92),
   "deep-light": rgb(204 204 204),
-  "soft-light": rgb(255 255 255),
-  "light-grey": rgb(46 52 64)
+  "light-grey": rgb(179 179 179 / 20%),
+  "soft-dark": rgb(37 58 92),
+  "soft-light": rgb(255 255 255)
 );
 
 $constants: (

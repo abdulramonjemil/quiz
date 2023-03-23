@@ -1,0 +1,53 @@
+@use "sass:map";
+
+$digits: (
+  "0": 0,
+  "1": 1,
+  "2": 2,
+  "3": 3,
+  "4": 4,
+  "5": 5,
+  "6": 6,
+  "7": 7,
+  "8": 8,
+  "9": 9
+);
+
+$singled-units: (
+  "px": 1px,
+  "%": 1%,
+  "rem": 1rem,
+  "em": 1em,
+  "s": 1s,
+  "vw": 1vw,
+  "vh": 1vh,
+  "vmin": 1vmin,
+  "vmax": 1vmax,
+  "ch": 1ch,
+  "pt": 1pt,
+  "cm": 1cm,
+  "mm": 1mm,
+  "pc": 1pc,
+  "in": 1in,
+  "ex": 1ex,
+  "cqh": 1cqh,
+  "cqw": 1cqw,
+  "cqi": 1cqi,
+  "cqb": 1cqb,
+  "cqmin": 1cqmin,
+  "cqmax": 1cqmax,
+  "Q": 1Q,
+  "lh": 1lh,
+  "rlh": 1rlh,
+  "dvw": 1dvw,
+  "dvh": 1dvh,
+  "lvw": 1lvw,
+  "lvh": 1lvh,
+  "svw": 1svw,
+  "svh": 1svh,
+  "vb": 1vb,
+  "vi": 1vi
+);
+
+$digits-as-strings: map.keys($digits);
+$units: map.keys($singled-units);

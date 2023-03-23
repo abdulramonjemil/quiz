@@ -48,15 +48,17 @@
 }
 
 .Submit {
+  $submit-button-color: rgb(104 4 107);
+
   @extend %control-button;
-  background-color: utils.get-color(deep-light);
-  color: utils.get-color(soft-dark);
+  background-color: $submit-button-color;
+  color: utils.get-color(deep-light);
   grid-area: submit;
 
-  $interaction-color: color.change(utils.get-color(deep-light), $alpha: 0.8);
+  $interaction-color: color.change($submit-button-color, $alpha: 0.8);
 
   &:focus {
-    outline: 2px solid $interaction-color;
+    outline: 2px solid utils.get-color(deep-light);
   }
 
   &:not(:disabled):hover {

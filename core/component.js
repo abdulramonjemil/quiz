@@ -41,7 +41,6 @@ export default class Component {
     return refHolder
   }
 
-  /**  */
   static $$getElementRef() {
     return this[REF]
   }

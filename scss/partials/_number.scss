@@ -1,0 +1,149 @@
+@use "sass:list";
+@use "sass:map";
+@use "sass:math";
+@use "sass:meta";
+@use "sass:string";
+@use "library";
+
+@function raw-unit($value) {
+  @if meta.type-of($value) != "number" {
+    @error "Value passed to 'get-unit' must be a number";
+  }
+
+  $value-unit-with-zero: #{$value * 0};
+  $parsed-unit: string.slice($value-unit-with-zero, 2);
+
+  @if $parsed-unit == "" {
+    $parsed-unit: null;
+  }
+
+  @return $parsed-unit;
+}
+
+@function extract($value) {
+  $value-type: meta.type-of($value);
+  @if $value-type != "number" and $value-type != "string" {
+    @error "Value passed to 'extract' must be a number or a string.";
+  }
+
+  $value: #{$value};
+  $value-is-negative: string.slice($value, 1, 1) == "-";
+
+  $fractional-part-has-begun: false;
+  $fractional-divisor: 1;
+  $final-number: 0;
+
+  @for $i from if($value-is-negative, 2, 1) through string.length($value) {
+    $character: string.slice($value, $i, $i);
+    $character-as-number: map.get(library.$digits, $character);
+    $character-is-a-digit: list.index(library.$digits-as-strings, $character) !=
+      null;
+    $character-is-period: $character == ".";
+
+    @if $character-is-a-digit {
+      $final-number: $final-number * 10 + $character-as-number;
+      @if $fractional-part-has-begun {
+        $fractional-divisor: $fractional-divisor * 10;
+      }
+    } @else if $character-is-period {
+      @if $fractional-part-has-begun {
+        @error "#{$value} contains more than one period character";
+      }
+      $fractional-part-has-begun: true;
+    }
+  }
+
+  $final-number: math.div($final-number, $fractional-divisor);
+  @return if($value-is-negative, -$final-number, $final-number);
+}
+
+@function to-number($value) {
+  @if meta.type-of($value) == "number" {
+    @return $value;
+  } @else if meta.type-of($value) != "string" {
+    @error "Value passed to 'to-number' must be a number or a string.";
+  }
+
+  $extracted-number: extract($value);
+  $last-char-in-value: string.slice($value, -1);
+
+  $index-of-value-last-char-in-digits: list.index(
+    library.$digits-as-strings,
+    $last-char-in-value
+  );
+  $value-has-a-unit: $index-of-value-last-char-in-digits == null;
+
+  $final-number: $extracted-number;
+
+  @if $value-has-a-unit {
+    $unit-of-value: null;
+    $index-of-next-unit: 1;
+
+    $number-of-units-available: list.length(library.$units);
+    $final-number-as-string: #{$final-number};
+
+    @while $unit-of-value ==
+      null and
+      $index-of-next-unit <=
+      $number-of-units-available
+    {
+      $current-unit: list.nth(library.$units, $index-of-next-unit);
+      $length-of-current-unit: string.length($current-unit);
+
+      $index-of-next-unit: $index-of-next-unit + 1;
+
+      $value-ends-with-current-unit: string.slice(
+          $value,
+          -$length-of-current-unit
+        ) ==
+        $current-unit;
+
+      $index-of-char-before-current-unit-at-end: -$length-of-current-unit - 1;
+      $char-before-current-unit-at-end: string.slice(
+        $value,
+        $index-of-char-before-current-unit-at-end,
+        $index-of-char-before-current-unit-at-end
+      );
+
+      $current-unit-is-last-set-of-letters: list.index(
+          library.$digits-as-strings,
+          $char-before-current-unit-at-end
+        ) !=
+        null;
+
+      $current-unit-completes-value: $value-ends-with-current-unit and
+        $current-unit-is-last-set-of-letters;
+
+      @if $current-unit-completes-value {
+        $unit-of-value: $current-unit;
+      }
+    }
+
+    @if $unit-of-value == null {
+      @error "Unable to resolve unit in '#{$value}'";
+    }
+
+    $final-number: $final-number *
+      map.get(library.$singled-units, $unit-of-value);
+  }
+
+  @return $final-number;
+}
+
+@function to-single-unit($value) {
+  @if meta.type-of($value) != "number" {
+    @error "Value passed to 'to-single-unit' must be a number";
+  }
+
+  $extracted-number: extract($value);
+  @return math.div($value, $extracted-number);
+}
+
+@function unitless($value) {
+  @if meta.type-of($value) != "number" {
+    @error "Value passed to 'remove-unit' must be a number";
+  }
+
+  $singled-unit: to-single-unit($value);
+  @return math.div($value, $singled-unit);
+}

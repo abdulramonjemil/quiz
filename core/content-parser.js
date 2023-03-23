@@ -165,31 +165,28 @@ export function parseCodeDefinitions(content) {
 
 const LENGTH_OF_CONTENT_MODIFIERS = 2
 const START_OF_CODE_CONTAINING_CONTENT = "~~"
-const START_OF_CONTENT_TEMPLATE_ID = "##"
 const START_OF_RAW_CONTENT = "__"
+const START_OF_RAW_HTML_CONTENT = "##"
 
-export function phraseToNode(content, templatesAreAllowed = true) {
+export function phraseToNode(content, allowRawHTML = true) {
   if (typeof content !== "string")
     throw new TypeError("'content' must be a string")
-
-  if (content.startsWith(START_OF_RAW_CONTENT)) {
-    const rawContent = content.substring(LENGTH_OF_CONTENT_MODIFIERS)
-    return document.createTextNode(rawContent)
-  }
 
   if (content.startsWith(START_OF_CODE_CONTAINING_CONTENT)) {
     const codeContainingContent = content.substring(LENGTH_OF_CONTENT_MODIFIERS)
     return parseCodeDefinitions(codeContainingContent)
   }
 
-  if (content.startsWith(START_OF_CONTENT_TEMPLATE_ID)) {
-    if (!templatesAreAllowed) throw new TypeError("templates are not allowed")
-    const contentTemplateId = content.substring(LENGTH_OF_CONTENT_MODIFIERS)
+  if (content.startsWith(START_OF_RAW_CONTENT)) {
+    const rawContent = content.substring(LENGTH_OF_CONTENT_MODIFIERS)
+    return document.createTextNode(rawContent)
+  }
 
-    const contentTemplate = document.getElementById(contentTemplateId)
-    if (!(contentTemplate instanceof HTMLTemplateElement))
-      throw new TypeError("template id passed isn't for a <template> element")
-    return contentTemplate.content.cloneNode(true)
+  if (content.startsWith(START_OF_RAW_HTML_CONTENT)) {
+    if (!allowRawHTML)
+      throw new TypeError("Raw HTML is not allowed are not allowed")
+    const htmlString = content.substring(LENGTH_OF_CONTENT_MODIFIERS)
+    return htmlStringToFragment(htmlString)
   }
 
   return document.createTextNode(content)
