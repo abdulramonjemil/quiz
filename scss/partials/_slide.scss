@@ -1,0 +1,52 @@
+@use "sass:color";
+@use "sass:string";
+@use "utils";
+
+/* stylelint-disable-next-line value-keyword-case */
+$container-name: slide_container_id-HHZr5QNtu7kaUpxBvMDs1f0ld9cn3s;
+
+$scrollbar-thumb-color: color.change(utils.get-color(deep-light), $alpha: 0.8);
+$scrollbar-track-color: utils.get-color(dark-grey);
+$scrollbar-width: 8px;
+
+@mixin height-config {
+  $slide-height-property: --#{string.unique-id()};
+  #{$slide-height-property}: 300px;
+
+  height: var($slide-height-property);
+
+  @container #{$container-name} (width <= 500px) {
+    #{$slide-height-property}: 350px;
+  }
+}
+
+@mixin config {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  @include height-config;
+}
+
+@mixin scrollbar {
+  @media only screen and (min-width: 500px) {
+    scrollbar-color: $scrollbar-thumb-color $scrollbar-track-color;
+    scrollbar-width: thin;
+
+    &::-webkit-scrollbar {
+      width: $scrollbar-width;
+    }
+
+    &::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $scrollbar-track-color;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: $scrollbar-thumb-color;
+    }
+  }
+}

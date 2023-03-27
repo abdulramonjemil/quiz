@@ -1,33 +1,50 @@
 import Component, { createElementRefHolder } from "../core/component"
 import Styles from "../scss/result.module.scss"
+import ScrollShadow from "./scroll-shadow"
 
 const DEFAULT_RESULT_PERCENTAGE_VALUE = 0
 const {
   PROPERTY_FOR_SCORED_PERCENTAGE,
-  Indicator_rendered: RENDERED_INDICATOR_CLASS,
-  DURATION_OF_INDICATOR_ANIMATION_SECS
+  Indicator_rendered: RENDERED_INDICATOR_CLASS
 } = Styles
+
+const INDICATOR_ANIMATION_DURATION_MS =
+  Number(Styles.DURATION_OF_INDICATOR_ANIMATION_SECS) * 1000
 
 function renderResultIndicator(
   indicator,
   percentValueContainer,
   scoredPercentage
 ) {
-  // Duration in milliseconds
-  const indicatorAnimationDurationToUse =
-    Number(DURATION_OF_INDICATOR_ANIMATION_SECS) * 1000 - 100
+  const totalValueToAnimate = scoredPercentage - DEFAULT_RESULT_PERCENTAGE_VALUE
+  let startTime = null
+  let lastFrameTime = null
 
-  const intervalToIncrementPercentValue =
-    indicatorAnimationDurationToUse /
-    (scoredPercentage - DEFAULT_RESULT_PERCENTAGE_VALUE)
+  function setPercentValue(time) {
+    if (startTime === null) startTime = time
+    const elapsedTime = time - startTime
+    const shouldBeTheLastFrame = elapsedTime >= INDICATOR_ANIMATION_DURATION_MS
 
-  let lastSetValue = DEFAULT_RESULT_PERCENTAGE_VALUE
-  const intervalID = setInterval(() => {
-    lastSetValue += 1
-    // eslint-disable-next-line no-param-reassign
-    percentValueContainer.innerText = lastSetValue
-    if (lastSetValue === scoredPercentage) clearInterval(intervalID)
-  }, intervalToIncrementPercentValue)
+    if (time !== lastFrameTime) {
+      const percentValueToSet = shouldBeTheLastFrame
+        ? scoredPercentage
+        : Math.floor(
+            DEFAULT_RESULT_PERCENTAGE_VALUE +
+              (elapsedTime / INDICATOR_ANIMATION_DURATION_MS) *
+                totalValueToAnimate
+          )
+
+      // eslint-disable-next-line no-param-reassign
+      percentValueContainer.innerText = percentValueToSet
+      lastFrameTime = time
+    }
+
+    if (!shouldBeTheLastFrame) {
+      window.requestAnimationFrame(setPercentValue)
+    }
+  }
+
+  window.requestAnimationFrame(setPercentValue)
   indicator.classList.add(RENDERED_INDICATOR_CLASS)
 }
 
@@ -111,19 +128,24 @@ export default class Result extends Component {
     const scoredPercentage = Math.floor((answersGotten / questionsCount) * 100)
     const indicatorRenderFnRefHolder = {}
 
+    this.$indicatorIsRendered = false
+    this.$indicatorRenderFn = null
+
     const resultHTML = (
       <div className={Styles.ResultContainer}>
-        <div className={Styles.Result}>
-          <ResultIndicator
-            scoredPercentage={scoredPercentage}
-            indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
-          />
-          <ResultBoard
-            answersGotten={answersGotten}
-            handleExplanationsReview={handleExplanationsReview}
-            questionsCount={questionsCount}
-          />
-        </div>
+        <ScrollShadow maxSizes={{ top: 25, bottom: 25 }}>
+          <div className={Styles.Result}>
+            <ResultIndicator
+              scoredPercentage={scoredPercentage}
+              indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
+            />
+            <ResultBoard
+              answersGotten={answersGotten}
+              handleExplanationsReview={handleExplanationsReview}
+              questionsCount={questionsCount}
+            />
+          </div>
+        </ScrollShadow>
       </div>
     )
 
@@ -132,6 +154,8 @@ export default class Result extends Component {
   }
 
   renderIndicator() {
+    if (this.$indicatorIsRendered) return
     this.$indicatorRenderFn.call()
+    this.$indicatorIsRendered = true
   }
 }

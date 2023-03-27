@@ -183,8 +183,7 @@ export function phraseToNode(content, allowRawHTML = true) {
   }
 
   if (content.startsWith(START_OF_RAW_HTML_CONTENT)) {
-    if (!allowRawHTML)
-      throw new TypeError("Raw HTML is not allowed are not allowed")
+    if (!allowRawHTML) throw new TypeError("Raw HTML is not allowed")
     const htmlString = content.substring(LENGTH_OF_CONTENT_MODIFIERS)
     return htmlStringToFragment(htmlString)
   }

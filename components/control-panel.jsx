@@ -4,6 +4,7 @@ import Styles from "../scss/control-panel.module.scss"
 export default class ControlPanel extends Component {
   $render() {
     const {
+      controllingId,
       handlePrevButtonClick,
       handleNextButtonClick,
       handleSubmitButtonClick
@@ -21,6 +22,7 @@ export default class ControlPanel extends Component {
       <div className={Styles.ControlPanelContainer}>
         <div className={Styles.ControlPanel}>
           <button
+            aria-controls={controllingId}
             className={Styles.Prev}
             onClick={handlePrevButtonClick}
             refHolder={prevButtonRefHolder}
@@ -29,6 +31,7 @@ export default class ControlPanel extends Component {
             Prev
           </button>
           <button
+            aria-controls={controllingId}
             className={Styles.Next}
             onClick={handleNextButtonClick}
             refHolder={nextButtonRefHolder}
@@ -37,6 +40,7 @@ export default class ControlPanel extends Component {
             Next
           </button>
           <button
+            aria-controls={controllingId}
             className={Styles.Submit}
             onClick={handleSubmitButtonClick}
             refHolder={submitButtonRefHolder}

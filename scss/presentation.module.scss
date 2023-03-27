@@ -1,0 +1,24 @@
+@use "partials/slide";
+
+.Presentation {
+  width: 100%;
+}
+
+.Slide {
+  container: slide.$container-name / inline-size;
+  display: none;
+  margin-top: 20px;
+  opacity: 0;
+
+  &_opaque {
+    opacity: 1;
+  }
+
+  &_shown {
+    display: block;
+  }
+
+  &__Content {
+    @include slide.height-config;
+  }
+}

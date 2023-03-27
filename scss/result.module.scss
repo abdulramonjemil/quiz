@@ -2,6 +2,7 @@
 @use "sass:math";
 @use "sass:string";
 @use "partials/number";
+@use "partials/slide";
 @use "partials/utils";
 
 $result-green-color: rgb(143 188 188);
@@ -24,26 +25,33 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
 }
 
 .ResultContainer {
+  align-items: center;
   container-type: inline-size;
+
+  @include slide.config;
 }
 
 .Result {
   display: flex;
+  flex: 0 1 max-content;
   gap: 30px;
-  margin: auto;
-  margin-top: utils.get-constant(element-spacing) * 2;
+  height: max-content;
+  max-height: 100%;
   max-width: 800px;
+  overflow-y: auto;
   padding: 20px 40px;
+  position: relative;
+
+  @include slide.scrollbar;
 
   @container (width <= 720px) {
     gap: 20px;
-    padding: 10px 20px;
+    padding: 10px;
   }
 
   @container (width <= 560px) {
     align-items: center;
     flex-direction: column;
-    padding: 10px 0;
   }
 
   &__Board {
@@ -68,7 +76,7 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
   }
 
   &__Instructions {
-    font-size: 1.2em;
+    font-size: 1.4em;
     font-weight: 600;
 
     em {
@@ -84,7 +92,6 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
     cursor: pointer;
     font-weight: 500;
     margin-top: 20px;
-    outline-offset: 2px;
     text-decoration: underline;
     transition: opacity linear 0.1s;
     width: max-content;

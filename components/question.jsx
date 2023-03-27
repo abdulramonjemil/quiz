@@ -2,6 +2,7 @@ import Component, { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
 import { uniqueId } from "../core/library"
 import Styles from "../scss/question.module.scss"
+import ScrollShadow from "./scroll-shadow"
 
 const NUMBER_OF_ANSWER_CHOICES = 4
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
@@ -104,6 +105,7 @@ export default class Question extends Component {
 
     const fieldSetRefHolder = createElementRefHolder()
     const feedBackRefHolder = createElementRefHolder()
+    const questionNodeRefHolder = createElementRefHolder()
 
     for (let i = 0; i < NUMBER_OF_ANSWER_CHOICES; i += 1) {
       answerOptions.push(
@@ -116,12 +118,25 @@ export default class Question extends Component {
     }
 
     const questionHTML = (
-      <>
-        <fieldset className={Styles.Question} refHolder={fieldSetRefHolder}>
-          <QuestionBox title={title} answerOptions={answerOptions} />
-        </fieldset>
-        <FeedBack content={feedBackContent} rootRefHolder={feedBackRefHolder} />
-      </>
+      <div className={Styles.QuestionWrapper}>
+        <ScrollShadow
+          observerConfig={{
+            attributes: true,
+            attributeFilter: ["class"],
+            subtree: true
+          }}
+        >
+          <div className={Styles.Question} refHolder={questionNodeRefHolder}>
+            <fieldset refHolder={fieldSetRefHolder}>
+              <QuestionBox title={title} answerOptions={answerOptions} />
+            </fieldset>
+            <FeedBack
+              content={feedBackContent}
+              rootRefHolder={feedBackRefHolder}
+            />
+          </div>
+        </ScrollShadow>
+      </div>
     )
 
     this.$feedBackElement = feedBackRefHolder.ref

@@ -1,16 +1,29 @@
 @use "sass:color";
 @use "sass:math";
+@use "partials/slide";
 @use "partials/utils";
 
 $gap-between-question-elements: utils.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
+.QuestionWrapper {
+  align-items: center;
+
+  @include slide.config;
+}
+
 .Question {
-  margin-top: 20px;
+  height: max-content;
+  max-height: 100%;
+  overflow-y: auto;
+  position: relative;
+
+  @include slide.scrollbar;
 
   &__Title {
     display: block;
+    width: 100%;
     text-align: center;
   }
 
@@ -58,6 +71,7 @@ $option-letter-span: 30px;
     display: grid;
     gap: $option-spacing-length;
     grid-template-columns: $option-letter-span 1fr;
+    height: 100%;
     padding: $option-spacing-length;
 
     &:hover {
@@ -77,6 +91,7 @@ $option-letter-span: 30px;
 
     .Option__Input:focus + & {
       outline: 2px solid utils.get-color(deep-light);
+      outline-offset: -2px;
     }
 
     .Question:disabled & {
