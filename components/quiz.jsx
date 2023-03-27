@@ -31,12 +31,12 @@ export default class Quiz extends Component {
       "~~Did you use `webpack` when creating it?",
       "Whatever"
     ]
-    // questionOptions = [
-    //   "##Who cares by the way? <br><br><br><br><br><br><br> It's not my thing for the most part.",
-    //   "It makes tiny sense",
-    //   "~~Did you use `webpack` when creating it?",
-    //   "## Whatever <br><br><br><br>"
-    // ]
+    questionOptions = [
+      "##Who cares by the way? <br><br><br><br><br><br><br> It's not my thing for the most part.",
+      "It makes tiny sense",
+      "~~Did you use `webpack` when creating it?",
+      "## Whatever <br><br><br><br>"
+    ]
     const questionFeedBack =
       "~~I've never for any reason loved to use `webpack`"
 
@@ -44,6 +44,7 @@ export default class Quiz extends Component {
     const controlPanelRefHolder = createInstanceRefHolder()
     const resultRefHolder = createInstanceRefHolder()
 
+    // eslint-disable-next-line prefer-const
     let codeBoardCodeContent = `
 #include <iostream>
 #include <vector>
@@ -118,12 +119,12 @@ int main() {
 }
 `
 
-    codeBoardCodeContent = `
-const name = foo
-foo.go = bar
-const name = foo
-foo.go = bar
-    `
+    //     codeBoardCodeContent = `
+    // const name = foo
+    // foo.go = bar
+    // const name = foo
+    // foo.go = bar
+    //     `
 
     const slides = [
       <Question

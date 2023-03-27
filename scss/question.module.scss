@@ -7,8 +7,9 @@ $gap-between-question-elements: utils.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
-.QuestionWrapper {
+.QuestionContainer {
   align-items: center;
+  position: relative;
 
   @include slide.config;
 }
@@ -17,7 +18,6 @@ $option-letter-span: 30px;
   height: max-content;
   max-height: 100%;
   overflow-y: auto;
-  position: relative;
 
   @include slide.scrollbar;
 

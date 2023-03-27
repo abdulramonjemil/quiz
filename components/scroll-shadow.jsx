@@ -4,7 +4,6 @@ import Styles from "../scss/scroll-shadow.module.scss"
 const {
   BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY,
   TOP_SCROLL_SHADOW_SIZER_PROPERTY,
-  HEIGHT_OF_SCROLL_SHADOW_BOX,
   MAX_SUITABLE_SCROLL_SHADOW_SIZE
 } = Styles
 
@@ -16,9 +15,6 @@ const adjustScrollShadow = (() => {
   return (scrollableElement, scrollShadow, maxSizes) => {
     if (thereAreUnrenderedFrames) return
     window.requestAnimationFrame(() => {
-      // Prevent shadow from affecting calculations
-      scrollShadow.style.height = "0"
-
       const {
         clientHeight,
         scrollHeight,
@@ -26,7 +22,7 @@ const adjustScrollShadow = (() => {
       } = scrollableElement
 
       const scrolledBottomDistance =
-        scrollHeight - (scrolledTopDistance + clientHeight)
+        scrollHeight - scrolledTopDistance - clientHeight
 
       const maxTopSuitableSizeToUse =
         typeof maxSizes?.top === "number"
@@ -58,10 +54,6 @@ const adjustScrollShadow = (() => {
         `${bottomShadowSizeToUse}px`
       )
 
-      // Prevent scroll shadow from scrolling with content
-      scrollShadow.style.top = `${scrolledTopDistance}px`
-      scrollShadow.style.height = HEIGHT_OF_SCROLL_SHADOW_BOX
-
       thereAreUnrenderedFrames = false
     })
 
@@ -81,16 +73,14 @@ export default function ScrollShadow(
     maxSizes
   )
 
-  scrollableElement.appendChild(scrollShadow)
+  // eslint-disable-next-line react/destructuring-assignment
   scrollableElement.addEventListener("scroll", adjustAppropriateScrollShadow)
 
   if (typeof observerConfig === "object" && observerConfig !== null) {
-    new MutationObserver((mutationRecords) => {
-      const isScrollableElementMutation = mutationRecords.every(
-        (mutationRecord) => mutationRecord.target !== scrollShadow
-      )
-      if (isScrollableElementMutation) adjustAppropriateScrollShadow()
-    }).observe(scrollableElement, observerConfig)
+    new MutationObserver(adjustAppropriateScrollShadow).observe(
+      scrollableElement,
+      observerConfig
+    )
   }
 
   /* Trigger scroll on element to set up scroll shadow if needed */
@@ -99,5 +89,10 @@ export default function ScrollShadow(
     scrollableElement.scrollTop = 0
   })
 
-  return scrollableElement
+  return (
+    <>
+      {scrollableElement}
+      {scrollShadow}
+    </>
+  )
 }

@@ -4,13 +4,11 @@
 
 $bottom-scroll-shadow-sizer-property: --bottom-scroll-shadow-size;
 $top-scroll-shadow-sizer-property: --top-scroll-shadow-size;
-$height-of-scroll-shadow-box: 100%;
 $max-suitable-scroll-shadow-size: 15px;
 
 :export {
   BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY: $bottom-scroll-shadow-sizer-property;
   TOP_SCROLL_SHADOW_SIZER_PROPERTY: $top-scroll-shadow-sizer-property;
-  HEIGHT_OF_SCROLL_SHADOW_BOX: $height-of-scroll-shadow-box;
   MAX_SUITABLE_SCROLL_SHADOW_SIZE: number.unitless(
     $max-suitable-scroll-shadow-size
   );
@@ -24,7 +22,7 @@ $max-suitable-scroll-shadow-size: 15px;
   #{$bottom-scroll-shadow-sizer-property}: 0;
   #{$top-scroll-shadow-sizer-property}: 0;
 
-  height: $height-of-scroll-shadow-box;
+  height: 100%;
   left: 0;
   pointer-events: none;
   position: absolute;

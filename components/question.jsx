@@ -118,7 +118,7 @@ export default class Question extends Component {
     }
 
     const questionHTML = (
-      <div className={Styles.QuestionWrapper}>
+      <div className={Styles.QuestionContainer}>
         <ScrollShadow
           observerConfig={{
             attributes: true,

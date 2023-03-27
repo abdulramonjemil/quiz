@@ -27,6 +27,7 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
 .ResultContainer {
   align-items: center;
   container-type: inline-size;
+  position: relative;
 
   @include slide.config;
 }
@@ -40,7 +41,6 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
   max-width: 800px;
   overflow-y: auto;
   padding: 20px 40px;
-  position: relative;
 
   @include slide.scrollbar;
 
