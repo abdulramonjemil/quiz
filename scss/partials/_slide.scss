@@ -11,7 +11,7 @@ $scrollbar-width: 8px;
 
 @mixin height-config {
   $slide-height-property: --#{string.unique-id()};
-  #{$slide-height-property}: 300px;
+  #{$slide-height-property}: 280px;
 
   height: var($slide-height-property);
 
