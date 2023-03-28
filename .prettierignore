@@ -12,3 +12,6 @@ package-lock.json
 
 # webpack prod build
 /build
+
+# vscode counter extension
+/.VSCodeCounter
