@@ -1,194 +1,282 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable max-classes-per-file */
+
 import Component, { createInstanceRefHolder } from "../core/component"
 import Styles from "../scss/quiz.module.scss"
-import Header from "./header"
-import { uniqueId } from "../core/library"
-import Progress from "./progress"
-import Question from "./question"
-import ControlPanel from "./control-panel"
-import Presentation from "./presentation"
-import Result from "./result"
-import CodeBoard from "./code-board"
 
-export default class Quiz extends Component {
-  static create(container) {
-    container.replaceChildren(<Quiz headerContent="Your opinion matters" />)
+/* Must be imported after importing styles above to allow overrides */
+import Header from "./header"
+import Progress from "./progress"
+import Presentation from "./presentation"
+import Question from "./question"
+import CodeBoard from "./code-board"
+import Result from "./result"
+import ControlPanel from "./control-panel"
+import { isFilledString, uniqueId } from "../core/library"
+
+const DEFAULT_QUIZ_HEADER = "Test your knowledge"
+const QUESTION_ANSWER_REGEX = /^[A-D]$/
+const QUESTION_ANSWER_DESC = "one of the letter A - D"
+
+const QUIZ_ELEMENT_TYPES = {
+  CODE_BOARD: "code-board",
+  QUESTION: "question"
+}
+
+/**
+ * Internal map used to store quiz props objects to prevent accessing it from
+ * the outside
+ */
+const QUIZ_PROPS_MAP = new Map()
+
+class QuizProps {
+  constructor(header) {
+    if (header !== undefined && !isFilledString(header))
+      throw new TypeError("header must be a non-empty string")
+
+    QUIZ_PROPS_MAP.set(this, {
+      headerContent: header || DEFAULT_QUIZ_HEADER,
+      elements: []
+    })
   }
 
-  /* eslint-disable-next-line class-methods-use-this */
+  addCodeBoard({ title, language, content }) {
+    if (!isFilledString(title))
+      throw new TypeError("code board title must be a non-empty string")
+    if (!isFilledString(language))
+      throw new TypeError("code board language must be a non-empty string")
+    if (!isFilledString(content))
+      throw new TypeError("code board content must be a non-empty string")
+
+    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
+    attachedPropsObject.elements.push({
+      type: QUIZ_ELEMENT_TYPES.CODE_BOARD,
+      props: {
+        content,
+        language,
+        title
+      }
+    })
+  }
+
+  addQuestion({ title, options, answer, feedBackContent }) {
+    if (!isFilledString(title))
+      throw new TypeError("code board title must be a non-empty string")
+    if (!Array.isArray(options) || options.length !== 4)
+      throw new TypeError(
+        "question options must be an array of exactly four items"
+      )
+
+    if (!options.every((option) => isFilledString(option)))
+      throw new TypeError("Every option must be a non-empty string")
+    if (typeof answer !== "string" || !QUESTION_ANSWER_REGEX.test(answer))
+      throw new TypeError(`question answer must be ${QUESTION_ANSWER_DESC}`)
+    if (feedBackContent !== undefined && !isFilledString(feedBackContent))
+      throw new TypeError(
+        "feedback content must be a non-empty string if present"
+      )
+
+    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
+    attachedPropsObject.elements.push({
+      type: QUIZ_ELEMENT_TYPES.QUESTION,
+      props: {
+        answer,
+        feedBackContent,
+        options: [...options],
+        title
+      }
+    })
+  }
+
+  setHeader(value) {
+    if (typeof value !== "string" || value === "")
+      throw new TypeError("header must be a non-empty string")
+
+    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
+    attachedPropsObject.headerContent = value
+  }
+}
+
+export default class Quiz extends Component {
+  static get Props() {
+    return QuizProps
+  }
+
+  static create(quizProps, container) {
+    if (!(quizProps instanceof QuizProps))
+      throw new TypeError(
+        "quiz props passed to 'Quiz.create' must be an instance of 'QuizProps'"
+      )
+
+    if (!(container instanceof Element))
+      throw new TypeError(
+        "quiz container passed to 'Quiz.create' must be an instance of 'Element'"
+      )
+
+    const quizPropsToUse = QUIZ_PROPS_MAP.get(quizProps)
+    // eslint-disable-next-line react/jsx-props-no-spreading
+    container.replaceChildren(<Quiz {...quizPropsToUse} />)
+  }
+
+  $handleNextButtonClick() {
+    const { $controlPanel, $elements, $presentation, $progress } = this
+    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
+    const currentSlideIndex = $presentation.currentSlideIndex()
+    const indexOfNextElement = currentSlideIndex + 1
+    const nextElement = $elements[indexOfNextElement]
+
+    if (
+      (nextElement instanceof Question && !nextElement.isAnswered()) ||
+      indexOfNextElement === $elements.length - 1
+    ) {
+      $controlPanel.disable("next")
+    }
+
+    $controlPanel.enable("prev")
+    if (!(nextElement instanceof Result)) $progress.increment()
+    $presentation.slideForward()
+  }
+
+  $handlePrevButtonClick() {
+    const { $controlPanel, $elements, $presentation, $progress } = this
+    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
+    const currentSlideIndex = $presentation.currentSlideIndex()
+    const indexOfPreviousElement = currentSlideIndex - 1
+
+    if (indexOfPreviousElement === 0) $controlPanel.disable("prev")
+    $controlPanel.enable("next")
+    if (!($elements[currentSlideIndex] instanceof Result)) $progress.decrement()
+    $presentation.slideBackward()
+  }
+
+  async $handleSubmitButtonClick() {
+    const { $controlPanel, $elements, $startQuestionsReview, $presentation } =
+      this
+    const questionElements = $elements.filter(
+      (element) => element instanceof Question
+    )
+    const gottenAnswersCount = questionElements.reduce(
+      (previousValue, questionElement) =>
+        questionElement.correctAnswerIsPicked()
+          ? previousValue + 1
+          : previousValue,
+      0
+    )
+
+    const resultRefHolder = createInstanceRefHolder()
+    const resultNode = (
+      <Result
+        answersGotten={gottenAnswersCount}
+        handleExplanationsReview={$startQuestionsReview.bind(this)}
+        questionsCount={questionElements.length}
+        refHolder={resultRefHolder}
+      />
+    )
+
+    $controlPanel.disable("prev")
+    $controlPanel.disable("submit")
+    $presentation.appendSlide(resultNode)
+    $elements.push(resultRefHolder.ref)
+
+    await $presentation.slideForward()
+    questionElements.forEach((questionElement) => questionElement.finalize())
+    resultRefHolder.ref.renderIndicator()
+  }
+
+  $handleQuestionOptionChange(questionIndex) {
+    const { $controlPanel, $elements, $presentation } = this
+    const currentSlideIndex = $presentation.currentSlideIndex()
+    const questionAtIndex = $elements[questionIndex]
+
+    if (questionIndex !== currentSlideIndex) return
+    if (!questionAtIndex.isAnswered()) {
+      $controlPanel.disable("next")
+      $controlPanel.disable("submit")
+    } else if (currentSlideIndex === $elements.length - 1) {
+      $controlPanel.disable("next")
+      $controlPanel.enable("submit")
+    } else $controlPanel.enable("next")
+  }
+
+  $startQuestionsReview() {
+    const { $controlPanel, $presentation, $progress } = this
+    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
+
+    $presentation.restart()
+    $progress.restart()
+    $controlPanel.disable("prev")
+    $controlPanel.enable("next")
+  }
+
   $render() {
-    const { headerContent } = this.$props
+    const {
+      $props: { headerContent, elements },
+      $handleQuestionOptionChange
+    } = this
+    const {
+      QUESTION: QUESTION_QUIZ_ELEMENT_TYPE,
+      CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
+    } = QUIZ_ELEMENT_TYPES
+
+    this.$elements = []
+    this.$progress = null
+    this.$presentation = null
+    this.$controlPanel = null
+
+    const elementsCount = elements.length
+    if (elementsCount < 1)
+      throw new TypeError("There must be at least one quiz element")
+
+    const lastQuizElement = elements[elementsCount - 1]
+    if (lastQuizElement.type !== QUESTION_QUIZ_ELEMENT_TYPE)
+      throw new TypeError("The last element in a quiz must be a question")
+
+    const slides = []
+    const elementRefs = []
+
+    elements.forEach((element, index) => {
+      const { type, props } = element
+      if (
+        type !== QUESTION_QUIZ_ELEMENT_TYPE &&
+        type !== CODE_BOARD_QUIZ_ELEMENT_TYPE
+      )
+        throw new TypeError(`Unsupported quiz element type: '${type}'`)
+
+      if (type === CODE_BOARD_QUIZ_ELEMENT_TYPE) {
+        const codeBoardNode = <CodeBoard {...props} />
+        slides.push(codeBoardNode)
+        elementRefs.push(null)
+      } else if (type === QUESTION_QUIZ_ELEMENT_TYPE) {
+        const questionRefHolder = createInstanceRefHolder()
+        const questionNode = (
+          <Question
+            {...props}
+            handleOptionChange={$handleQuestionOptionChange.bind(this, index)}
+            refHolder={questionRefHolder}
+          />
+        )
+
+        slides.push(questionNode)
+        elementRefs.push(questionRefHolder.ref)
+      }
+    })
+
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
     const progressRefHolder = createInstanceRefHolder()
-
-    const questionAnswer = "C"
-    const questionTitle = "What do you think of my Hashnode Quiz widget?"
-
-    /* eslint-disable-next-line */
-    let questionOptions = [
-      "Who cares by the way? It's not my thing for the most part.",
-      "It makes tiny sense",
-      "~~Did you use `webpack` when creating it?",
-      "Whatever"
-    ]
-    questionOptions = [
-      "##Who cares by the way? <br><br><br><br><br><br><br> It's not my thing for the most part.",
-      "It makes tiny sense",
-      "~~Did you use `webpack` when creating it?",
-      "## Whatever <br><br><br><br>"
-    ]
-    const questionFeedBack =
-      "~~I've never for any reason loved to use `webpack`"
-
-    const questionRefHolder = createInstanceRefHolder()
-    const controlPanelRefHolder = createInstanceRefHolder()
-    const resultRefHolder = createInstanceRefHolder()
-
-    // eslint-disable-next-line prefer-const
-    let codeBoardCodeContent = `
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <cmath>
-
-using namespace std;
-
-const int MAXN = 15;
-int n;
-double dist[MAXN][MAXN];
-vector<int> path;
-
-double tsp(int curr, int mask) {
-  if (mask == (1 << n) - 1) return dist[curr][0];
-  double ans = 1e9;
-  for (int i = 0; i < n; i++) {
-    if (!(mask & (1 << i))) {
-      ans = min(ans, dist[curr][i] + tsp(i, mask | (1 << i)));
-    }
-  }
-  return ans;
-}
-
-int main() {
-  cin >> n;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
-      cin >> dist[i][j];
-    }
-  }
-  path.push_back(0);
-  for (int i = 1; i < n; i++) {
-    if (dist[0][i] < dist[0][path.back()]) {
-      path.clear();
-      path.push_back(i);
-    } else if (dist[0][i] == dist[0][path.back()]) {
-      path.push_back(i);
-    }
-  }
-  int mask = 1 << path[0];
-  for (int i = 0; i < n; i++) {
-    if (i != path[0]) {
-      mask |= 1 << i;
-    }
-  }
-  for (int i = 1; i < path.size(); i++) {
-    vector<int> prev_path = path;
-    vector<int> new_path;
-    new_path.push_back(path[i]);
-    for (int j = 0; j < prev_path.size(); j++) {
-      if (prev_path[j] != path[i]) {
-        new_path.push_back(prev_path[j]);
-      }
-    }
-    double ans = dist[0][path[i]] + tsp(path[i], mask | (1 << path[i]));
-    for (int j = 1; j < new_path.size(); j++) {
-      ans += dist[new_path[j - 1]][new_path[j]];
-      mask |= 1 << new_path[j];
-    }
-    if (ans < tsp(0, mask)) {
-      path = new_path;
-    }
-  }
-  cout << "Optimal tour:";
-  for (int i = 0; i < path.size(); i++) {
-    cout << " " << path[i];
-  }
-  cout << endl;
-  cout << "Optimal cost: " << tsp(0, 1) << endl;
-  return 0;
-}
-`
-
-    //     codeBoardCodeContent = `
-    // const name = foo
-    // foo.go = bar
-    // const name = foo
-    // foo.go = bar
-    //     `
-
-    const slides = [
-      <Question
-        answer={questionAnswer}
-        feedBackContent={questionFeedBack}
-        options={questionOptions}
-        refHolder={questionRefHolder}
-        title={questionTitle}
-      />,
-      <CodeBoard
-        content={codeBoardCodeContent}
-        language="cpp"
-        title="~~Whatever you want in the `code` below"
-      />,
-      <Question
-        answer={questionAnswer}
-        feedBackContent={questionFeedBack}
-        options={questionOptions}
-        title={questionTitle}
-      />,
-      <CodeBoard
-        content={codeBoardCodeContent}
-        language="cpp"
-        title="~~Whatever you want in the `code` below"
-      />,
-      <Question
-        answer={questionAnswer}
-        feedBackContent={questionFeedBack}
-        options={questionOptions}
-        title={questionTitle}
-      />,
-      <CodeBoard
-        content={codeBoardCodeContent}
-        language="cpp"
-        title="~~Whatever you want in the `code` below"
-      />,
-      <Result
-        answersGotten={6}
-        handleExplanationsReview={() =>
-          console.log(`Now reviewing random number: ${Math.random()}`)
-        }
-        questionsCount={10}
-        refHolder={resultRefHolder}
-      />
-    ]
-
     const presentationRefHolder = createInstanceRefHolder()
-    let count = 1
-    const id = setInterval(() => {
-      count += 1
-      presentationRefHolder.ref.slideForward()
-      if (count <= 7) progressRefHolder.ref.increment()
-      if (count === 8) progressRefHolder.ref.restart()
-      if (count > 6) {
-        setTimeout(() => resultRefHolder.ref.renderIndicator(), 800)
-        clearInterval(id)
-      }
-    }, 2000)
+    const controlPanelRefHolder = createInstanceRefHolder()
 
-    return (
+    const {
+      $handleNextButtonClick,
+      $handlePrevButtonClick,
+      $handleSubmitButtonClick
+    } = this
+
+    const quizNode = (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
         <Header labellingId={quizLabellingId}>{headerContent}</Header>
-        <Progress levelsCount={7} refHolder={progressRefHolder} />
-
+        <Progress levelsCount={elementsCount} refHolder={progressRefHolder} />
         <Presentation
           controllingId={presentationControllingId}
           refHolder={presentationRefHolder}
@@ -196,12 +284,24 @@ int main() {
         />
         <ControlPanel
           controllingId={presentationControllingId}
-          handlePrevButtonClick={() => console.log("Clicking Prev")}
-          handleNextButtonClick={() => console.log("Clicking Next")}
-          handleSubmitButtonClick={() => console.log("Clicking Submit")}
+          handlePrevButtonClick={$handlePrevButtonClick.bind(this)}
+          handleNextButtonClick={$handleNextButtonClick.bind(this)}
+          handleSubmitButtonClick={$handleSubmitButtonClick.bind(this)}
           refHolder={controlPanelRefHolder}
         />
       </section>
     )
+
+    if (elementRefs[0] instanceof Question)
+      controlPanelRefHolder.ref.disable("next")
+    controlPanelRefHolder.ref.disable("prev")
+    controlPanelRefHolder.ref.disable("submit")
+
+    this.$elements = elementRefs
+    this.$progress = progressRefHolder.ref
+    this.$presentation = presentationRefHolder.ref
+    this.$controlPanel = controlPanelRefHolder.ref
+
+    return quizNode
   }
 }

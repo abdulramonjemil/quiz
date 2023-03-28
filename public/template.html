@@ -26,7 +26,47 @@
     <script>
       /** Put script to be used to test the Quiz app here. */
       const main = document.getElementById("quiz")
-      Quiz.create(main)
+      const quizProps = new Quiz.Props("You aren't a fool")
+
+      quizProps.setHeader("Your opinion matters")
+      quizProps.addQuestion({
+        title: "What do you think of my Hashnode Quiz widget?",
+        options: [
+          "Who cares by the way? It's not my thing for the most part.",
+          "It makes tiny sense",
+          "~~Did you use `webpack` when creating it?",
+          "Whatever"
+        ],
+        answer: "C",
+        feedBackContent: "~~I've never for any reason loved to use `webpack`"
+      })
+
+      quizProps.addQuestion({
+        title: "What do you think of my Hashnode Quiz widget?",
+        options: [
+          "Who cares by the way? It's not my thing for the most part.",
+          "It makes tiny sense",
+          "~~Did you use `webpack` when creating it?",
+          "Whatever"
+        ],
+        answer: "C",
+        feedBackContent: "~~I've never for any reason loved to use `webpack`"
+      })
+
+      quizProps.addQuestion({
+        title: "What do you think of my Hashnode Quiz widget?",
+        options: [
+          "Who cares by the way? It's not my thing for the most part.",
+          "It makes tiny sense",
+          "~~Did you use `webpack` when creating it?",
+          "Whatever"
+        ],
+        answer: "C",
+        feedBackContent: "~~I've never for any reason loved to use `webpack`"
+      })
+
+      // Create and render the quiz inside <main>
+      Quiz.create(quizProps, main)
     </script>
   </body>
 </html>

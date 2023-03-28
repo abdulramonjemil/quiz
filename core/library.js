@@ -24,3 +24,7 @@ export function uniqueId() {
   const finalUniqueId = `uuid__${timeStamp}-${randomNumberWithoutDot}`
   return finalUniqueId
 }
+
+export function isFilledString(value) {
+  return typeof value === "string" && value !== ""
+}
