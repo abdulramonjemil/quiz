@@ -62,11 +62,13 @@ export default class ControlPanel extends Component {
     if (button === "prev") this.$prevButton.disabled = true
     else if (button === "next") this.$nextButton.disabled = true
     else if (button === "submit") this.$submitButton.disabled = true
+    else throw new TypeError(`Unsupported button: '${button}'`)
   }
 
   enable(button) {
     if (button === "prev") this.$prevButton.disabled = false
     else if (button === "next") this.$nextButton.disabled = false
     else if (button === "submit") this.$submitButton.disabled = false
+    else throw new TypeError(`Unsupported button: '${button}'`)
   }
 }
