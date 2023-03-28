@@ -5,6 +5,8 @@
     font-size: 30px;
     font-weight: 700;
     line-height: 1.2em;
+    margin: 0 auto;
+    max-width: max(90%, 500px);
     text-align: center;
 
     @container (width <= 700px) {
