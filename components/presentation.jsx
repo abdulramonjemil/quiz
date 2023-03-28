@@ -1,8 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import Component, {
-  createElementRefHolder,
-  createInstanceRefHolder
-} from "../core/component"
+import Component, { createInstanceRefHolder } from "../core/component"
 import Styles from "../scss/presentation.module.scss"
 
 const SHOWN_SLIDE_CLASS = Styles.Slide_shown
@@ -87,7 +84,7 @@ export default class Presentation extends Component {
   }
 
   appendSlide(slideContent) {
-    const slideRefHolder = createElementRefHolder()
+    const slideRefHolder = createInstanceRefHolder()
     const slideNode = (
       <Slide content={slideContent} refHolder={slideRefHolder} />
     )
