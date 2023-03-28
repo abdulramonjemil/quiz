@@ -153,9 +153,10 @@ export default class Question extends Component {
     return questionNode
   }
 
-  isAnswered() {
-    const { $answerInputs } = this
-    return $answerInputs.some((input) => input.checked)
+  correctAnswerIsPicked() {
+    const { $answerInputs, $correctAnswerInput } = this
+    const selectedAnswerInput = $answerInputs.find((input) => input.checked)
+    return selectedAnswerInput === $correctAnswerInput
   }
 
   doReset() {
@@ -184,5 +185,10 @@ export default class Question extends Component {
 
     this.$setFeedbackState("enabled")
     this.$setAnswerSelectionState("disabled")
+  }
+
+  isAnswered() {
+    const { $answerInputs } = this
+    return $answerInputs.some((input) => input.checked)
   }
 }
