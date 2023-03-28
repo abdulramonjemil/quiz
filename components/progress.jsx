@@ -5,6 +5,14 @@ const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
 const PROGRESS_BRIDGE_PSEUDO_ELEMENT = "::after"
 const PASSED_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_passed
 
+/**
+ * The index of the progress level that'll be used to determine whether the
+ * progress can undergo changes when there are multiple changes made at the same
+ * time, for example when transitioning all of the level back to their initial
+ * state in order to restart.
+ */
+const INDEX_OF_MAIN_LEVEL_IN_MULTIPLE_CHANGES = 0
+
 function ProgressLevel({ number, handleTransition }) {
   return (
     <li
@@ -18,26 +26,45 @@ function ProgressLevel({ number, handleTransition }) {
 }
 
 export default class Progress extends Component {
-  $handleTransition(ev) {
-    const { propertyName, pseudoElement, type } = ev
+  $handleProgressLevelTransition(ev) {
+    const { propertyName, pseudoElement, target, type } = ev
     if (propertyName !== MAIN_PROGRESS_BRIDGE_PROPERTY) return
     if (pseudoElement !== PROGRESS_BRIDGE_PSEUDO_ELEMENT) return
-    if (type === "transitionstart") this.$isChangeable = false
-    if (type === "transitionend") this.$isChangeable = true
+    if (!target.matches(`.${Styles.Progress__Level}`)) return
+
+    if (type === "transitionstart") {
+      if (this.$isUndergoingSingleChange) this.$isChangeable = false
+      else if (this.$isUndergoingMultipleChanges) {
+        const transitionIsForMainProgressLevel =
+          target ===
+          this.$progressLevels[INDEX_OF_MAIN_LEVEL_IN_MULTIPLE_CHANGES]
+        if (transitionIsForMainProgressLevel) this.$isChangeable = false
+      }
+    } else if (type === "transitionend") {
+      if (this.$isUndergoingSingleChange) this.$isChangeable = true
+      else if (this.$isUndergoingMultipleChanges) {
+        const transitionIsForMainProgressLevel =
+          target ===
+          this.$progressLevels[INDEX_OF_MAIN_LEVEL_IN_MULTIPLE_CHANGES]
+        if (transitionIsForMainProgressLevel) this.$isChangeable = true
+      }
+    }
   }
 
   $render() {
     this.$progressLevels = []
     this.$currentProgressLevelIndex = 0
     this.$isChangeable = true
+    this.$isUndergoingMultipleChanges = false
+    this.$isUndergoingSingleChange = false
 
     const {
-      $handleTransition,
+      $handleProgressLevelTransition,
       $props: { levelsCount },
       $progressLevels
     } = this
 
-    const handleTransition = $handleTransition.bind(this)
+    const handleTransition = $handleProgressLevelTransition.bind(this)
     for (let i = 0; i < levelsCount; i += 1) {
       $progressLevels.push(
         <ProgressLevel number={i + 1} handleTransition={handleTransition} />
@@ -60,6 +87,8 @@ export default class Progress extends Component {
 
   decrement() {
     if (!this.$isChangeable) throw new Error("Currently undergoing a change")
+    this.$isUndergoingMultipleChanges = false
+    this.$isUndergoingSingleChange = true
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     const indexOfHighestDecrementableLevel = 1
@@ -77,6 +106,8 @@ export default class Progress extends Component {
 
   increment() {
     if (!this.$isChangeable) throw new Error("Currently undergoing a change")
+    this.$isUndergoingMultipleChanges = false
+    this.$isUndergoingSingleChange = true
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     const indexOfHighestIncrementableLevel = $progressLevels.length - 2
@@ -90,6 +121,10 @@ export default class Progress extends Component {
   }
 
   restart() {
+    if (!this.$isChangeable) throw new Error("Currently undergoing a change")
+    this.$isUndergoingSingleChange = false
+    this.$isUndergoingMultipleChanges = true
+
     const { $currentProgressLevelIndex, $progressLevels } = this
     if ($currentProgressLevelIndex === 0) return
 
