@@ -100,9 +100,29 @@ export default class Presentation extends Component {
     return this.$indexOfCurrentSlide
   }
 
+  async restart() {
+    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
+
+    this.$slideIsChangeable = false
+    const { $slides, $indexOfCurrentSlide } = this
+
+    const indexOfFirstSlide = 0
+    if ($indexOfCurrentSlide === indexOfFirstSlide) return
+
+    const currentSlide = $slides[$indexOfCurrentSlide]
+    const firstSlide = $slides[indexOfFirstSlide]
+
+    await currentSlide.fadeOut()
+    currentSlide.removeFromDOM()
+    firstSlide.addToDOM()
+    await firstSlide.fadeIn()
+
+    this.$indexOfCurrentSlide = indexOfFirstSlide
+    this.$slideIsChangeable = true
+  }
+
   async slideBackward() {
-    if (!this.$slideIsChangeable)
-      throw new Error("Unable to change current slide")
+    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
     this.$slideIsChangeable = false
     const { $slides, $indexOfCurrentSlide } = this
@@ -124,8 +144,7 @@ export default class Presentation extends Component {
   }
 
   async slideForward() {
-    if (!this.$slideIsChangeable)
-      throw new Error("Unable to change current slide")
+    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
     this.$slideIsChangeable = false
     const { $slides, $indexOfCurrentSlide } = this
