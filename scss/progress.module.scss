@@ -23,6 +23,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     cursor: default;
     display: block;
     flex-grow: 1;
+    max-width: 250px;
     position: relative;
 
     &:last-child {
