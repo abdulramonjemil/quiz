@@ -13,7 +13,7 @@ const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 const ENABLED_FEEDBACK_CLASS = Styles.FeedBack_enabled
 const SHOWN_FEEDBACK_CLASS = Styles.FeedBack_shown
 
-function Option({ letter, name, text }) {
+function Option({ handleOptionChange, letter, name, text }) {
   const optionLabellingId = uniqueId()
   return (
     <label className={Styles.Option} htmlFor={optionLabellingId}>
@@ -22,6 +22,7 @@ function Option({ letter, name, text }) {
         className={Styles.Option__Input}
         id={optionLabellingId}
         name={name}
+        onChange={handleOptionChange}
         type="radio"
         value={letter}
       />
@@ -94,7 +95,8 @@ export default class Question extends Component {
   }
 
   $render() {
-    const { answer, feedBackContent, options, title } = this.$props
+    const { answer, feedBackContent, handleOptionChange, options, title } =
+      this.$props
     const answerOptions = []
     const groupingName = uniqueId()
 
@@ -110,6 +112,7 @@ export default class Question extends Component {
     for (let i = 0; i < NUMBER_OF_ANSWER_CHOICES; i += 1) {
       answerOptions.push(
         <Option
+          handleOptionChange={handleOptionChange}
           letter={LETTERS_FOR_ANSWER_CHOICES[i]}
           name={groupingName}
           text={options[i]}
