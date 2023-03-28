@@ -18,7 +18,7 @@ export default class ControlPanel extends Component {
     const nextButtonRefHolder = createElementRefHolder()
     const submitButtonRefHolder = createElementRefHolder()
 
-    const controlPanelHTML = (
+    const controlPanelNode = (
       <div className={Styles.ControlPanelContainer}>
         <div className={Styles.ControlPanel}>
           <button
@@ -55,7 +55,7 @@ export default class ControlPanel extends Component {
     this.$prevButton = prevButtonRefHolder.ref
     this.$nextButton = nextButtonRefHolder.ref
     this.$submitButton = submitButtonRefHolder.ref
-    return controlPanelHTML
+    return controlPanelNode
   }
 
   disable(button) {

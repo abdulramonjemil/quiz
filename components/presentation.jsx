@@ -73,7 +73,7 @@ export default class Presentation extends Component {
     this.$slideIsChangeable = true
     this.$slides = slideInstances
 
-    const presentationHTML = (
+    const presentationNode = (
       <div
         aria-live="polite"
         className={Styles.Presentation}
@@ -83,7 +83,7 @@ export default class Presentation extends Component {
       </div>
     )
 
-    return presentationHTML
+    return presentationNode
   }
 
   appendSlide(slideContent) {

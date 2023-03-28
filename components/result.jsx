@@ -52,7 +52,7 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
   const indicatorRefHolder = createElementRefHolder()
   const percentValueRefHolder = createElementRefHolder()
 
-  const resultIndicatorHTML = (
+  const resultIndicatorNode = (
     <div
       className={Styles.Indicator}
       role="presentation"
@@ -96,7 +96,7 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
     percentValueRefHolder.ref,
     scoredPercentage
   )
-  return resultIndicatorHTML
+  return resultIndicatorNode
 }
 
 function ResultBoard({
@@ -131,7 +131,7 @@ export default class Result extends Component {
     this.$indicatorIsRendered = false
     this.$indicatorRenderFn = null
 
-    const resultHTML = (
+    const resultNode = (
       <div className={Styles.ResultContainer}>
         <ScrollShadow maxSizes={{ bottom: 25 }}>
           <div className={Styles.Result}>
@@ -150,7 +150,7 @@ export default class Result extends Component {
     )
 
     this.$indicatorRenderFn = indicatorRenderFnRefHolder.ref
-    return resultHTML
+    return resultNode
   }
 
   renderIndicator() {

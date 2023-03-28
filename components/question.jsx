@@ -117,7 +117,7 @@ export default class Question extends Component {
       )
     }
 
-    const questionHTML = (
+    const questionNode = (
       <div className={Styles.QuestionContainer}>
         <ScrollShadow
           observerConfig={{
@@ -147,7 +147,7 @@ export default class Question extends Component {
     this.$correctAnswerInput = this.$answerInputs.find(
       (input) => input.value === answer
     )
-    return questionHTML
+    return questionNode
   }
 
   isAnswered() {

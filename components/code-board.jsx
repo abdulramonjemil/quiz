@@ -15,7 +15,7 @@ Prism.manual = true
 
 export default function CodeBoard({ content, language, title }) {
   const codeRefHolder = createElementRefHolder()
-  const codeBoardHTML = (
+  const codeBoardNode = (
     <div className={Styles.CodeBoard}>
       <p className={Styles.CodeBoard__Title}>{phraseToNode(title)}</p>
       <div className={Styles.CodeWrapper}>
@@ -28,5 +28,5 @@ export default function CodeBoard({ content, language, title }) {
     </div>
   )
   Prism.highlightElement(codeRefHolder.ref)
-  return codeBoardHTML
+  return codeBoardNode
 }
