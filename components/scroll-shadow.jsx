@@ -73,8 +73,9 @@ export default function ScrollShadow(
     maxSizes
   )
 
-  // eslint-disable-next-line react/destructuring-assignment
+  /* eslint-disable-next-line react/destructuring-assignment */
   scrollableElement.addEventListener("scroll", adjustAppropriateScrollShadow)
+  new ResizeObserver(adjustAppropriateScrollShadow).observe(scrollableElement)
 
   if (typeof observerConfig === "object" && observerConfig !== null) {
     new MutationObserver(adjustAppropriateScrollShadow).observe(
@@ -82,12 +83,6 @@ export default function ScrollShadow(
       observerConfig
     )
   }
-
-  /* Trigger scroll on element to set up scroll shadow if needed */
-  setTimeout(() => {
-    scrollableElement.scrollTop = 1
-    scrollableElement.scrollTop = 0
-  })
 
   return (
     <>

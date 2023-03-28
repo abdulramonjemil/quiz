@@ -133,7 +133,7 @@ export default class Result extends Component {
 
     const resultHTML = (
       <div className={Styles.ResultContainer}>
-        <ScrollShadow maxSizes={{ top: 25, bottom: 25 }}>
+        <ScrollShadow maxSizes={{ bottom: 25 }}>
           <div className={Styles.Result}>
             <ResultIndicator
               scoredPercentage={scoredPercentage}
