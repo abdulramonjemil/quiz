@@ -244,6 +244,7 @@ export default class Quiz extends Component {
       $props: { headerContent, elements, storageKey },
       $handleQuestionOptionChange
     } = this
+
     const {
       QUESTION: QUESTION_QUIZ_ELEMENT_TYPE,
       CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
