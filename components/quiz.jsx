@@ -29,6 +29,11 @@ const QUIZ_ELEMENT_TYPES = {
   QUESTION: "question"
 }
 
+const KEYS_FOR_SAVED_QUIZ_METADATA = {
+  QUESTION_METADATA_SET: "QUESTION_METADATA_SET",
+  ELEMENTS_COUNT: "ELEMENTS_COUNT"
+}
+
 /**
  * Internal map used to store quiz props objects to prevent accessing it from
  * the outside
@@ -131,6 +136,12 @@ export default class Quiz extends Component {
     const quizPropsToUse = QUIZ_PROPS_MAP.get(quizProps)
     // eslint-disable-next-line react/jsx-props-no-spreading
     container.replaceChildren(<Quiz {...quizPropsToUse} />)
+  }
+
+  $clearQuizMetadata() {
+    if (!webStorageIsAvailable("localStorage")) return
+    const storageKeyToUse = this.$getFullStorageKey()
+    window.localStorage.removeItem(storageKeyToUse)
   }
 
   $getFullStorageKey() {
@@ -287,12 +298,20 @@ export default class Quiz extends Component {
     let resultIsPropagated = false
 
     if (storedMetadata !== null) {
-      const metadataList = JSON.parse(storedMetadata)
+      const parsedMetadata = JSON.parse(storedMetadata)
       const questionElements = elementRefs.filter(
         (element) => element instanceof Question
       )
 
-      if (metadataList.length !== questionElements.length) {
+      const {
+        [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataList,
+        [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]: savedElementsCount
+      } = parsedMetadata
+
+      if (
+        metadataList.length !== questionElements.length ||
+        savedElementsCount !== elementsCount
+      ) {
         this.$clearQuizMetadata()
       } else {
         questionElements.forEach((questionElement, index) =>
@@ -381,12 +400,6 @@ export default class Quiz extends Component {
     return window.localStorage.getItem(storageKeyToUse)
   }
 
-  $clearQuizMetadata() {
-    if (!webStorageIsAvailable("localStorage")) return
-    const storageKeyToUse = this.$getFullStorageKey()
-    window.localStorage.removeItem(storageKeyToUse)
-  }
-
   $saveQuizMetadata() {
     if (!webStorageIsAvailable("localStorage")) return
     const { $elements } = this
@@ -394,11 +407,20 @@ export default class Quiz extends Component {
       (element) => element instanceof Question
     )
 
-    const metadataArray = questionElements.map((questionElement) =>
+    const metadataSet = questionElements.map((questionElement) =>
       questionElement.exportInteractionMetadata()
     )
 
     const storageKeyToUse = this.$getFullStorageKey()
-    window.localStorage.setItem(storageKeyToUse, JSON.stringify(metadataArray))
+    window.localStorage.setItem(
+      storageKeyToUse,
+      JSON.stringify({
+        [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataSet,
+        [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]:
+          $elements[$elements.length - 1] instanceof Result
+            ? $elements.length - 1
+            : $elements.length
+      })
+    )
   }
 }

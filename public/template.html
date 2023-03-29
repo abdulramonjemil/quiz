@@ -53,6 +53,36 @@
         feedBackContent: "~~I've never for any reason loved to use `webpack`"
       })
 
+      const codeBoardCodeContent = `
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+const int MAXN = 15;
+int n;
+double dist[MAXN][MAXN];
+vector<int> path;
+
+double tsp(int curr, int mask) {
+  if (mask == (1 << n) - 1) return dist[curr][0];
+  double ans = 1e9;
+  for (int i = 0; i < n; i++) {
+    if (!(mask & (1 << i))) {
+      ans = min(ans, dist[curr][i] + tsp(i, mask | (1 << i)));
+    }
+  }
+  return ans;
+}`
+
+      quizProps.addCodeBoard({
+        title: "An example c++ code",
+        language: "cpp",
+        content: codeBoardCodeContent
+      })
+
       quizProps.addQuestion({
         title: "What do you think of my Hashnode Quiz widget?",
         options: [
