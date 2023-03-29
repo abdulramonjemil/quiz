@@ -55,7 +55,7 @@ export default class Progress extends Component {
 
   $render() {
     this.$progressLevels = []
-    this.$currentProgressLevelIndex = 0
+    this.$currentProgressLevelIndex = null
     this.$isChangeable = true
     this.$isRestarting = false
     this.$isUndergoingGradualChange = false
@@ -90,6 +90,8 @@ export default class Progress extends Component {
         />
       )
     }
+
+    this.$currentProgressLevelIndex = startLevelIsSet ? startLevel - 1 : 0
 
     return (
       /* The outer div is used to determine max-width of inner one in CSS */
