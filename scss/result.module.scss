@@ -193,9 +193,14 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
       $radius-of-indicator-bar-in-graphic;
     $default-result-percentage: 0.1;
 
+    $scored-percentage-to-use: max(
+      var(#{$PROPERTY_FOR_SCORED_PERCENTAGE}),
+      $default-result-percentage
+    );
+
     $real-dashoffset: calc(
       (
-          ($highest-percentage-value - var(#{$PROPERTY_FOR_SCORED_PERCENTAGE})) /
+          ($highest-percentage-value - $scored-percentage-to-use) /
             $highest-percentage-value
         ) * $circumference-of-indicator-bar /* stylelint-disable-line  */
     );

@@ -12,6 +12,7 @@ const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 
 const ENABLED_FEEDBACK_CLASS = Styles.FeedBack_enabled
 const SHOWN_FEEDBACK_CLASS = Styles.FeedBack_shown
+const QUESTION_METADATA_MAIN_KEY = "selectedOption"
 
 function Option({ handleOptionChange, letter, name, text }) {
   const optionLabellingId = uniqueId()
@@ -172,12 +173,39 @@ export default class Question extends Component {
     this.$setAnswerSelectionState("enabled")
   }
 
-  finalize() {
-    const { $answerInputs, $correctAnswerInput } = this
+  exportInteractionMetadata() {
+    const { $answerInputs } = this
     const selectedAnswerInput = $answerInputs.find((input) => input.checked)
+    return JSON.stringify({
+      [QUESTION_METADATA_MAIN_KEY]: selectedAnswerInput.value
+    })
+  }
 
-    if (selectedAnswerInput === undefined)
-      throw new Error("No answer is selected")
+  finalize(metadata) {
+    const { $answerInputs, $correctAnswerInput } = this
+    let selectedAnswerInput = null
+
+    if (metadata === undefined) {
+      selectedAnswerInput = $answerInputs.find((input) => input.checked)
+      if (selectedAnswerInput === undefined)
+        throw new Error("No answer is selected")
+    } else {
+      if (typeof metadata !== "string")
+        throw new TypeError("metadata must be a string if present")
+
+      const parsedMetadata = JSON.parse(metadata)
+      const selectedOption = parsedMetadata[QUESTION_METADATA_MAIN_KEY]
+
+      if (!LETTERS_FOR_ANSWER_CHOICES.includes(selectedOption))
+        throw new Error("Invalid metadata")
+
+      selectedAnswerInput = $answerInputs.find(
+        (input) => input.value === selectedOption
+      )
+
+      // Set input to checked and trigger change event
+      selectedAnswerInput.click()
+    }
 
     if (selectedAnswerInput !== $correctAnswerInput)
       Question.$styleAnswerInputOption(selectedAnswerInput, "incorrect")

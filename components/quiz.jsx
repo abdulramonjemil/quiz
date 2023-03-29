@@ -12,12 +12,18 @@ import Question from "./question"
 import CodeBoard from "./code-board"
 import Result from "./result"
 import ControlPanel from "./control-panel"
-import { isFilledString, uniqueId } from "../core/library"
+
+import {
+  isFilledString,
+  uniqueId,
+  webStorageIsAvailable
+} from "../core/library"
 
 const DEFAULT_QUIZ_HEADER = "Test your knowledge"
 const QUESTION_ANSWER_REGEX = /^[A-D]$/
 const QUESTION_ANSWER_DESC = "one of the letter A - D"
 
+const QUIZ_STORAGE_KEY_RANDOMIZER = "yq2TpI58ul6g3sLioISGNPSroqxcqc"
 const QUIZ_ELEMENT_TYPES = {
   CODE_BOARD: "code-board",
   QUESTION: "question"
@@ -36,7 +42,8 @@ class QuizProps {
 
     QUIZ_PROPS_MAP.set(this, {
       headerContent: header || DEFAULT_QUIZ_HEADER,
-      elements: []
+      elements: [],
+      storageKey: ""
     })
   }
 
@@ -89,11 +96,19 @@ class QuizProps {
   }
 
   setHeader(value) {
-    if (typeof value !== "string" || value === "")
+    if (!isFilledString(value))
       throw new TypeError("header must be a non-empty string")
 
     const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
     attachedPropsObject.headerContent = value
+  }
+
+  setStorageKey(value) {
+    if (!isFilledString(value))
+      throw new TypeError("storage key must be a non-empty string")
+
+    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
+    attachedPropsObject.storageKey = value
   }
 }
 
@@ -116,6 +131,10 @@ export default class Quiz extends Component {
     const quizPropsToUse = QUIZ_PROPS_MAP.get(quizProps)
     // eslint-disable-next-line react/jsx-props-no-spreading
     container.replaceChildren(<Quiz {...quizPropsToUse} />)
+  }
+
+  $getFullStorageKey() {
+    return `${QUIZ_STORAGE_KEY_RANDOMIZER}${window.location.pathname}${this.$storageKey}`
   }
 
   $handleNextButtonClick() {
@@ -147,6 +166,21 @@ export default class Quiz extends Component {
     $controlPanel.enable("next")
     if (!($elements[currentSlideIndex] instanceof Result)) $progress.decrement()
     $presentation.slideBackward()
+  }
+
+  $handleQuestionOptionChange(questionIndex) {
+    const { $controlPanel, $elements, $presentation } = this
+    const currentSlideIndex = $presentation.currentSlideIndex()
+    const questionAtIndex = $elements[questionIndex]
+
+    if (questionIndex !== currentSlideIndex) return
+    if (!questionAtIndex.isAnswered()) {
+      $controlPanel.disable("next")
+      $controlPanel.disable("submit")
+    } else if (currentSlideIndex === $elements.length - 1) {
+      $controlPanel.disable("next")
+      $controlPanel.enable("submit")
+    } else $controlPanel.enable("next")
   }
 
   async $handleSubmitButtonClick() {
@@ -181,21 +215,7 @@ export default class Quiz extends Component {
     await $presentation.slideForward()
     questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
-  }
-
-  $handleQuestionOptionChange(questionIndex) {
-    const { $controlPanel, $elements, $presentation } = this
-    const currentSlideIndex = $presentation.currentSlideIndex()
-    const questionAtIndex = $elements[questionIndex]
-
-    if (questionIndex !== currentSlideIndex) return
-    if (!questionAtIndex.isAnswered()) {
-      $controlPanel.disable("next")
-      $controlPanel.disable("submit")
-    } else if (currentSlideIndex === $elements.length - 1) {
-      $controlPanel.disable("next")
-      $controlPanel.enable("submit")
-    } else $controlPanel.enable("next")
+    this.$saveQuizMetadata()
   }
 
   $startQuestionsReview() {
@@ -210,7 +230,7 @@ export default class Quiz extends Component {
 
   $render() {
     const {
-      $props: { headerContent, elements },
+      $props: { headerContent, elements, storageKey },
       $handleQuestionOptionChange
     } = this
     const {
@@ -218,6 +238,8 @@ export default class Quiz extends Component {
       CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
     } = QUIZ_ELEMENT_TYPES
 
+    // Storage key is used by some methods called below
+    this.$storageKey = storageKey
     this.$elements = []
     this.$progress = null
     this.$presentation = null
@@ -261,6 +283,49 @@ export default class Quiz extends Component {
       }
     })
 
+    const storedMetadata = this.$retrieveQuizMetadata()
+    let resultIsPropagated = false
+
+    if (storedMetadata !== null) {
+      const metadataList = JSON.parse(storedMetadata)
+      const questionElements = elementRefs.filter(
+        (element) => element instanceof Question
+      )
+
+      if (metadataList.length !== questionElements.length) {
+        this.$clearQuizMetadata()
+      } else {
+        questionElements.forEach((questionElement, index) =>
+          questionElement.finalize(metadataList[index])
+        )
+
+        const gottenAnswersCount = questionElements.reduce(
+          (previousValue, questionElement) =>
+            questionElement.correctAnswerIsPicked()
+              ? previousValue + 1
+              : previousValue,
+          0
+        )
+
+        const resultRefHolder = createInstanceRefHolder()
+        const resultNode = (
+          <Result
+            answersGotten={gottenAnswersCount}
+            handleExplanationsReview={this.$startQuestionsReview.bind(this)}
+            questionsCount={questionElements.length}
+            refHolder={resultRefHolder}
+          />
+        )
+
+        slides.push(resultNode)
+        elementRefs.push(resultRefHolder.ref)
+        resultIsPropagated = true
+
+        // Render the result after a little delay
+        setTimeout(() => resultRefHolder.ref.renderIndicator(), 200)
+      }
+    }
+
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
     const progressRefHolder = createInstanceRefHolder()
@@ -276,11 +341,16 @@ export default class Quiz extends Component {
     const quizNode = (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
         <Header labellingId={quizLabellingId}>{headerContent}</Header>
-        <Progress levelsCount={elementsCount} refHolder={progressRefHolder} />
+        <Progress
+          levelsCount={elementsCount}
+          refHolder={progressRefHolder}
+          startLevel={resultIsPropagated ? elementsCount : 1}
+        />
         <Presentation
           controllingId={presentationControllingId}
           refHolder={presentationRefHolder}
           slides={slides}
+          startingSlideIndex={resultIsPropagated ? slides.length - 1 : 0}
         />
         <ControlPanel
           controllingId={presentationControllingId}
@@ -292,7 +362,7 @@ export default class Quiz extends Component {
       </section>
     )
 
-    if (elementRefs[0] instanceof Question)
+    if (resultIsPropagated || elementRefs[0] instanceof Question)
       controlPanelRefHolder.ref.disable("next")
     controlPanelRefHolder.ref.disable("prev")
     controlPanelRefHolder.ref.disable("submit")
@@ -303,5 +373,32 @@ export default class Quiz extends Component {
     this.$controlPanel = controlPanelRefHolder.ref
 
     return quizNode
+  }
+
+  $retrieveQuizMetadata() {
+    if (!webStorageIsAvailable("localStorage")) return null
+    const storageKeyToUse = this.$getFullStorageKey()
+    return window.localStorage.getItem(storageKeyToUse)
+  }
+
+  $clearQuizMetadata() {
+    if (!webStorageIsAvailable("localStorage")) return
+    const storageKeyToUse = this.$getFullStorageKey()
+    window.localStorage.removeItem(storageKeyToUse)
+  }
+
+  $saveQuizMetadata() {
+    if (!webStorageIsAvailable("localStorage")) return
+    const { $elements } = this
+    const questionElements = $elements.filter(
+      (element) => element instanceof Question
+    )
+
+    const metadataArray = questionElements.map((questionElement) =>
+      questionElement.exportInteractionMetadata()
+    )
+
+    const storageKeyToUse = this.$getFullStorageKey()
+    window.localStorage.setItem(storageKeyToUse, JSON.stringify(metadataArray))
   }
 }

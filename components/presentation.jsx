@@ -49,7 +49,11 @@ class Slide extends Component {
 
 export default class Presentation extends Component {
   $render() {
-    const { controllingId, slides: slideContents } = this.$props
+    const {
+      controllingId,
+      slides: slideContents,
+      startingSlideIndex
+    } = this.$props
 
     const slideNodes = []
     const slideInstances = []
@@ -63,10 +67,19 @@ export default class Presentation extends Component {
       slideInstances.push(slideRefHolder.ref)
     })
 
-    const firstSlide = slideInstances[0]
-    firstSlide.addToDOM(true)
+    let indexOfSlideToShow = 0
+    if (Number.isInteger(startingSlideIndex)) {
+      if (startingSlideIndex < 0 || startingSlideIndex >= slideNodes.length)
+        throw new RangeError(
+          `There is no slide at index: ${startingSlideIndex}`
+        )
+      indexOfSlideToShow = startingSlideIndex
+    }
 
-    this.$indexOfCurrentSlide = 0
+    const slideToShow = slideInstances[indexOfSlideToShow]
+    slideToShow.addToDOM(true)
+
+    this.$indexOfCurrentSlide = indexOfSlideToShow
     this.$slideIsChangeable = true
     this.$slides = slideInstances
 
