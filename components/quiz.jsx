@@ -20,6 +20,9 @@ import {
 } from "../core/library"
 
 const DEFAULT_QUIZ_HEADER = "Test your knowledge"
+const DEFAULT_QUIZ_IS_GLOBAL_VALUE = false
+const DEFAULT_QUIZ_STORAGE_KEY = ""
+
 const QUESTION_ANSWER_REGEX = /^[A-D]$/
 const QUESTION_ANSWER_DESC = "one of the letter A - D"
 
@@ -41,14 +44,25 @@ const KEYS_FOR_SAVED_QUIZ_METADATA = {
 const QUIZ_PROPS_MAP = new Map()
 
 class QuizProps {
-  constructor(header) {
+  constructor(isGlobal, storageKey, header) {
+    if (isGlobal !== undefined && typeof isGlobal !== "boolean")
+      throw new TypeError("quiz global state must be boolean")
+
+    if (storageKey !== undefined && !isFilledString(storageKey))
+      throw new TypeError("storage key must be a non-empty string")
+
+    if (isGlobal && storageKey === undefined)
+      throw new TypeError("a global quiz must have a non-empty storage key")
+
     if (header !== undefined && !isFilledString(header))
       throw new TypeError("header must be a non-empty string")
 
     QUIZ_PROPS_MAP.set(this, {
       headerContent: header || DEFAULT_QUIZ_HEADER,
+      isGlobal:
+        isGlobal !== undefined ? isGlobal : DEFAULT_QUIZ_IS_GLOBAL_VALUE,
       elements: [],
-      storageKey: ""
+      storageKey: storageKey || DEFAULT_QUIZ_STORAGE_KEY
     })
   }
 
@@ -100,6 +114,20 @@ class QuizProps {
     })
   }
 
+  setGlobalState(value) {
+    if (typeof value !== "boolean")
+      throw new TypeError("quiz global state must be boolean")
+
+    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
+
+    if (
+      value === true &&
+      attachedPropsObject.storageKey === DEFAULT_QUIZ_STORAGE_KEY
+    ) {
+      throw new Error("global quizzes must have a storage key")
+    } else attachedPropsObject.isGlobal = value
+  }
+
   setHeader(value) {
     if (!isFilledString(value))
       throw new TypeError("header must be a non-empty string")
@@ -145,7 +173,12 @@ export default class Quiz extends Component {
   }
 
   $getFullStorageKey() {
-    return `${QUIZ_STORAGE_KEY_RANDOMIZER}${window.location.pathname}${this.$storageKey}`
+    const { $isGlobal, $storageKey } = this
+    return (
+      QUIZ_STORAGE_KEY_RANDOMIZER +
+      ($isGlobal ? "" : window.location.pathname) +
+      $storageKey
+    )
   }
 
   $handleNextButtonClick() {
@@ -241,7 +274,7 @@ export default class Quiz extends Component {
 
   $render() {
     const {
-      $props: { headerContent, elements, storageKey },
+      $props: { elements, headerContent, isGlobal, storageKey },
       $handleQuestionOptionChange
     } = this
 
@@ -253,6 +286,7 @@ export default class Quiz extends Component {
     // Storage key is used by some methods called below
     this.$storageKey = storageKey
     this.$elements = []
+    this.$isGlobal = isGlobal
     this.$progress = null
     this.$presentation = null
     this.$controlPanel = null
