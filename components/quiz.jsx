@@ -19,9 +19,11 @@ import {
   webStorageIsAvailable
 } from "../core/library"
 
-const DEFAULT_QUIZ_HEADER = "Test your knowledge"
-const DEFAULT_QUIZ_IS_GLOBAL_VALUE = false
-const DEFAULT_QUIZ_STORAGE_KEY = ""
+const QUIZ_DEFAULTS = {
+  HEADER: "Test your knowledge",
+  IS_GLOBAL_VALUE: false,
+  STORAGE_KEY: ""
+}
 
 const QUESTION_ANSWER_REGEX = /^[A-D]$/
 const QUESTION_ANSWER_DESC = "one of the letter A - D"
@@ -44,25 +46,25 @@ const KEYS_FOR_SAVED_QUIZ_METADATA = {
 const QUIZ_PROPS_MAP = new Map()
 
 class QuizProps {
-  constructor(isGlobal, storageKey, header) {
+  constructor(header, { isGlobal, storageKey } = {}) {
     if (isGlobal !== undefined && typeof isGlobal !== "boolean")
       throw new TypeError("quiz global state must be boolean")
 
     if (storageKey !== undefined && !isFilledString(storageKey))
       throw new TypeError("storage key must be a non-empty string")
 
-    if (isGlobal && storageKey === undefined)
+    if (isGlobal === true && storageKey === undefined)
       throw new TypeError("a global quiz must have a non-empty storage key")
 
     if (header !== undefined && !isFilledString(header))
       throw new TypeError("header must be a non-empty string")
 
     QUIZ_PROPS_MAP.set(this, {
-      headerContent: header || DEFAULT_QUIZ_HEADER,
+      headerContent: header || QUIZ_DEFAULTS.HEADER,
       isGlobal:
-        isGlobal !== undefined ? isGlobal : DEFAULT_QUIZ_IS_GLOBAL_VALUE,
+        isGlobal !== undefined ? isGlobal : QUIZ_DEFAULTS.IS_GLOBAL_VALUE,
       elements: [],
-      storageKey: storageKey || DEFAULT_QUIZ_STORAGE_KEY
+      storageKey: storageKey || QUIZ_DEFAULTS.STORAGE_KEY
     })
   }
 
@@ -122,7 +124,7 @@ class QuizProps {
 
     if (
       value === true &&
-      attachedPropsObject.storageKey === DEFAULT_QUIZ_STORAGE_KEY
+      attachedPropsObject.storageKey === QUIZ_DEFAULTS.STORAGE_KEY
     ) {
       throw new Error("global quizzes must have a storage key")
     } else attachedPropsObject.isGlobal = value
