@@ -166,7 +166,7 @@ export function parseCodeDefinitions(content) {
 const LENGTH_OF_CONTENT_MODIFIERS = 2
 const START_OF_CODE_CONTAINING_CONTENT = "~~"
 const START_OF_RAW_CONTENT = "__"
-const START_OF_RAW_HTML_CONTENT = "##"
+const START_OF_RAW_HTML_CONTENT = "<>"
 
 export function phraseToNode(content, allowRawHTML = true) {
   if (typeof content !== "string")
