@@ -7,7 +7,7 @@ const commonConfig = require("./webpack.config")
 
 module.exports = merge(commonConfig, {
   devServer: {
-    open: true,
+    open: false,
     port: 8000,
     static: {
       watch: true

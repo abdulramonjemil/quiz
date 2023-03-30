@@ -30,8 +30,8 @@ const QUESTION_ANSWER_DESC = "one of the letter A - D"
 
 const QUIZ_STORAGE_KEY_RANDOMIZER = "yq2TpI58ul6g3sLioISGNPSroqxcqc"
 const QUIZ_ELEMENT_TYPES = {
-  CODE_BOARD: "code-board",
-  QUESTION: "question"
+  CODE_BOARD: "CODE_BOARD",
+  QUESTION: "QUESTION"
 }
 
 const KEYS_FOR_SAVED_QUIZ_METADATA = {
@@ -46,7 +46,12 @@ const KEYS_FOR_SAVED_QUIZ_METADATA = {
 const QUIZ_PROPS_MAP = new Map()
 
 class QuizProps {
-  constructor({ header, isGlobal, storageKey } = {}) {
+  constructor(metadata) {
+    if (metadata !== undefined && typeof metadata !== "object")
+      throw new TypeError("quiz metadata must be an object if present")
+
+    const { header, isGlobal, storageKey } = metadata || {}
+
     if (isGlobal !== undefined && typeof isGlobal !== "boolean")
       throw new TypeError("quiz global state must be boolean")
 
@@ -68,7 +73,44 @@ class QuizProps {
     })
   }
 
-  addCodeBoard({ title, language, content }) {
+  static createFrom(propsDefinition) {
+    if (typeof propsDefinition !== "object")
+      throw new TypeError("props definition must be an object")
+
+    const { metadata, elements } = propsDefinition
+
+    if (typeof metadata !== "object")
+      throw new TypeError("metadata in props definition must be an object")
+
+    const quizProps = new QuizProps(metadata)
+
+    if (
+      !Array.isArray(elements) ||
+      !elements.every((element) => typeof element === "object")
+    ) {
+      throw new TypeError(
+        "elements in props definition must be an array of objects"
+      )
+    }
+
+    elements.forEach((element) => {
+      const { type, ...otherProps } = element
+      if (type === QUIZ_ELEMENT_TYPES.CODE_BOARD)
+        quizProps.addCodeBoard(otherProps)
+      else if (type === QUIZ_ELEMENT_TYPES.QUESTION)
+        quizProps.addQuestion(otherProps)
+      else throw new TypeError(`Unknow quiz element type: ${type}`)
+    })
+
+    return quizProps
+  }
+
+  addCodeBoard(props) {
+    if (typeof props !== "object")
+      throw new TypeError("code board props must be an object")
+
+    const { title, language, content } = props
+
     if (!isFilledString(title))
       throw new TypeError("code board title must be a non-empty string")
     if (!isFilledString(language))
@@ -87,7 +129,12 @@ class QuizProps {
     })
   }
 
-  addQuestion({ title, options, answer, feedBackContent }) {
+  addQuestion(props) {
+    if (typeof props !== "object")
+      throw new TypeError("question props must be an object")
+
+    const { title, options, answer, feedBackContent } = props
+
     if (!isFilledString(title))
       throw new TypeError("code board title must be a non-empty string")
     if (!Array.isArray(options) || options.length !== 4)
@@ -114,36 +161,6 @@ class QuizProps {
         title
       }
     })
-  }
-
-  setGlobalState(value) {
-    if (typeof value !== "boolean")
-      throw new TypeError("quiz global state must be boolean")
-
-    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
-
-    if (
-      value === true &&
-      attachedPropsObject.storageKey === QUIZ_DEFAULTS.STORAGE_KEY
-    ) {
-      throw new Error("global quizzes must have a storage key")
-    } else attachedPropsObject.isGlobal = value
-  }
-
-  setHeader(value) {
-    if (!isFilledString(value))
-      throw new TypeError("header must be a non-empty string")
-
-    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
-    attachedPropsObject.headerContent = value
-  }
-
-  setStorageKey(value) {
-    if (!isFilledString(value))
-      throw new TypeError("storage key must be a non-empty string")
-
-    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
-    attachedPropsObject.storageKey = value
   }
 }
 

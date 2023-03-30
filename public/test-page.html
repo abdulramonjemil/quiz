@@ -26,9 +26,8 @@
     <script>
       /** Put script to be used to test the Quiz app here. */
       const main = document.getElementById("quiz")
-      const quizProps = new Quiz.Props()
+      const quizProps = new Quiz.Props({ header: "Your opinion matters" })
 
-      quizProps.setHeader("Your opinion matters")
       quizProps.addQuestion({
         title: "What do you think of my Hashnode Quiz widget?",
         options: [
