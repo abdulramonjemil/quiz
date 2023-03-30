@@ -45,6 +45,13 @@ const KEYS_FOR_SAVED_QUIZ_METADATA = {
  */
 const QUIZ_PROPS_MAP = new Map()
 
+/**
+ * Internal set used to store keys that are associated with quizzes. It is used
+ * to confirm that two quizzes are not using the same full storage key to avoid
+ * collision.
+ */
+const REGISTERED_STORAGE_KEYS_SET = new Set()
+
 class QuizProps {
   constructor(metadata) {
     if (metadata !== undefined && typeof metadata !== "object")
@@ -183,6 +190,15 @@ export default class Quiz extends Component {
     const quizPropsToUse = QUIZ_PROPS_MAP.get(quizProps)
     // eslint-disable-next-line react/jsx-props-no-spreading
     container.replaceChildren(<Quiz {...quizPropsToUse} />)
+  }
+
+  $registerStorageKey() {
+    const fullStorageKey = this.$getFullStorageKey()
+    if (REGISTERED_STORAGE_KEYS_SET.has(fullStorageKey))
+      throw new Error(
+        "Two or more quizzes are sharing the same storage key on this page"
+      )
+    REGISTERED_STORAGE_KEYS_SET.add(fullStorageKey)
   }
 
   $clearQuizMetadata() {
@@ -355,6 +371,7 @@ export default class Quiz extends Component {
       }
     })
 
+    this.$registerStorageKey()
     const storedMetadata = this.$retrieveQuizMetadata()
     let resultIsPropagated = false
 

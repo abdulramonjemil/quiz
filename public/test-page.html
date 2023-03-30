@@ -23,10 +23,16 @@
   </head>
   <body>
     <main id="quiz"></main>
+    <section id="quiz2"></section>
     <script>
       /** Put script to be used to test the Quiz app here. */
       const main = document.getElementById("quiz")
+      const secondMain = document.getElementById("quiz2")
       const quizProps = new Quiz.Props({ header: "Your opinion matters" })
+      const quizProps2 = new Quiz.Props({
+        header: "Your opinion matters",
+        storageKey: String(Math.random())
+      })
 
       quizProps.addQuestion({
         title: "What do you think of my Hashnode Quiz widget?",
@@ -40,7 +46,31 @@
         feedBackContent: "~~I've never for any reason loved to use `webpack`"
       })
 
+      quizProps2.addQuestion({
+        title: "What do you think of my Hashnode Quiz widget?",
+        options: [
+          "Who cares by the way? It's not my thing for the most part.",
+          "It makes tiny sense",
+          "~~Did you use `webpack` when creating it?",
+          "Whatever"
+        ],
+        answer: "C",
+        feedBackContent: "~~I've never for any reason loved to use `webpack`"
+      })
+
       quizProps.addQuestion({
+        title: "What do you think of my Hashnode Quiz widget?",
+        options: [
+          "Who cares by the way? It's not my thing for the most part.",
+          "It makes tiny sense",
+          "~~Did you use `webpack` when creating it?",
+          "Whatever"
+        ],
+        answer: "C",
+        feedBackContent: "~~I've never for any reason loved to use `webpack`"
+      })
+
+      quizProps2.addQuestion({
         title: "What do you think of my Hashnode Quiz widget?",
         options: [
           "Who cares by the way? It's not my thing for the most part.",
@@ -82,7 +112,25 @@ double tsp(int curr, int mask) {
         content: codeBoardCodeContent
       })
 
+      quizProps2.addCodeBoard({
+        title: "An example c++ code",
+        language: "cpp",
+        content: codeBoardCodeContent
+      })
+
       quizProps.addQuestion({
+        title: "What do you think of my Hashnode Quiz widget?",
+        options: [
+          "Who cares by the way? It's not my thing for the most part.",
+          "It makes tiny sense",
+          "~~Did you use `webpack` when creating it?",
+          "Whatever"
+        ],
+        answer: "C",
+        feedBackContent: "~~I've never for any reason loved to use `webpack`"
+      })
+
+      quizProps2.addQuestion({
         title: "What do you think of my Hashnode Quiz widget?",
         options: [
           "Who cares by the way? It's not my thing for the most part.",
@@ -96,6 +144,7 @@ double tsp(int curr, int mask) {
 
       // Create and render the quiz inside <main>
       Quiz.create(quizProps, main)
+      Quiz.create(quizProps2, secondMain)
     </script>
   </body>
 </html>
