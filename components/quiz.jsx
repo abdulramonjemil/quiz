@@ -174,6 +174,13 @@ export default class Quiz extends Component {
 
   $getFullStorageKey() {
     const { $isGlobal, $storageKey } = this
+
+    /**
+     * Storage key will be a non-empty string if $isGlobal is true. Else, all
+     * quizzes that have no storage key and are global will share the same full
+     * storage key which will be equal to QUIZ_STORAGE_KEY_RANDOMIZER. This is
+     * enforced in QuizProps.
+     */
     return (
       QUIZ_STORAGE_KEY_RANDOMIZER +
       ($isGlobal ? "" : window.location.pathname) +
