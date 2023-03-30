@@ -77,7 +77,8 @@ module.exports = merge(commonConfig, {
     new HTMLWebpackPlugin({
       inject: "head",
       scriptLoading: "blocking",
-      template: "./public/template.html"
+      // Contains arbitrary code used to test the app
+      template: "./public/test-page.html"
     })
   ]
 })
