@@ -1,7 +1,7 @@
 {
   "name": "quiz",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "description": "A library for embedding quizzes within Hashnode blog posts",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,6 @@
     "prepare": "husky install"
   },
   "author": "Abdulramon Jemil",
-  "license": "ISC",
   "devDependencies": {
     "@babel/cli": "^7.20.7",
     "@babel/core": "^7.20.12",
