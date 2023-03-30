@@ -46,7 +46,7 @@ const KEYS_FOR_SAVED_QUIZ_METADATA = {
 const QUIZ_PROPS_MAP = new Map()
 
 class QuizProps {
-  constructor(header, { isGlobal, storageKey } = {}) {
+  constructor({ header, isGlobal, storageKey } = {}) {
     if (isGlobal !== undefined && typeof isGlobal !== "boolean")
       throw new TypeError("quiz global state must be boolean")
 
