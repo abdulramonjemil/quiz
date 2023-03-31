@@ -73,7 +73,7 @@ class QuizProps {
 
     QUIZ_PROPS_MAP.set(this, {
       metadata: {
-        headerContent: header || DEFAULT_QUIZ_METADATA.HEADER,
+        header: header || DEFAULT_QUIZ_METADATA.HEADER,
         isGlobal:
           isGlobal !== undefined
             ? isGlobal
@@ -315,7 +315,7 @@ export default class Quiz extends Component {
     const {
       $props: {
         elements,
-        metadata: { headerContent, isGlobal, storageKey }
+        metadata: { header, isGlobal, storageKey }
       },
       $handleQuestionOptionChange
     } = this
@@ -437,7 +437,7 @@ export default class Quiz extends Component {
 
     const quizNode = (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
-        <Header labellingId={quizLabellingId}>{headerContent}</Header>
+        <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
           levelsCount={elementsCount}
           refHolder={progressRefHolder}
