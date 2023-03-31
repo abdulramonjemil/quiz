@@ -84,34 +84,13 @@ class QuizProps {
     })
   }
 
-  static createFrom(propsDefinition) {
+  static define(propsDefinition) {
     if (typeof propsDefinition !== "object")
       throw new TypeError("props definition must be an object")
 
     const { metadata, elements } = propsDefinition
-
-    if (typeof metadata !== "object")
-      throw new TypeError("metadata in props definition must be an object")
-
     const quizProps = new QuizProps(metadata)
-
-    if (
-      !Array.isArray(elements) ||
-      !elements.every((element) => typeof element === "object")
-    ) {
-      throw new TypeError(
-        "elements in props definition must be an array of objects"
-      )
-    }
-
-    elements.forEach((element) => {
-      const { type, props } = element
-      if (type === QUIZ_ELEMENT_TYPES.CODE_BOARD) quizProps.addCodeBoard(props)
-      else if (type === QUIZ_ELEMENT_TYPES.QUESTION)
-        quizProps.addQuestion(props)
-      else throw new TypeError(`Unknow quiz element type: ${type}`)
-    })
-
+    quizProps.addElements(elements)
     return quizProps
   }
 
@@ -136,6 +115,24 @@ class QuizProps {
         language,
         title
       }
+    })
+  }
+
+  addElements(elements) {
+    if (
+      !Array.isArray(elements) ||
+      elements.some((element) => typeof element !== "object")
+    ) {
+      throw new TypeError(
+        "elements in props definition must be an array of objects"
+      )
+    }
+
+    elements.forEach((element) => {
+      const { type, props } = element
+      if (type === QUIZ_ELEMENT_TYPES.CODE_BOARD) this.addCodeBoard(props)
+      else if (type === QUIZ_ELEMENT_TYPES.QUESTION) this.addQuestion(props)
+      else throw new TypeError(`Unknow quiz element type: ${type}`)
     })
   }
 
