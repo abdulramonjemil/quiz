@@ -19,7 +19,7 @@ import {
   webStorageIsAvailable
 } from "../core/library"
 
-const QUIZ_DEFAULTS = {
+const DEFAULT_QUIZ_METADATA = {
   HEADER: "Test your knowledge",
   IS_GLOBAL_VALUE: false,
   STORAGE_KEY: ""
@@ -72,11 +72,15 @@ class QuizProps {
       throw new TypeError("header must be a non-empty string")
 
     QUIZ_PROPS_MAP.set(this, {
-      headerContent: header || QUIZ_DEFAULTS.HEADER,
-      isGlobal:
-        isGlobal !== undefined ? isGlobal : QUIZ_DEFAULTS.IS_GLOBAL_VALUE,
-      elements: [],
-      storageKey: storageKey || QUIZ_DEFAULTS.STORAGE_KEY
+      metadata: {
+        headerContent: header || DEFAULT_QUIZ_METADATA.HEADER,
+        isGlobal:
+          isGlobal !== undefined
+            ? isGlobal
+            : DEFAULT_QUIZ_METADATA.IS_GLOBAL_VALUE,
+        storageKey: storageKey || DEFAULT_QUIZ_METADATA.STORAGE_KEY
+      },
+      elements: []
     })
   }
 
@@ -192,25 +196,25 @@ export default class Quiz extends Component {
     container.replaceChildren(<Quiz {...quizPropsToUse} />)
   }
 
-  $clearQuizMetadata() {
+  $clearQuizStoredData() {
     if (!webStorageIsAvailable("localStorage")) return
     const storageKeyToUse = this.$getFullStorageKey()
     window.localStorage.removeItem(storageKeyToUse)
   }
 
   $getFullStorageKey() {
-    const { $isGlobal, $storageKey } = this
+    const { $metadata: isGlobal, storageKey } = this
 
     /**
-     * Storage key will be a non-empty string if $isGlobal is true. Else, all
+     * Storage key will be a non-empty string if isGlobal is true. Else, all
      * quizzes that have no storage key and are global will share the same full
      * storage key which will be equal to QUIZ_STORAGE_KEY_RANDOMIZER. This is
      * enforced in QuizProps.
      */
     return (
       QUIZ_STORAGE_KEY_RANDOMIZER +
-      ($isGlobal ? "" : window.location.pathname) +
-      $storageKey
+      (isGlobal ? "" : window.location.pathname) +
+      storageKey
     )
   }
 
@@ -297,7 +301,10 @@ export default class Quiz extends Component {
 
   $registerStorageKey() {
     const fullStorageKey = this.$getFullStorageKey()
-    if (REGISTERED_STORAGE_KEYS_SET.has(fullStorageKey) && !this.$isGlobal)
+    if (
+      REGISTERED_STORAGE_KEYS_SET.has(fullStorageKey) &&
+      !this.$metadata.isGlobal
+    )
       throw new Error(
         "Two or more quizzes are sharing the same storage key on this page"
       )
@@ -306,7 +313,10 @@ export default class Quiz extends Component {
 
   $render() {
     const {
-      $props: { elements, headerContent, isGlobal, storageKey },
+      $props: {
+        elements,
+        metadata: { headerContent, isGlobal, storageKey }
+      },
       $handleQuestionOptionChange
     } = this
 
@@ -316,9 +326,8 @@ export default class Quiz extends Component {
     } = QUIZ_ELEMENT_TYPES
 
     // Storage key is used by some methods called below
-    this.$storageKey = storageKey
+    this.$metadata = { storageKey, isGlobal }
     this.$elements = []
-    this.$isGlobal = isGlobal
     this.$progress = null
     this.$presentation = null
     this.$controlPanel = null
@@ -362,28 +371,29 @@ export default class Quiz extends Component {
     })
 
     this.$registerStorageKey()
-    const storedMetadata = this.$retrieveQuizMetadata()
+    const storedQuizData = this.$retrieveQuizMetadata()
     let resultIsPropagated = false
 
-    if (storedMetadata !== null) {
-      const parsedMetadata = JSON.parse(storedMetadata)
+    if (storedQuizData !== null) {
+      const parsedQuizData = JSON.parse(storedQuizData)
       const questionElements = elementRefs.filter(
         (element) => element instanceof Question
       )
 
       const {
-        [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataList,
+        [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]:
+          questionMetadataList,
         [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]: savedElementsCount
-      } = parsedMetadata
+      } = parsedQuizData
 
       if (
-        metadataList.length !== questionElements.length ||
+        questionMetadataList.length !== questionElements.length ||
         savedElementsCount !== elementsCount
       ) {
-        this.$clearQuizMetadata()
+        this.$clearQuizStoredData()
       } else {
         questionElements.forEach((questionElement, index) =>
-          questionElement.finalize(metadataList[index])
+          questionElement.finalize(questionMetadataList[index])
         )
 
         const gottenAnswersCount = questionElements.reduce(
