@@ -1,5 +1,5 @@
 module.exports = {
-  entry: "./webpack.entry.js",
+  entry: "./build.entry.js",
   module: {
     rules: [
       {

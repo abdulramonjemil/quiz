@@ -78,7 +78,7 @@ module.exports = merge(commonConfig, {
       inject: "head",
       scriptLoading: "blocking",
       // Contains arbitrary code used to test the app
-      template: "./public/test-page.html"
+      template: "./src/public/test-page.html"
     })
   ]
 })
