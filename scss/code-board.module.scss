@@ -22,6 +22,7 @@ $code-board-vertical-padding: 10px;
   height: 50px;
   margin-top: 10px;
   position: relative;
+  width: 100%;
 
   $mid-transitioning-horizontal-position: math.div(
     $code-board-horizontal-padding,
