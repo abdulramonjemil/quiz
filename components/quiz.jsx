@@ -299,7 +299,7 @@ export default class Quiz extends Component {
     this.$saveQuizMetadata()
   }
 
-  $registerStorageKey() {
+  $registerFullStorageKey() {
     const fullStorageKey = this.$getFullStorageKey()
     if (
       REGISTERED_STORAGE_KEYS_SET.has(fullStorageKey) &&
@@ -370,7 +370,7 @@ export default class Quiz extends Component {
       }
     })
 
-    this.$registerStorageKey()
+    this.$registerFullStorageKey()
     const storedQuizData = this.$retrieveSavedQuizData()
     let resultIsPropagated = false
 
