@@ -105,11 +105,10 @@ class QuizProps {
     }
 
     elements.forEach((element) => {
-      const { type, ...otherProps } = element
-      if (type === QUIZ_ELEMENT_TYPES.CODE_BOARD)
-        quizProps.addCodeBoard(otherProps)
+      const { type, props } = element
+      if (type === QUIZ_ELEMENT_TYPES.CODE_BOARD) quizProps.addCodeBoard(props)
       else if (type === QUIZ_ELEMENT_TYPES.QUESTION)
-        quizProps.addQuestion(otherProps)
+        quizProps.addQuestion(props)
       else throw new TypeError(`Unknow quiz element type: ${type}`)
     })
 
