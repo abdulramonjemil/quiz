@@ -371,7 +371,7 @@ export default class Quiz extends Component {
     })
 
     this.$registerStorageKey()
-    const storedQuizData = this.$retrieveQuizMetadata()
+    const storedQuizData = this.$retrieveSavedQuizData()
     let resultIsPropagated = false
 
     if (storedQuizData !== null) {
@@ -472,7 +472,7 @@ export default class Quiz extends Component {
     return quizNode
   }
 
-  $retrieveQuizMetadata() {
+  $retrieveSavedQuizData() {
     if (!webStorageIsAvailable("localStorage")) return null
     const storageKeyToUse = this.$getFullStorageKey()
     return window.localStorage.getItem(storageKeyToUse)
