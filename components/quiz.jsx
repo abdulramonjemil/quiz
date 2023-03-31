@@ -192,15 +192,6 @@ export default class Quiz extends Component {
     container.replaceChildren(<Quiz {...quizPropsToUse} />)
   }
 
-  $registerStorageKey() {
-    const fullStorageKey = this.$getFullStorageKey()
-    if (REGISTERED_STORAGE_KEYS_SET.has(fullStorageKey))
-      throw new Error(
-        "Two or more quizzes are sharing the same storage key on this page"
-      )
-    REGISTERED_STORAGE_KEYS_SET.add(fullStorageKey)
-  }
-
   $clearQuizMetadata() {
     if (!webStorageIsAvailable("localStorage")) return
     const storageKeyToUse = this.$getFullStorageKey()
@@ -304,14 +295,13 @@ export default class Quiz extends Component {
     this.$saveQuizMetadata()
   }
 
-  $startQuestionsReview() {
-    const { $controlPanel, $presentation, $progress } = this
-    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
-
-    $presentation.restart()
-    $progress.restart()
-    $controlPanel.disable("prev")
-    $controlPanel.enable("next")
+  $registerStorageKey() {
+    const fullStorageKey = this.$getFullStorageKey()
+    if (REGISTERED_STORAGE_KEYS_SET.has(fullStorageKey) && !this.$isGlobal)
+      throw new Error(
+        "Two or more quizzes are sharing the same storage key on this page"
+      )
+    REGISTERED_STORAGE_KEYS_SET.add(fullStorageKey)
   }
 
   $render() {
@@ -500,5 +490,15 @@ export default class Quiz extends Component {
             : $elements.length
       })
     )
+  }
+
+  $startQuestionsReview() {
+    const { $controlPanel, $presentation, $progress } = this
+    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
+
+    $presentation.restart()
+    $progress.restart()
+    $controlPanel.disable("prev")
+    $controlPanel.enable("next")
   }
 }
