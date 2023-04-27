@@ -5,7 +5,7 @@
 /dist
 
 # webpack prod build (not ignored so Github can be used as cdn)
-# /build
+/build
 
 # vscode counter extension
 /.VSCodeCounter
