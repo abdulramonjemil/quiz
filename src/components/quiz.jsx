@@ -319,9 +319,10 @@ export default class Quiz extends Component {
     questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
 
-    if ($metadata.autoSave) this.$saveQuizMetadata()
+    let savedQuizMetadata = null
+    if ($metadata.autoSave) savedQuizMetadata = this.$saveQuizMetadata()
     if (typeof $submissionCallback === "function")
-      $submissionCallback.call(this)
+      $submissionCallback.call(this, savedQuizMetadata)
   }
 
   $render() {
@@ -494,7 +495,7 @@ export default class Quiz extends Component {
   }
 
   $saveQuizMetadata() {
-    if (!webStorageIsAvailable("localStorage")) return
+    if (!webStorageIsAvailable("localStorage")) return null
     const { $elements } = this
     const questionElements = $elements.filter(
       (element) => element instanceof Question
@@ -505,16 +506,16 @@ export default class Quiz extends Component {
     )
 
     const storageKeyToUse = this.$getFullStorageKey()
-    window.localStorage.setItem(
-      storageKeyToUse,
-      JSON.stringify({
-        [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataSet,
-        [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]:
-          $elements[$elements.length - 1] instanceof Result
-            ? $elements.length - 1
-            : $elements.length
-      })
-    )
+    const metadataToSave = JSON.stringify({
+      [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataSet,
+      [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]:
+        $elements[$elements.length - 1] instanceof Result
+          ? $elements.length - 1
+          : $elements.length
+    })
+
+    window.localStorage.setItem(storageKeyToUse, metadataToSave)
+    return metadataToSave
   }
 
   $startQuestionsReview() {
