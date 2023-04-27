@@ -21,6 +21,7 @@ import {
 
 const DEFAULT_QUIZ_METADATA = {
   AUTO_SAVE: true,
+  CUSTOM_SAVED_DATA: null,
   HEADER: "Test your knowledge",
   IS_GLOBAL_VALUE: false,
   STORAGE_KEY: ""
@@ -51,10 +52,18 @@ class QuizProps {
     if (metadata !== undefined && typeof metadata !== "object")
       throw new TypeError("quiz metadata must be an object if present")
 
-    const { autoSave, header, isGlobal, storageKey } = metadata || {}
+    const { autoSave, customSavedData, header, isGlobal, storageKey } =
+      metadata || {}
 
     if (autoSave !== undefined && typeof autoSave !== "boolean")
       throw new TypeError("quiz auto-save option must be boolean")
+
+    if (
+      customSavedData !== undefined &&
+      (typeof customSavedData !== "string" || !isFilledString(customSavedData))
+    ) {
+      throw new TypeError("custom saved quiz data must be a non-empty string")
+    }
 
     if (isGlobal !== undefined && typeof isGlobal !== "boolean")
       throw new TypeError("quiz global state must be boolean")
@@ -81,6 +90,8 @@ class QuizProps {
       metadata: {
         autoSave:
           autoSave !== undefined ? autoSave : DEFAULT_QUIZ_METADATA.AUTO_SAVE,
+        customSavedData:
+          customSavedData || DEFAULT_QUIZ_METADATA.CUSTOM_SAVED_DATA,
         header: header || DEFAULT_QUIZ_METADATA.HEADER,
         isGlobal:
           isGlobal !== undefined
@@ -319,8 +330,7 @@ export default class Quiz extends Component {
     questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
 
-    let savedQuizMetadata = null
-    if ($metadata.autoSave) savedQuizMetadata = this.$saveQuizMetadata()
+    const savedQuizMetadata = this.$populateQuizMetadata($metadata.autoSave)
     if (typeof $submissionCallback === "function")
       $submissionCallback.call(this, savedQuizMetadata)
   }
@@ -329,7 +339,7 @@ export default class Quiz extends Component {
     const {
       $props: {
         elements,
-        metadata: { autoSave, header, isGlobal, storageKey },
+        metadata: { autoSave, customSavedData, header, isGlobal, storageKey },
         submissionCallback
       },
       $handleQuestionOptionChange
@@ -387,7 +397,14 @@ export default class Quiz extends Component {
       }
     })
 
-    const storedQuizData = autoSave ? this.$retrieveSavedQuizData() : null
+    /**
+     * The format for the structure of the string expected to be returned by
+     * $retrieveSavedQuizData can be found in the definition of the
+     * $populateQuizMetadata function
+     */
+    const storedQuizData = autoSave
+      ? this.$retrieveSavedQuizData()
+      : customSavedData || null
     let resultIsPropagated = false
 
     if (storedQuizData !== null) {
@@ -494,7 +511,7 @@ export default class Quiz extends Component {
     return window.localStorage.getItem(storageKeyToUse)
   }
 
-  $saveQuizMetadata() {
+  $populateQuizMetadata(saveToStorage) {
     if (!webStorageIsAvailable("localStorage")) return null
     const { $elements } = this
     const questionElements = $elements.filter(
@@ -514,7 +531,8 @@ export default class Quiz extends Component {
           : $elements.length
     })
 
-    window.localStorage.setItem(storageKeyToUse, metadataToSave)
+    if (saveToStorage)
+      window.localStorage.setItem(storageKeyToUse, metadataToSave)
     return metadataToSave
   }
 
