@@ -199,7 +199,9 @@ export default class Quiz extends Component {
   }
 
   $getFullStorageKey() {
-    const { $metadata: isGlobal, storageKey } = this
+    const {
+      $metadata: { isGlobal, storageKey }
+    } = this
 
     /**
      * Storage key will be a non-empty string if isGlobal is true. Else, all

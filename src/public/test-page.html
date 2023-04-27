@@ -26,7 +26,8 @@
     <section id="quiz2"></section>
 
     <script>
-      const ENCODED_JSON_CONTENT = "eyJwYWdlVGl0bGUiOiJEZXN0cnVjdHVyaW5nIHF1aXogdGVzdCIsIm1ldGFkYXRhIjp7ImhlYWRlciI6IlRlc3QgeW91ciBrbm93bGVkZ2UiLCJzdG9yYWdlS2V5Ijoia2FqaGFpa2FhaG9pamxkYWhhZGFpb2Y5cTAiLCJpc0dsb2JhbCI6ZmFsc2V9LCJlbGVtZW50cyI6W3sidHlwZSI6IlFVRVNUSU9OIiwicHJvcHMiOnsidGl0bGUiOiJXaGF0IGRvIHlvdSB0aGluayBvZiBteSBIYXNobm9kZSBRdWl6IHdpZGdldD8iLCJhbnN3ZXIiOiJEIiwib3B0aW9ucyI6WyJJdCdzIG5vdCBhIGJpZyB0aGluZyIsIkkgd29uJ3QgcmVhbGx5IGNhcmUgYWJvdXQgaXQiLCJ+fkkgbG92ZSBpdCBzaW5jZSB5b3UgdXNlZCBgd2VicGFja2AiLCJXaGF0ZXZlciJdLCJmZWVkQmFja0NvbnRlbnQiOiJ+flRoZXJlJ3MgYWJzb2x1dGVseSBubyByZWFzb24gd2hhdHNvZXZlciB0byB1c2UgYHdlYnBhY2tgLiBDb21lIHRvIHRoaW5rIG9mIGl0LCBpZiBgd2VicGFja2Agd2FzIHJlYWxseSBhIGdvb2QgdGhpbmcsIHdoeSBkb2VzIGEgbG90IG9mIHBlb3BsZSBub3QgbGlrZSBpdCBhdCBhbGwuIEl0IGp1c3QgZG9lc24ndCBzZW5zZS4gU28sIGp1c3QgZG9uJ3QgdXNlIGB5YW1sYCBvZiBganMteWFtbGAuXG4ifX0seyJ0eXBlIjoiQ09ERV9CT0FSRCIsInByb3BzIjp7InRpdGxlIjoiV2hhdGV2ZXIgeW91IHRoaW5rIGFib3V0IHRoZSBmb2xsb3dpbmcgY29kZSBzbmlwcGV0IiwibGFuZ3VhZ2UiOiJqcyIsImNvbnRlbnQiOiJmdW5jdGlvbiBpbnZlcnQodmFsdWUpIHtcbiAgaWYgKHR5cGVvZiB2YWx1ZSAhPT0gXCJzdHJpbmdcIiB8fCB2YWx1ZSA9PT0gXCJcIikgcmV0dXJuIDBcbiAgY29uc3QgaGlnaGVzdENoYXJDb2RlQXRWYWx1ZSA9IDY1NTM2XG4gIGNvbnN0IHZhbHVlTGVuZ3RoID0gdmFsdWUubGVuZ3RoXG5cbiAgbGV0IGludmVydGVkVmFsdWUgPSBcIlwiXG4gIGZvciAobGV0IGkgPSAwOyBpIDwgdmFsdWVMZW5ndGg7IGkrKykge1xuICAgIGNvbnN0IGluZGV4VG9Vc2UgPSB2YWx1ZUxlbmd0aCAtIDEgLSBpXG4gICAgY29uc3QgY2hhckNvZGVUb1VzZSA9IGhpZ2hlc3RDaGFyQ29kZUF0VmFsdWUgLSB2YWx1ZS5jaGFyQ29kZUF0KGluZGV4VG9Vc2UpXG4gICAgaW52ZXJ0ZWRWYWx1ZSArPSBTdHJpbmcuZnJvbUNoYXJDb2RlKGNoYXJDb2RlVG9Vc2UpXG4gIH1cblxuICByZXR1cm4gaW52ZXJ0ZWRWYWx1ZVxufVxuIn19LHsidHlwZSI6IlFVRVNUSU9OIiwicHJvcHMiOnsidGl0bGUiOiJXaGF0IGRvIHlvdSB0aGluayBvZiBteSBIYXNobm9kZSBRdWl6IHdpZGdldD8iLCJhbnN3ZXIiOiJEIiwib3B0aW9ucyI6WyJJdCdzIG5vdCBhIGJpZyB0aGluZyIsIkkgd29uJ3QgcmVhbGx5IGNhcmUgYWJvdXQgaXQiLCJ+fkkgbG92ZSBpdCBzaW5jZSB5b3UgdXNlZCBgd2VicGFja2AiLCJXaGF0ZXZlciJdLCJmZWVkQmFja0NvbnRlbnQiOiJ+flRoZXJlJ3MgYWJzb2x1dGVseSBubyByZWFzb24gd2hhdHNvZXZlciB0byB1c2UgYHdlYnBhY2tgLiBDb21lIHRvIHRoaW5rIG9mIGl0LCBpZiBgd2VicGFja2Agd2FzIHJlYWxseSBhIGdvb2QgdGhpbmcsIHdoeSBkb2VzIGEgbG90IG9mIHBlb3BsZSBub3QgbGlrZSBpdCBhdCBhbGwuIEl0IGp1c3QgZG9lc24ndCBzZW5zZS4gU28sIGp1c3QgZG9uJ3QgdXNlIGB5YW1sYCBvZiBganMteWFtbGAuXG4ifX0seyJ0eXBlIjoiUVVFU1RJT04iLCJwcm9wcyI6eyJ0aXRsZSI6IkRvIHlvdSB0aGluayBJIGhhdGUgZm9vZD8iLCJhbnN3ZXIiOiJEIiwib3B0aW9ucyI6WyJZZXMiLCI8Pkkga25vdyBmb3IgYSBmYWN0IHRoYXQgeW91IGRvbid0IDxiPmhhdGU8L2I+Zm9vZCIsIn5+SSBsb3ZlIGl0IHNpbmNlIHlvdSB1c2VkIGB3ZWJwYWNrYCIsIldoYXRldmVyIl0sImZlZWRCYWNrQ29udGVudCI6In5+VGhlcmUncyBhYnNvbHV0ZWx5IG5vIHJlYXNvbiB3aGF0c29ldmVyIHRvIHVzZSBgd2VicGFja2AuIENvbWUgdG8gdGhpbmsgb2YgaXQsIGlmIGB3ZWJwYWNrYCB3YXMgcmVhbGx5IGEgZ29vZCB0aGluZywgd2h5IGRvZXMgYSBsb3Qgb2YgcGVvcGxlIG5vdCBsaWtlIGl0IGF0IGFsbC4gSXQganVzdCBkb2Vzbid0IHNlbnNlLiBTbywganVzdCBkb24ndCB1c2UgYHlhbWxgIG9mIGBqcy15YW1sYC5cbiJ9fV19"
+      const ENCODED_JSON_CONTENT =
+        "eyJwYWdlVGl0bGUiOiJEZXN0cnVjdHVyaW5nIHF1aXogdGVzdCIsIm1ldGFkYXRhIjp7ImhlYWRlciI6IlRlc3QgeW91ciBrbm93bGVkZ2UiLCJzdG9yYWdlS2V5Ijoia2FqaGFpa2FhaG9pamxkYWhhZGFpb2Y5cTAiLCJpc0dsb2JhbCI6ZmFsc2V9LCJlbGVtZW50cyI6W3sidHlwZSI6IlFVRVNUSU9OIiwicHJvcHMiOnsidGl0bGUiOiJXaGF0IGRvIHlvdSB0aGluayBvZiBteSBIYXNobm9kZSBRdWl6IHdpZGdldD8iLCJhbnN3ZXIiOiJEIiwib3B0aW9ucyI6WyJJdCdzIG5vdCBhIGJpZyB0aGluZyIsIkkgd29uJ3QgcmVhbGx5IGNhcmUgYWJvdXQgaXQiLCJ+fkkgbG92ZSBpdCBzaW5jZSB5b3UgdXNlZCBgd2VicGFja2AiLCJXaGF0ZXZlciJdLCJmZWVkQmFja0NvbnRlbnQiOiJ+flRoZXJlJ3MgYWJzb2x1dGVseSBubyByZWFzb24gd2hhdHNvZXZlciB0byB1c2UgYHdlYnBhY2tgLiBDb21lIHRvIHRoaW5rIG9mIGl0LCBpZiBgd2VicGFja2Agd2FzIHJlYWxseSBhIGdvb2QgdGhpbmcsIHdoeSBkb2VzIGEgbG90IG9mIHBlb3BsZSBub3QgbGlrZSBpdCBhdCBhbGwuIEl0IGp1c3QgZG9lc24ndCBzZW5zZS4gU28sIGp1c3QgZG9uJ3QgdXNlIGB5YW1sYCBvZiBganMteWFtbGAuXG4ifX0seyJ0eXBlIjoiQ09ERV9CT0FSRCIsInByb3BzIjp7InRpdGxlIjoiV2hhdGV2ZXIgeW91IHRoaW5rIGFib3V0IHRoZSBmb2xsb3dpbmcgY29kZSBzbmlwcGV0IiwibGFuZ3VhZ2UiOiJqcyIsImNvbnRlbnQiOiJmdW5jdGlvbiBpbnZlcnQodmFsdWUpIHtcbiAgaWYgKHR5cGVvZiB2YWx1ZSAhPT0gXCJzdHJpbmdcIiB8fCB2YWx1ZSA9PT0gXCJcIikgcmV0dXJuIDBcbiAgY29uc3QgaGlnaGVzdENoYXJDb2RlQXRWYWx1ZSA9IDY1NTM2XG4gIGNvbnN0IHZhbHVlTGVuZ3RoID0gdmFsdWUubGVuZ3RoXG5cbiAgbGV0IGludmVydGVkVmFsdWUgPSBcIlwiXG4gIGZvciAobGV0IGkgPSAwOyBpIDwgdmFsdWVMZW5ndGg7IGkrKykge1xuICAgIGNvbnN0IGluZGV4VG9Vc2UgPSB2YWx1ZUxlbmd0aCAtIDEgLSBpXG4gICAgY29uc3QgY2hhckNvZGVUb1VzZSA9IGhpZ2hlc3RDaGFyQ29kZUF0VmFsdWUgLSB2YWx1ZS5jaGFyQ29kZUF0KGluZGV4VG9Vc2UpXG4gICAgaW52ZXJ0ZWRWYWx1ZSArPSBTdHJpbmcuZnJvbUNoYXJDb2RlKGNoYXJDb2RlVG9Vc2UpXG4gIH1cblxuICByZXR1cm4gaW52ZXJ0ZWRWYWx1ZVxufVxuIn19LHsidHlwZSI6IlFVRVNUSU9OIiwicHJvcHMiOnsidGl0bGUiOiJXaGF0IGRvIHlvdSB0aGluayBvZiBteSBIYXNobm9kZSBRdWl6IHdpZGdldD8iLCJhbnN3ZXIiOiJEIiwib3B0aW9ucyI6WyJJdCdzIG5vdCBhIGJpZyB0aGluZyIsIkkgd29uJ3QgcmVhbGx5IGNhcmUgYWJvdXQgaXQiLCJ+fkkgbG92ZSBpdCBzaW5jZSB5b3UgdXNlZCBgd2VicGFja2AiLCJXaGF0ZXZlciJdLCJmZWVkQmFja0NvbnRlbnQiOiJ+flRoZXJlJ3MgYWJzb2x1dGVseSBubyByZWFzb24gd2hhdHNvZXZlciB0byB1c2UgYHdlYnBhY2tgLiBDb21lIHRvIHRoaW5rIG9mIGl0LCBpZiBgd2VicGFja2Agd2FzIHJlYWxseSBhIGdvb2QgdGhpbmcsIHdoeSBkb2VzIGEgbG90IG9mIHBlb3BsZSBub3QgbGlrZSBpdCBhdCBhbGwuIEl0IGp1c3QgZG9lc24ndCBzZW5zZS4gU28sIGp1c3QgZG9uJ3QgdXNlIGB5YW1sYCBvZiBganMteWFtbGAuXG4ifX0seyJ0eXBlIjoiUVVFU1RJT04iLCJwcm9wcyI6eyJ0aXRsZSI6IkRvIHlvdSB0aGluayBJIGhhdGUgZm9vZD8iLCJhbnN3ZXIiOiJEIiwib3B0aW9ucyI6WyJZZXMiLCI8Pkkga25vdyBmb3IgYSBmYWN0IHRoYXQgeW91IGRvbid0IDxiPmhhdGU8L2I+Zm9vZCIsIn5+SSBsb3ZlIGl0IHNpbmNlIHlvdSB1c2VkIGB3ZWJwYWNrYCIsIldoYXRldmVyIl0sImZlZWRCYWNrQ29udGVudCI6In5+VGhlcmUncyBhYnNvbHV0ZWx5IG5vIHJlYXNvbiB3aGF0c29ldmVyIHRvIHVzZSBgd2VicGFja2AuIENvbWUgdG8gdGhpbmsgb2YgaXQsIGlmIGB3ZWJwYWNrYCB3YXMgcmVhbGx5IGEgZ29vZCB0aGluZywgd2h5IGRvZXMgYSBsb3Qgb2YgcGVvcGxlIG5vdCBsaWtlIGl0IGF0IGFsbC4gSXQganVzdCBkb2Vzbid0IHNlbnNlLiBTbywganVzdCBkb24ndCB1c2UgYHlhbWxgIG9mIGBqcy15YW1sYC5cbiJ9fV19"
     </script>
 
     <script>
@@ -35,77 +36,75 @@
       const secondMain = document.getElementById("quiz2")
       const quizProps = new Quiz.Props({ header: "Your opinion matters" })
 
-      quizProps.addQuestion({
-        title: "What do you think of my Hashnode Quiz widget?",
-        options: [
-          "Who cares by the way? It's not my thing for the most part.",
-          "It makes tiny sense",
-          "~~Did you use `webpack` when creating it?",
-          "Whatever"
-        ],
-        answer: "C",
-        feedBackContent: "~~I've never for any reason loved to use `webpack`"
-      })
+      const SAMPLE_QUIZ_OBJECT = {
+        metadata: {
+          header: "Test your knowledge",
+          storageKey: "kajhaikaahoijldahadai-wof9q0",
+          isGlobal: false
+        },
+        elements: [
+          {
+            type: "QUESTION",
+            props: {
+              title: "What do you think of my Hashnode Quiz widget?",
+              answer: "D",
+              options: [
+                "It's not a big thing",
+                "I won't really care about it",
+                "~~I love it since you used `webpack`",
+                "Whatever"
+              ],
+              feedBackContent:
+                "~~There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
+            }
+          },
+          {
+            type: "CODE_BOARD",
+            props: {
+              title: "Whatever you think about the following code snippet",
+              language: "js",
+              content:
+                // eslint-disable-next-line quotes
+                'function invert(value) {\n  if (typeof value !== "string" || value === "") return 0\n  const highestCharCodeAtValue = 65536\n  const valueLength = value.length\n\n  let invertedValue = ""\n  for (let i = 0; i < valueLength; i++) {\n    const indexToUse = valueLength - 1 - i\n    const charCodeToUse = highestCharCodeAtValue - value.charCodeAt(indexToUse)\n    invertedValue += String.fromCharCode(charCodeToUse)\n  }\n\n  return invertedValue\n}\n'
+            }
+          },
+          {
+            type: "QUESTION",
+            props: {
+              title: "What do you think of my Hashnode Quiz widget?",
+              answer: "D",
+              options: [
+                "It's not a big thing",
+                "I won't really care about it",
+                "~~I love it since you used `webpack`",
+                "Whatever"
+              ],
+              feedBackContent:
+                "~~There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
+            }
+          },
+          {
+            type: "QUESTION",
+            props: {
+              title: "Do you think I hate food?",
+              answer: "D",
+              options: [
+                "Yes",
+                "<>I know for a fact that you don't <b>hate</b>food",
+                "~~I love it since you used `webpack`",
+                "Whatever"
+              ],
+              feedBackContent:
+                "~~There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
+            }
+          }
+        ]
+      }
 
-      quizProps.addQuestion({
-        title: "What do you think of my Hashnode Quiz widget?",
-        options: [
-          "Who cares by the way? It's not my thing for the most part.",
-          "It makes tiny sense",
-          "~~Did you use `webpack` when creating it?",
-          "Whatever"
-        ],
-        answer: "C",
-        feedBackContent: "~~I've never for any reason loved to use `webpack`"
-      })
-
-      const codeBoardCodeContent = `
-#include <iostream>
-#include <vector>
-#include <algorithm>
-#include <cmath>
-
-using namespace std;
-
-const int MAXN = 15;
-int n;
-double dist[MAXN][MAXN];
-vector<int> path;
-
-double tsp(int curr, int mask) {
-  if (mask == (1 << n) - 1) return dist[curr][0];
-  double ans = 1e9;
-  for (int i = 0; i < n; i++) {
-    if (!(mask & (1 << i))) {
-      ans = min(ans, dist[curr][i] + tsp(i, mask | (1 << i)));
-    }
-  }
-  return ans;
-}`
-
-      quizProps.addCodeBoard({
-        title: "An example c++ code",
-        language: "cpp",
-        content: codeBoardCodeContent
-      })
-
-      quizProps.addQuestion({
-        title: "What do you think of my Hashnode Quiz widget?",
-        options: [
-          "Who cares by the way? It's not my thing for the most part.",
-          "It makes tiny sense",
-          "~~Did you use `webpack` when creating it?",
-          "Whatever"
-        ],
-        answer: "C",
-        feedBackContent: "~~I've never for any reason loved to use `webpack`"
-      })
-
-      // Create and render the quiz inside <main>
-      // Quiz.create(quizProps, main)
-      
-      const quizPropsFromEncodedJSON = Quiz.Props.define(JSON.parse(atob(ENCODED_JSON_CONTENT)))
-      Quiz.create(quizPropsFromEncodedJSON, main)
+      // const quizPropsFromEncodedJSON = Quiz.Props.define(
+      //   JSON.parse(atob(ENCODED_JSON_CONTENT))
+      // )
+      Quiz.create(Quiz.Props.define(SAMPLE_QUIZ_OBJECT), main)
     </script>
   </body>
 </html>
