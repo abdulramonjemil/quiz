@@ -20,6 +20,7 @@ import {
 } from "../core/library"
 
 const DEFAULT_QUIZ_METADATA = {
+  AUTO_SAVE: true,
   HEADER: "Test your knowledge",
   IS_GLOBAL_VALUE: false,
   STORAGE_KEY: ""
@@ -50,7 +51,10 @@ class QuizProps {
     if (metadata !== undefined && typeof metadata !== "object")
       throw new TypeError("quiz metadata must be an object if present")
 
-    const { header, isGlobal, storageKey } = metadata || {}
+    const { autoSave, header, isGlobal, storageKey } = metadata || {}
+
+    if (autoSave !== undefined && typeof autoSave !== "boolean")
+      throw new TypeError("quiz auto-save option must be boolean")
 
     if (isGlobal !== undefined && typeof isGlobal !== "boolean")
       throw new TypeError("quiz global state must be boolean")
@@ -75,6 +79,8 @@ class QuizProps {
 
     QUIZ_PROPS_MAP.set(this, {
       metadata: {
+        autoSave:
+          autoSave !== undefined ? autoSave : DEFAULT_QUIZ_METADATA.AUTO_SAVE,
         header: header || DEFAULT_QUIZ_METADATA.HEADER,
         isGlobal:
           isGlobal !== undefined
@@ -276,13 +282,16 @@ export default class Quiz extends Component {
     const {
       $controlPanel,
       $elements,
-      $startQuestionsReview,
+      $metadata,
       $presentation,
+      $startQuestionsReview,
       $submissionCallback
     } = this
+
     const questionElements = $elements.filter(
       (element) => element instanceof Question
     )
+
     const gottenAnswersCount = questionElements.reduce(
       (previousValue, questionElement) =>
         questionElement.correctAnswerIsPicked()
@@ -310,7 +319,7 @@ export default class Quiz extends Component {
     questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
 
-    this.$saveQuizMetadata()
+    if ($metadata.autoSave) this.$saveQuizMetadata()
     if (typeof $submissionCallback === "function")
       $submissionCallback.call(this)
   }
@@ -319,7 +328,7 @@ export default class Quiz extends Component {
     const {
       $props: {
         elements,
-        metadata: { header, isGlobal, storageKey },
+        metadata: { autoSave, header, isGlobal, storageKey },
         submissionCallback
       },
       $handleQuestionOptionChange
@@ -331,7 +340,7 @@ export default class Quiz extends Component {
     } = QUIZ_ELEMENT_TYPES
 
     // Storage key is used by some methods called below
-    this.$metadata = { storageKey, isGlobal }
+    this.$metadata = { autoSave, storageKey, isGlobal }
     this.$elements = []
     this.$submissionCallback = submissionCallback
 
@@ -377,7 +386,7 @@ export default class Quiz extends Component {
       }
     })
 
-    const storedQuizData = this.$retrieveSavedQuizData()
+    const storedQuizData = autoSave ? this.$retrieveSavedQuizData() : null
     let resultIsPropagated = false
 
     if (storedQuizData !== null) {
