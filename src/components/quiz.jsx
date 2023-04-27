@@ -175,14 +175,21 @@ export default class Quiz extends Component {
         "quiz props passed to 'Quiz.create' must be an instance of 'QuizProps'"
       )
 
-    if (!(container instanceof Element))
+    const containerIsElementInstance = container instanceof Element
+    if (container !== undefined && !containerIsElementInstance)
       throw new TypeError(
-        "quiz container passed to 'Quiz.create' must be an instance of 'Element'"
+        "quiz container passed to 'Quiz.create' must be an instance of 'Element' if present"
       )
 
     const quizPropsToUse = QUIZ_PROPS_MAP.get(quizProps)
+    const quizInstanceRefHolder = createInstanceRefHolder()
+
     // eslint-disable-next-line react/jsx-props-no-spreading
-    container.replaceChildren(<Quiz {...quizPropsToUse} />)
+    const quizElement = (
+      <Quiz {...quizPropsToUse} refHolder={quizInstanceRefHolder} />
+    )
+    if (containerIsElementInstance) container.replaceChildren(quizElement)
+    return [quizElement, quizInstanceRefHolder.ref]
   }
 
   $clearQuizStoredData() {
