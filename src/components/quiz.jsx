@@ -46,7 +46,7 @@ const KEYS_FOR_SAVED_QUIZ_METADATA = {
 const QUIZ_PROPS_MAP = new Map()
 
 class QuizProps {
-  constructor(metadata) {
+  constructor(metadata, submissionCallback) {
     if (metadata !== undefined && typeof metadata !== "object")
       throw new TypeError("quiz metadata must be an object if present")
 
@@ -64,6 +64,15 @@ class QuizProps {
     if (header !== undefined && !isFilledString(header))
       throw new TypeError("header must be a non-empty string")
 
+    if (
+      submissionCallback !== undefined &&
+      typeof submissionCallback !== "function"
+    ) {
+      throw new TypeError(
+        "quiz submission callback must be a function if present"
+      )
+    }
+
     QUIZ_PROPS_MAP.set(this, {
       metadata: {
         header: header || DEFAULT_QUIZ_METADATA.HEADER,
@@ -73,7 +82,8 @@ class QuizProps {
             : DEFAULT_QUIZ_METADATA.IS_GLOBAL_VALUE,
         storageKey: storageKey || DEFAULT_QUIZ_METADATA.STORAGE_KEY
       },
-      elements: []
+      elements: [],
+      submissionCallback
     })
   }
 
@@ -81,8 +91,8 @@ class QuizProps {
     if (typeof propsDefinition !== "object")
       throw new TypeError("props definition must be an object")
 
-    const { metadata, elements } = propsDefinition
-    const quizProps = new QuizProps(metadata)
+    const { metadata, elements, submissionCallback } = propsDefinition
+    const quizProps = new QuizProps(metadata, submissionCallback)
     quizProps.addElements(elements)
     return quizProps
   }
@@ -263,8 +273,13 @@ export default class Quiz extends Component {
   }
 
   async $handleSubmitButtonClick() {
-    const { $controlPanel, $elements, $startQuestionsReview, $presentation } =
-      this
+    const {
+      $controlPanel,
+      $elements,
+      $startQuestionsReview,
+      $presentation,
+      $submissionCallback
+    } = this
     const questionElements = $elements.filter(
       (element) => element instanceof Question
     )
@@ -294,14 +309,18 @@ export default class Quiz extends Component {
     await $presentation.slideForward()
     questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
+
     this.$saveQuizMetadata()
+    if (typeof $submissionCallback === "function")
+      $submissionCallback.call(this)
   }
 
   $render() {
     const {
       $props: {
         elements,
-        metadata: { header, isGlobal, storageKey }
+        metadata: { header, isGlobal, storageKey },
+        submissionCallback
       },
       $handleQuestionOptionChange
     } = this
@@ -314,6 +333,8 @@ export default class Quiz extends Component {
     // Storage key is used by some methods called below
     this.$metadata = { storageKey, isGlobal }
     this.$elements = []
+    this.$submissionCallback = submissionCallback
+
     this.$progress = null
     this.$presentation = null
     this.$controlPanel = null
