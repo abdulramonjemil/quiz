@@ -39,6 +39,16 @@
       const SAMPLE_QUIZ_OBJECT = {
         metadata: {
           autoSave: false,
+          // customSavedData: JSON.stringify({
+          //   QUESTION_METADATA_SET: [
+          //     '{"selectedOption":"D"}',
+          //     '{"selectedOption":"D"}',
+          //     '{"selectedOption":"A"}'
+          //   ],
+          //   ELEMENTS_COUNT: 4
+          // }),
+          // customSavedData:
+          //   '{"QUESTION_METADATA_SET":["{"selectedOption":"D"}","{"selectedOption":"B"}","{"selectedOption":"D"}"],"ELEMENTS_COUNT":4}',
           header: "Test your knowledge",
           storageKey: "kajhaikaahoijldahadai-wof9q0",
           isGlobal: false
@@ -105,7 +115,18 @@
       // const quizPropsFromEncodedJSON = Quiz.Props.define(
       //   JSON.parse(atob(ENCODED_JSON_CONTENT))
       // )
-      Quiz.create(Quiz.Props.define(SAMPLE_QUIZ_OBJECT), main)
+      Quiz.create(
+        Quiz.Props.define({
+          ...SAMPLE_QUIZ_OBJECT,
+          submissionCallback(data) {
+            console.log(JSON.parse(data))
+            console.log(data)
+          }
+        }),
+        main
+      )
+
+      console.log(JSON.stringify({ named: ["sall", "fall"] }))
     </script>
   </body>
 </html>

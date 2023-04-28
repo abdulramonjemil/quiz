@@ -197,7 +197,7 @@ export default class Question extends Component {
       const selectedOption = parsedMetadata[QUESTION_METADATA_MAIN_KEY]
 
       if (!LETTERS_FOR_ANSWER_CHOICES.includes(selectedOption))
-        throw new Error("Invalid metadata")
+        throw new Error("Invalid question metadata")
 
       selectedAnswerInput = $answerInputs.find(
         (input) => input.value === selectedOption
