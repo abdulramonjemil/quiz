@@ -27,9 +27,6 @@ const DEFAULT_QUIZ_METADATA = {
   STORAGE_KEY: ""
 }
 
-const QUESTION_ANSWER_REGEX = /^[A-D]$/
-const QUESTION_ANSWER_DESC = "one of the letter A - D"
-
 const QUIZ_STORAGE_KEY_RANDOMIZER = "yq2TpI58ul6g3sLioISGNPSroqxcqc"
 const QUIZ_ELEMENT_TYPES = {
   CODE_BOARD: "CODE_BOARD",
@@ -163,16 +160,22 @@ class QuizProps {
     const { title, options, answer, feedBackContent } = props
 
     if (!isFilledString(title))
-      throw new TypeError("code board title must be a non-empty string")
-    if (!Array.isArray(options) || options.length !== 4)
-      throw new TypeError(
-        "question options must be an array of exactly four items"
-      )
+      throw new TypeError("question title must be a non-empty string")
+
+    if (!Array.isArray(options) || options.length < 2 || options.length > 4) {
+      throw new TypeError("question options must be between two to four items")
+    }
 
     if (!options.every((option) => isFilledString(option)))
       throw new TypeError("Every option must be a non-empty string")
-    if (typeof answer !== "string" || !QUESTION_ANSWER_REGEX.test(answer))
-      throw new TypeError(`question answer must be ${QUESTION_ANSWER_DESC}`)
+
+    const possibleAnswerLetters = ["A", "B", "C", "D"].slice(0, options.length)
+
+    if (typeof answer !== "string" || !possibleAnswerLetters.includes(answer))
+      throw new TypeError(
+        `The question '${title}' has an invalid answer letter: ${answer}`
+      )
+
     if (feedBackContent !== undefined && !isFilledString(feedBackContent))
       throw new TypeError(
         "feedback content must be a non-empty string if present"

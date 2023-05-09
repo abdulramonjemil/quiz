@@ -4,7 +4,6 @@ import { uniqueId } from "../core/library"
 import Styles from "../scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
-const NUMBER_OF_ANSWER_CHOICES = 4
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
 
 const CORRECT_OPTION_CLASS = Styles.Option_correct
@@ -110,7 +109,7 @@ export default class Question extends Component {
     const feedBackRefHolder = createElementRefHolder()
     const questionNodeRefHolder = createElementRefHolder()
 
-    for (let i = 0; i < NUMBER_OF_ANSWER_CHOICES; i += 1) {
+    for (let i = 0; i < options.length; i += 1) {
       answerOptions.push(
         <Option
           handleOptionChange={handleOptionChange}
@@ -196,7 +195,12 @@ export default class Question extends Component {
       const parsedMetadata = JSON.parse(metadata)
       const selectedOption = parsedMetadata[QUESTION_METADATA_MAIN_KEY]
 
-      if (!LETTERS_FOR_ANSWER_CHOICES.includes(selectedOption))
+      const indexOfSelectedOptionLetter =
+        LETTERS_FOR_ANSWER_CHOICES.indexOf(selectedOption)
+      const inputWithLetterIsAbsent =
+        indexOfSelectedOptionLetter > $answerInputs.length - 1
+
+      if (indexOfSelectedOptionLetter < 0 || inputWithLetterIsAbsent)
         throw new Error("Invalid question metadata")
 
       selectedAnswerInput = $answerInputs.find(
