@@ -207,8 +207,7 @@ export default class Question extends Component {
         (input) => input.value === selectedOption
       )
 
-      // Set input to checked and trigger change event
-      selectedAnswerInput.click()
+      selectedAnswerInput.checked = true
     }
 
     if (selectedAnswerInput !== $correctAnswerInput)
