@@ -4,12 +4,32 @@ import ScrollShadow from "./scroll-shadow"
 
 const DEFAULT_RESULT_PERCENTAGE_VALUE = 0
 const {
-  PROPERTY_FOR_SCORED_PERCENTAGE,
-  Indicator_rendered: RENDERED_INDICATOR_CLASS
+  CIRCUMFERENCE_OF_INDICATOR_BAR,
+  Indicator_rendered: RENDERED_INDICATOR_CLASS,
+  MAX_INDICATOR_BAR_DASHOFFSET_VALUE,
+  PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET,
+  PROPERTY_FOR_SCORED_PERCENTAGE
 } = Styles
 
 const INDICATOR_ANIMATION_DURATION_MS =
   Number(Styles.DURATION_OF_INDICATOR_ANIMATION_SECS) * 1000
+
+/**
+ * This calculates the stroke-dashoffset to be applied to the <circle> element
+ * inside the indicator bar SVG based on the scored percentage.
+ *
+ * This could have been done directly in CSS, but because firefox doesn't
+ * support the use of var() inside functions like min() or sometimes even
+ * calc(), this has to be done.
+ */
+function calculateBarDashOffsetFromPercentage(percentageValue) {
+  const highestPercentageValue = 100
+  return Math.min(
+    MAX_INDICATOR_BAR_DASHOFFSET_VALUE,
+    ((highestPercentageValue - percentageValue) / highestPercentageValue) *
+      CIRCUMFERENCE_OF_INDICATOR_BAR
+  )
+}
 
 function renderResultIndicator(
   indicator,
@@ -57,7 +77,12 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
       className={Styles.Indicator}
       role="presentation"
       refHolder={indicatorRefHolder}
-      style={`${PROPERTY_FOR_SCORED_PERCENTAGE}: ${scoredPercentage};`}
+      style={`
+      ${PROPERTY_FOR_SCORED_PERCENTAGE}: ${scoredPercentage};
+      ${PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET}: ${calculateBarDashOffsetFromPercentage(
+        scoredPercentage
+      )}
+      `}
     >
       <div className={Styles.Indicator__OuterShadow} />
       <div className={Styles.Indicator__InnerShadow} />
@@ -75,6 +100,8 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
             <stop offset="100%" stop-color={Styles.RESULT_PINK_COLOR} />
           </linearGradient>
         </defs>
+
+        {/* Inspect this circle in devtools to see how the styling for it works */}
         <circle class={Styles.Indicator__Bar} cx="50" cy="50" r="50" />
       </svg>
       <div className={Styles.Indicator__Text}>

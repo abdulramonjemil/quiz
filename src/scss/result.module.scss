@@ -11,14 +11,30 @@ $result-pink-color: rgb(180 142 173);
 /* stylelint-disable scss/dollar-variable-pattern */
 $DURATION_OF_INDICATOR_ANIMATION: 1.5s;
 $ID_OF_RESULT_INDICATOR_BAR_GRADIENT: string.unique-id();
+$PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET: --final-dashoffset;
 $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
 /* stylelint-enable scss/dollar-variable-pattern */
 
+$viewbox-width-of-svg-graphic: 100;
+$radius-of-indicator-bar-in-graphic: 50;
+$highest-percentage-value: 100;
+$circumference-of-indicator-bar: 2 * math.$pi *
+  $radius-of-indicator-bar-in-graphic;
+$default-result-percentage: 0.1;
+
+$max-indicator-bar-dashoffset-value: math.div(
+    $highest-percentage-value - $default-result-percentage,
+    $highest-percentage-value
+  ) * $circumference-of-indicator-bar;
+
 :export {
   INDICATOR_BAR_GRADIENT_ID: $ID_OF_RESULT_INDICATOR_BAR_GRADIENT;
+  CIRCUMFERENCE_OF_INDICATOR_BAR: $circumference-of-indicator-bar;
   DURATION_OF_INDICATOR_ANIMATION_SECS: number.unitless(
     $DURATION_OF_INDICATOR_ANIMATION
   );
+  MAX_INDICATOR_BAR_DASHOFFSET_VALUE: $max-indicator-bar-dashoffset-value;
+  PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET: $PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET;
   PROPERTY_FOR_SCORED_PERCENTAGE: $PROPERTY_FOR_SCORED_PERCENTAGE;
   RESULT_GREEN_COLOR: $result-green-color;
   RESULT_PINK_COLOR: $result-pink-color;
@@ -186,13 +202,15 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
   }
 
   &__Bar {
-    $viewbox-width-of-svg-graphic: 100;
-    $radius-of-indicator-bar-in-graphic: 50;
-    $highest-percentage-value: 100;
-    $circumference-of-indicator-bar: 2 * math.$pi *
-      $radius-of-indicator-bar-in-graphic;
-    $default-result-percentage: 0.1;
+    /*
+      The code below was previously used to set the real dashoffset to use on
+      the inidicator bar after the scored percentage has been populated, and it
+      works fine in Google Chrome. However, because firefox doesn't support the
+      use of var() inside calc() and many other CSS functions, it's replaced
+      with the code far below it.
+    */
 
+    /*
     $scored-percentage-to-use: max(
       var(#{$PROPERTY_FOR_SCORED_PERCENTAGE}),
       $default-result-percentage
@@ -202,8 +220,12 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
       (
           ($highest-percentage-value - $scored-percentage-to-use) /
             $highest-percentage-value
-        ) * $circumference-of-indicator-bar /* stylelint-disable-line  */
+        ) * $circumference-of-indicator-bar
     );
+    */
+
+    // This is used for the reason mentiond above (pertaining to firefox)
+    $real-dashoffset: var(#{$PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET});
 
     fill: none;
     stroke: url("##{$ID_OF_RESULT_INDICATOR_BAR_GRADIENT}");
@@ -219,10 +241,7 @@ $PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
     );
 
     stroke-dasharray: $circumference-of-indicator-bar;
-    stroke-dashoffset: math.div(
-        $highest-percentage-value - $default-result-percentage,
-        $highest-percentage-value
-      ) * $circumference-of-indicator-bar;
+    stroke-dashoffset: $max-indicator-bar-dashoffset-value;
     stroke-linecap: round;
     transition: stroke-dashoffset $DURATION_OF_INDICATOR_ANIMATION ease-in-out;
 
