@@ -88,8 +88,13 @@ export default function ScrollShadow(
   // shadow. This is done asynchronously as it won't be effective if the element
   // isn't yet mounted.
   setTimeout(() => {
-    scrollableElement.scrollTop = 1
-    scrollableElement.scrollTop = 0
+    // Stored and reused in case the element has been scrolled down for some reason
+    const prevScrollTop = scrollableElement.scrollTop
+    scrollableElement.scrollTop += 1
+
+    // If the previous scrollTop was the maximum, scrollTop won't change, so ...
+    scrollableElement.scrollTop -= 1
+    scrollableElement.scrollTop = prevScrollTop
   }, 100)
 
   return (

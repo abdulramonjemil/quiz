@@ -6,6 +6,7 @@
   },
   "rules": {
     "import/extensions": ["error", "always", { "js": "never", "jsx": "never" }],
+    "react/destructuring-assignment": "off",
     "react/jsx-props-no-spreading": [
       "error",
       {
