@@ -9,6 +9,11 @@ const {
 
 const SCROLL_SHADOW_MAX_SUITABLE_SIZE = Number(MAX_SUITABLE_SCROLL_SHADOW_SIZE)
 
+function clampToPositive(number) {
+  if (!Number.isFinite(number)) throw new TypeError("Expected a finite number")
+  return number < 0 ? 0 : number
+}
+
 const adjustScrollShadow = (() => {
   let thereAreUnrenderedFrames = false
 
@@ -44,14 +49,16 @@ const adjustScrollShadow = (() => {
           ? maxBottomSuitableSizeToUse
           : scrolledBottomDistance / 2
 
+      // Numbers are clamped because they're sometimes negative (as noticed on
+      // chrome for android)
       scrollShadow.style.setProperty(
         TOP_SCROLL_SHADOW_SIZER_PROPERTY,
-        `${topShadowSizeToUse}px`
+        `${clampToPositive(topShadowSizeToUse)}px`
       )
 
       scrollShadow.style.setProperty(
         BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY,
-        `${bottomShadowSizeToUse}px`
+        `${clampToPositive(bottomShadowSizeToUse)}px`
       )
 
       thereAreUnrenderedFrames = false
