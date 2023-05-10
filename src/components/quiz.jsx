@@ -253,9 +253,22 @@ export default class Quiz extends Component {
     const indexOfNextElement = currentSlideIndex + 1
     const nextElement = $elements[indexOfNextElement]
 
+    const nextElementIsQuestion = nextElement instanceof Question
+    const nextElementIsAnsweredQuestion =
+      nextElementIsQuestion && nextElement.isAnswered()
+    const nextElementIsLast = indexOfNextElement === $elements.length - 1
+
     if (
-      (nextElement instanceof Question && !nextElement.isAnswered()) ||
-      indexOfNextElement === $elements.length - 1
+      nextElementIsQuestion &&
+      nextElementIsAnsweredQuestion &&
+      nextElementIsLast
+    ) {
+      $controlPanel.enable("submit")
+    }
+
+    if (
+      (nextElementIsQuestion && !nextElementIsAnsweredQuestion) ||
+      nextElementIsLast
     ) {
       $controlPanel.disable("next")
     }
@@ -272,6 +285,7 @@ export default class Quiz extends Component {
     const indexOfPreviousElement = currentSlideIndex - 1
 
     if (indexOfPreviousElement === 0) $controlPanel.disable("prev")
+    $controlPanel.disable("submit")
     $controlPanel.enable("next")
     if (!($elements[currentSlideIndex] instanceof Result)) $progress.decrement()
     $presentation.slideBackward()
