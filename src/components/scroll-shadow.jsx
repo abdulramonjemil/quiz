@@ -84,6 +84,14 @@ export default function ScrollShadow(
     )
   }
 
+  // Trigger scroll on element if it's initially scrollable to show scroll
+  // shadow. This is done asynchronously as it won't be effective if the element
+  // isn't yet mounted.
+  setTimeout(() => {
+    scrollableElement.scrollTop = 1
+    scrollableElement.scrollTop = 0
+  }, 100)
+
   return (
     <>
       {scrollableElement}
