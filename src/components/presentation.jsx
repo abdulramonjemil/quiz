@@ -131,6 +131,28 @@ export default class Presentation extends Component {
     this.$slideIsChangeable = true
   }
 
+  async showSlide(slideIndex) {
+    if (!Number.isInteger(slideIndex))
+      throw new TypeError("Expected an integer slide index")
+    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
+
+    const { $indexOfCurrentSlide, $slides } = this
+    if (slideIndex < 0 || slideIndex >= $slides.length)
+      throw new RangeError(`There is no slide at index ${slideIndex}`)
+
+    this.$slideIsChangeable = false
+    const currentSlide = $slides[$indexOfCurrentSlide]
+    const slideToShow = $slides[slideIndex]
+
+    await currentSlide.fadeOut()
+    currentSlide.removeFromDOM()
+    slideToShow.addToDOM()
+    await slideToShow.fadeIn()
+
+    this.$indexOfCurrentSlide = slideIndex
+    this.$slideIsChangeable = true
+  }
+
   async slideBackward() {
     if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
