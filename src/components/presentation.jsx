@@ -137,6 +137,7 @@ export default class Presentation extends Component {
     if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
     const { $indexOfCurrentSlide, $slides } = this
+    if (slideIndex === $indexOfCurrentSlide) return
     if (slideIndex < 0 || slideIndex >= $slides.length)
       throw new RangeError(`There is no slide at index ${slideIndex}`)
 
