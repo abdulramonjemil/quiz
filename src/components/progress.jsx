@@ -5,22 +5,13 @@ const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
 const PROGRESS_BRIDGE_PSEUDO_ELEMENT = "::after"
 const PASSED_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_passed
 
-/**
- * The index of the progress level that'll be used to determine whether the
- * progress can undergo changes when there are multiple changes made at the same
- * time, for example when transitioning all of the level back to their initial
- * state in order to restart.
- */
-const INDEX_OF_MAIN_LEVEL_IN_MULTIPLE_CHANGES = 0
-
-function ProgressLevel({ number, handleTransition, isPassed = false }) {
+function ProgressLevel({ number, handleTransitionEnd, isPassed = false }) {
   return (
     <li
       className={`${Styles.Progress__Level} ${
         isPassed ? PASSED_PROGRESS_LEVEL_CLASS : ""
       }`}
-      onTransitionStart={handleTransition}
-      onTransitionEnd={handleTransition}
+      onTransitionEnd={handleTransitionEnd}
     >
       <div className={Styles.Progress__Number}>{number}</div>
     </li>
@@ -28,45 +19,48 @@ function ProgressLevel({ number, handleTransition, isPassed = false }) {
 }
 
 export default class Progress extends Component {
-  $handleProgressLevelTransition(ev) {
+  $handleProgressLevelTransitionEnd(ev) {
     const { propertyName, pseudoElement, target, type } = ev
     if (propertyName !== MAIN_PROGRESS_BRIDGE_PROPERTY) return
     if (pseudoElement !== PROGRESS_BRIDGE_PSEUDO_ELEMENT) return
     if (!target.matches(`.${Styles.Progress__Level}`)) return
 
-    if (type === "transitionstart") {
-      if (this.$isUndergoingGradualChange) this.$isChangeable = false
-      else if (this.$isRestarting) {
-        const transitionIsForMainProgressLevel =
-          target ===
-          this.$progressLevels[INDEX_OF_MAIN_LEVEL_IN_MULTIPLE_CHANGES]
-        if (transitionIsForMainProgressLevel) this.$isChangeable = false
-      }
-    } else if (type === "transitionend") {
-      if (this.$isUndergoingGradualChange) this.$isChangeable = true
-      else if (this.$isRestarting) {
-        const transitionIsForMainProgressLevel =
-          target ===
-          this.$progressLevels[INDEX_OF_MAIN_LEVEL_IN_MULTIPLE_CHANGES]
-        if (transitionIsForMainProgressLevel) this.$isChangeable = true
-      }
+    const { $changeDetails, $isChanging } = this
+    if (!$isChanging || type !== "transitionend") return
+
+    if ($changeDetails.isGradualChange) {
+      this.$isChanging = false
+      return
     }
+
+    const eventIsForDeterminerLevel =
+      target === this.$progressLevels[$changeDetails.indexOfDeterminerLevel]
+    if (eventIsForDeterminerLevel) this.$isChanging = false
   }
 
   $render() {
     this.$progressLevels = []
     this.$currentProgressLevelIndex = null
-    this.$isChangeable = true
-    this.$isRestarting = false
-    this.$isUndergoingGradualChange = false
+    this.$isChanging = false
+
+    this.$changeDetails = {
+      /**
+       * The index of the progress level that'll be used to determine whether the
+       * progress can undergo changes when there are multiple changes made at the same
+       * time, for example when transitioning all of the level back to their initial
+       * state in order to restart.
+       */
+      indexOfDeterminerLevel: null,
+      isGradualChange: null
+    }
 
     const {
-      $handleProgressLevelTransition,
+      $handleProgressLevelTransitionEnd,
       $props: { levelsCount, startLevel },
       $progressLevels
     } = this
 
-    const handleTransition = $handleProgressLevelTransition.bind(this)
+    const handleTransitionEnd = $handleProgressLevelTransitionEnd.bind(this)
     let startLevelIsSet = false
 
     if (startLevel !== undefined) {
@@ -85,7 +79,7 @@ export default class Progress extends Component {
       $progressLevels.push(
         <ProgressLevel
           number={i}
-          handleTransition={handleTransition}
+          handleTransitionEnd={handleTransitionEnd}
           isPassed={startLevelIsSet && startLevel > i}
         />
       )
@@ -104,19 +98,20 @@ export default class Progress extends Component {
   }
 
   isChangeable() {
-    return this.$isChangeable
+    return !this.$isChanging
   }
 
   decrement() {
-    if (!this.$isChangeable) throw new Error("Currently undergoing a change")
-    this.$isRestarting = false
-    this.$isUndergoingGradualChange = true
+    if (this.$isChanging) throw new Error("Currently undergoing a change")
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     const indexOfHighestDecrementableLevel = 1
 
     if ($currentProgressLevelIndex < indexOfHighestDecrementableLevel)
       throw new RangeError("No lower levels to reverse to")
+
+    this.$isChanging = true
+    this.$changeDetails.isGradualChange = true
 
     const lastPassedProgressLevelIndex = $currentProgressLevelIndex - 1
     const lastPassedProgressLevel =
@@ -127,9 +122,7 @@ export default class Progress extends Component {
   }
 
   increment() {
-    if (!this.$isChangeable) throw new Error("Currently undergoing a change")
-    this.$isRestarting = false
-    this.$isUndergoingGradualChange = true
+    if (this.$isChanging) throw new Error("Currently undergoing a change")
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     const indexOfHighestIncrementableLevel = $progressLevels.length - 2
@@ -137,15 +130,20 @@ export default class Progress extends Component {
     if ($currentProgressLevelIndex > indexOfHighestIncrementableLevel)
       throw new RangeError("No higher levels to move to")
 
+    this.$isChanging = true
+    this.$changeDetails.isGradualChange = true
+
     const currentProgressLevel = $progressLevels[$currentProgressLevelIndex]
     currentProgressLevel.classList.add(PASSED_PROGRESS_LEVEL_CLASS)
     this.$currentProgressLevelIndex = $currentProgressLevelIndex + 1
   }
 
   restart() {
-    if (!this.$isChangeable) throw new Error("Currently undergoing a change")
-    this.$isUndergoingGradualChange = false
-    this.$isRestarting = true
+    if (this.$isChanging) throw new Error("Currently undergoing a change")
+
+    this.$isChanging = true
+    this.$changeDetails.isGradualChange = false
+    this.$changeDetails.indexOfDeterminerLevel = 0
 
     const { $currentProgressLevelIndex, $progressLevels } = this
     if ($currentProgressLevelIndex === 0) return
