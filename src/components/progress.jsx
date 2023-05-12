@@ -19,39 +19,87 @@ function ProgressLevel({ number, handleTransitionEnd, isPassed = false }) {
 }
 
 export default class Progress extends Component {
+  /**
+   * It's important to note that the parameter passed to `$setActiveLevel` is
+   * not zero-based, and `$currentProgressLevelIndex` is zero-based
+   */
+  $setActiveLevel(levelNumber) {
+    if (this.$change.isOccurring)
+      throw new Error("Currently undergoing a change")
+
+    if (!Number.isInteger(levelNumber) || levelNumber < 1)
+      throw new TypeError("Expected level number to be a positive integer")
+
+    const { $currentProgressLevelIndex, $progressLevels } = this
+
+    if (levelNumber > $progressLevels.length)
+      throw new RangeError(
+        `There is no progress level with number: ${levelNumber}`
+      )
+
+    const currentLevelNumber = $currentProgressLevelIndex + 1
+    if (levelNumber === currentLevelNumber) return
+
+    this.$change.isOccurring = true
+
+    if (levelNumber < currentLevelNumber) {
+      const indexOfCurrentHighestPassedLevel = $currentProgressLevelIndex - 1
+      const indexOfNextLevelToPassToSet = levelNumber - 1
+      this.$change.indexOfDeterminerLevel = indexOfCurrentHighestPassedLevel
+
+      for (
+        let i = indexOfNextLevelToPassToSet;
+        i <= indexOfCurrentHighestPassedLevel;
+        i += 1
+      ) {
+        $progressLevels[i].classList.remove(PASSED_PROGRESS_LEVEL_CLASS)
+      }
+    } else {
+      const indexOfHighestPassedLevelToSet = levelNumber - 2
+      this.$change.indexOfDeterminerLevel = indexOfHighestPassedLevelToSet
+
+      for (
+        let i = $currentProgressLevelIndex;
+        i <= indexOfHighestPassedLevelToSet;
+        i += 1
+      ) {
+        $progressLevels[i].classList.add(PASSED_PROGRESS_LEVEL_CLASS)
+      }
+    }
+
+    this.$currentProgressLevelIndex = levelNumber - 1
+  }
+
   $handleProgressLevelTransitionEnd(ev) {
     const { propertyName, pseudoElement, target, type } = ev
     if (propertyName !== MAIN_PROGRESS_BRIDGE_PROPERTY) return
     if (pseudoElement !== PROGRESS_BRIDGE_PSEUDO_ELEMENT) return
+    if (type !== "transitionend") return
     if (!target.matches(`.${Styles.Progress__Level}`)) return
 
-    const { $changeDetails, $isChanging } = this
-    if (!$isChanging || type !== "transitionend") return
-
-    if ($changeDetails.isGradualChange) {
-      this.$isChanging = false
-      return
-    }
+    const { indexOfDeterminerLevel, isOccurring: changeIsOccurring } =
+      this.$change
+    if (!changeIsOccurring) return
 
     const eventIsForDeterminerLevel =
-      target === this.$progressLevels[$changeDetails.indexOfDeterminerLevel]
-    if (eventIsForDeterminerLevel) this.$isChanging = false
+      target === this.$progressLevels[indexOfDeterminerLevel]
+    if (!eventIsForDeterminerLevel) return
+
+    this.$change.isOccurring = false
+    this.$change.indexOfDeterminerLevel = null
   }
 
   $render() {
     this.$progressLevels = []
     this.$currentProgressLevelIndex = null
-    this.$isChanging = false
 
-    this.$changeDetails = {
+    this.$change = {
       /**
-       * The index of the progress level that'll be used to determine whether the
-       * progress can undergo changes when there are multiple changes made at the same
-       * time, for example when transitioning all of the level back to their initial
-       * state in order to restart.
+       * The index of the progress level that'll be used to determine whether
+       * the progress can undergo changes.
        */
       indexOfDeterminerLevel: null,
-      isGradualChange: null
+      isOccurring: false
     }
 
     const {
@@ -97,59 +145,30 @@ export default class Progress extends Component {
     )
   }
 
+  currentLevel() {
+    return this.$currentProgressLevelIndex + 1
+  }
+
   isChangeable() {
-    return !this.$isChanging
+    return !this.$change.isOccurring
   }
 
   decrement() {
-    if (this.$isChanging) throw new Error("Currently undergoing a change")
+    const { $currentProgressLevelIndex } = this
 
-    const { $currentProgressLevelIndex, $progressLevels } = this
-    const indexOfHighestDecrementableLevel = 1
-
-    if ($currentProgressLevelIndex < indexOfHighestDecrementableLevel)
-      throw new RangeError("No lower levels to reverse to")
-
-    this.$isChanging = true
-    this.$changeDetails.isGradualChange = true
-
-    const lastPassedProgressLevelIndex = $currentProgressLevelIndex - 1
-    const lastPassedProgressLevel =
-      $progressLevels[lastPassedProgressLevelIndex]
-
-    lastPassedProgressLevel.classList.remove(PASSED_PROGRESS_LEVEL_CLASS)
-    this.$currentProgressLevelIndex = lastPassedProgressLevelIndex
+    this.$setActiveLevel($currentProgressLevelIndex)
   }
 
   increment() {
-    if (this.$isChanging) throw new Error("Currently undergoing a change")
-
-    const { $currentProgressLevelIndex, $progressLevels } = this
-    const indexOfHighestIncrementableLevel = $progressLevels.length - 2
-
-    if ($currentProgressLevelIndex > indexOfHighestIncrementableLevel)
-      throw new RangeError("No higher levels to move to")
-
-    this.$isChanging = true
-    this.$changeDetails.isGradualChange = true
-
-    const currentProgressLevel = $progressLevels[$currentProgressLevelIndex]
-    currentProgressLevel.classList.add(PASSED_PROGRESS_LEVEL_CLASS)
-    this.$currentProgressLevelIndex = $currentProgressLevelIndex + 1
+    const { $currentProgressLevelIndex } = this
+    this.$setActiveLevel($currentProgressLevelIndex + 2)
   }
 
   restart() {
-    if (this.$isChanging) throw new Error("Currently undergoing a change")
+    this.$setActiveLevel(1)
+  }
 
-    this.$isChanging = true
-    this.$changeDetails.isGradualChange = false
-    this.$changeDetails.indexOfDeterminerLevel = 0
-
-    const { $currentProgressLevelIndex, $progressLevels } = this
-    if ($currentProgressLevelIndex === 0) return
-
-    for (let i = 0; i < $currentProgressLevelIndex; i += 1)
-      $progressLevels[i].classList.remove(PASSED_PROGRESS_LEVEL_CLASS)
-    this.$currentProgressLevelIndex = 0
+  setActiveLevel(levelNumber) {
+    this.$setActiveLevel(levelNumber)
   }
 }
