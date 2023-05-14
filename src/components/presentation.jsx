@@ -96,49 +96,14 @@ export default class Presentation extends Component {
     return presentationNode
   }
 
-  appendSlide(slideContent) {
-    const slideRefHolder = createInstanceRefHolder()
-    const slideNode = (
-      <Slide content={slideContent} refHolder={slideRefHolder} />
-    )
-
-    this.$composedNode.appendChild(slideNode)
-    this.$slides.push(slideRefHolder.ref)
-  }
-
-  currentSlideIndex() {
-    return this.$indexOfCurrentSlide
-  }
-
-  async restart() {
-    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
-
-    this.$slideIsChangeable = false
-    const { $slides, $indexOfCurrentSlide } = this
-
-    const indexOfFirstSlide = 0
-    if ($indexOfCurrentSlide === indexOfFirstSlide) return
-
-    const currentSlide = $slides[$indexOfCurrentSlide]
-    const firstSlide = $slides[indexOfFirstSlide]
-
-    await currentSlide.fadeOut()
-    currentSlide.removeFromDOM()
-    firstSlide.addToDOM()
-    await firstSlide.fadeIn()
-
-    this.$indexOfCurrentSlide = indexOfFirstSlide
-    this.$slideIsChangeable = true
-  }
-
-  async showSlide(slideIndex) {
-    if (!Number.isInteger(slideIndex))
-      throw new TypeError("Expected an integer slide index")
+  async $showSlide(slideIndex) {
+    if (!Number.isInteger(slideIndex) || slideIndex < 0)
+      throw new TypeError("Expected a non-negative integer slide index")
     if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
     const { $indexOfCurrentSlide, $slides } = this
     if (slideIndex === $indexOfCurrentSlide) return
-    if (slideIndex < 0 || slideIndex >= $slides.length)
+    if (slideIndex >= $slides.length)
       throw new RangeError(`There is no slide at index ${slideIndex}`)
 
     this.$slideIsChangeable = false
@@ -154,48 +119,36 @@ export default class Presentation extends Component {
     this.$slideIsChangeable = true
   }
 
+  appendSlide(slideContent) {
+    const slideRefHolder = createInstanceRefHolder()
+    const slideNode = (
+      <Slide content={slideContent} refHolder={slideRefHolder} />
+    )
+
+    this.$composedNode.appendChild(slideNode)
+    this.$slides.push(slideRefHolder.ref)
+  }
+
+  currentSlideIndex() {
+    return this.$indexOfCurrentSlide
+  }
+
+  async restart() {
+    await this.$showSlide(0)
+  }
+
+  async showSlide(slideIndex) {
+    await this.$showSlide(slideIndex)
+  }
+
   async slideBackward() {
-    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
-
-    this.$slideIsChangeable = false
-    const { $slides, $indexOfCurrentSlide } = this
-    const indexOfPreviousSlide = $indexOfCurrentSlide - 1
-
-    if (indexOfPreviousSlide < 0)
-      throw new RangeError("There is no previous slide to render")
-
-    const currentSlide = $slides[$indexOfCurrentSlide]
-    const previousSlide = $slides[indexOfPreviousSlide]
-
-    await currentSlide.fadeOut()
-    currentSlide.removeFromDOM()
-    previousSlide.addToDOM()
-    await previousSlide.fadeIn()
-
-    this.$indexOfCurrentSlide = indexOfPreviousSlide
-    this.$slideIsChangeable = true
+    const { $indexOfCurrentSlide } = this
+    await this.$showSlide($indexOfCurrentSlide - 1)
   }
 
   async slideForward() {
-    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
-
-    this.$slideIsChangeable = false
-    const { $slides, $indexOfCurrentSlide } = this
-    const indexOfNextSlide = $indexOfCurrentSlide + 1
-
-    if (indexOfNextSlide >= $slides.length)
-      throw new RangeError("There is no more slides to render")
-
-    const currentSlide = $slides[$indexOfCurrentSlide]
-    const nextSlide = $slides[indexOfNextSlide]
-
-    await currentSlide.fadeOut()
-    currentSlide.removeFromDOM()
-    nextSlide.addToDOM()
-    await nextSlide.fadeIn()
-
-    this.$indexOfCurrentSlide = indexOfNextSlide
-    this.$slideIsChangeable = true
+    const { $indexOfCurrentSlide } = this
+    await this.$showSlide($indexOfCurrentSlide + 1)
   }
 
   slideIsChangeable() {

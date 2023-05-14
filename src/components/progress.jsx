@@ -19,57 +19,6 @@ function ProgressLevel({ number, handleTransitionEnd, isPassed = false }) {
 }
 
 export default class Progress extends Component {
-  /**
-   * It's important to note that the parameter passed to `$setActiveLevel` is
-   * not zero-based, and `$currentProgressLevelIndex` is zero-based
-   */
-  $setActiveLevel(levelNumber) {
-    if (this.$change.isOccurring)
-      throw new Error("Currently undergoing a change")
-
-    if (!Number.isInteger(levelNumber) || levelNumber < 1)
-      throw new TypeError("Expected level number to be a positive integer")
-
-    const { $currentProgressLevelIndex, $progressLevels } = this
-
-    if (levelNumber > $progressLevels.length)
-      throw new RangeError(
-        `There is no progress level with number: ${levelNumber}`
-      )
-
-    const currentLevelNumber = $currentProgressLevelIndex + 1
-    if (levelNumber === currentLevelNumber) return
-
-    this.$change.isOccurring = true
-
-    if (levelNumber < currentLevelNumber) {
-      const indexOfCurrentHighestPassedLevel = $currentProgressLevelIndex - 1
-      const indexOfNextLevelToPassToSet = levelNumber - 1
-      this.$change.indexOfDeterminerLevel = indexOfCurrentHighestPassedLevel
-
-      for (
-        let i = indexOfNextLevelToPassToSet;
-        i <= indexOfCurrentHighestPassedLevel;
-        i += 1
-      ) {
-        $progressLevels[i].classList.remove(PASSED_PROGRESS_LEVEL_CLASS)
-      }
-    } else {
-      const indexOfHighestPassedLevelToSet = levelNumber - 2
-      this.$change.indexOfDeterminerLevel = indexOfHighestPassedLevelToSet
-
-      for (
-        let i = $currentProgressLevelIndex;
-        i <= indexOfHighestPassedLevelToSet;
-        i += 1
-      ) {
-        $progressLevels[i].classList.add(PASSED_PROGRESS_LEVEL_CLASS)
-      }
-    }
-
-    this.$currentProgressLevelIndex = levelNumber - 1
-  }
-
   $handleProgressLevelTransitionEnd(ev) {
     const { propertyName, pseudoElement, target, type } = ev
     if (propertyName !== MAIN_PROGRESS_BRIDGE_PROPERTY) return
@@ -145,6 +94,57 @@ export default class Progress extends Component {
     )
   }
 
+  /**
+   * It's important to note that the parameter passed to `$setActiveLevel` is
+   * not zero-based, and `$currentProgressLevelIndex` is zero-based
+   */
+  $setActiveLevel(levelNumber) {
+    if (this.$change.isOccurring)
+      throw new Error("Currently undergoing a change")
+
+    if (!Number.isInteger(levelNumber) || levelNumber < 1)
+      throw new TypeError("Expected level number to be a positive integer")
+
+    const { $currentProgressLevelIndex, $progressLevels } = this
+
+    if (levelNumber > $progressLevels.length)
+      throw new RangeError(
+        `There is no progress level with number: ${levelNumber}`
+      )
+
+    const currentLevelNumber = $currentProgressLevelIndex + 1
+    if (levelNumber === currentLevelNumber) return
+
+    this.$change.isOccurring = true
+
+    if (levelNumber < currentLevelNumber) {
+      const indexOfCurrentHighestPassedLevel = $currentProgressLevelIndex - 1
+      const indexOfNextLevelToPassToSet = levelNumber - 1
+      this.$change.indexOfDeterminerLevel = indexOfCurrentHighestPassedLevel
+
+      for (
+        let i = indexOfNextLevelToPassToSet;
+        i <= indexOfCurrentHighestPassedLevel;
+        i += 1
+      ) {
+        $progressLevels[i].classList.remove(PASSED_PROGRESS_LEVEL_CLASS)
+      }
+    } else {
+      const indexOfHighestPassedLevelToSet = levelNumber - 2
+      this.$change.indexOfDeterminerLevel = indexOfHighestPassedLevelToSet
+
+      for (
+        let i = $currentProgressLevelIndex;
+        i <= indexOfHighestPassedLevelToSet;
+        i += 1
+      ) {
+        $progressLevels[i].classList.add(PASSED_PROGRESS_LEVEL_CLASS)
+      }
+    }
+
+    this.$currentProgressLevelIndex = levelNumber - 1
+  }
+
   currentLevel() {
     return this.$currentProgressLevelIndex + 1
   }
@@ -155,7 +155,6 @@ export default class Progress extends Component {
 
   decrement() {
     const { $currentProgressLevelIndex } = this
-
     this.$setActiveLevel($currentProgressLevelIndex)
   }
 
