@@ -246,72 +246,12 @@ export default class Quiz extends Component {
     )
   }
 
-  $handleNextButtonClick() {
-    const { $controlPanel, $elements, $presentation, $progress } = this
-    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
-    const currentSlideIndex = $presentation.currentSlideIndex()
-    const indexOfNextElement = currentSlideIndex + 1
-    const nextElement = $elements[indexOfNextElement]
-
-    const nextElementIsQuestion = nextElement instanceof Question
-    const nextElementIsAnsweredQuestion =
-      nextElementIsQuestion && nextElement.isAnswered()
-    const nextElementIsLast = indexOfNextElement === $elements.length - 1
-
-    if (
-      nextElementIsQuestion &&
-      nextElementIsAnsweredQuestion &&
-      nextElementIsLast
-    ) {
-      $controlPanel.enable("submit")
-    }
-
-    if (
-      (nextElementIsQuestion && !nextElementIsAnsweredQuestion) ||
-      nextElementIsLast
-    ) {
-      $controlPanel.disable("next")
-    }
-
-    $controlPanel.enable("prev")
-    if (!(nextElement instanceof Result)) $progress.increment()
-    $presentation.slideForward()
-  }
-
-  $handlePrevButtonClick() {
-    const { $controlPanel, $elements, $presentation, $progress } = this
-    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
-    const currentSlideIndex = $presentation.currentSlideIndex()
-    const indexOfPreviousElement = currentSlideIndex - 1
-
-    if (indexOfPreviousElement === 0) $controlPanel.disable("prev")
-    $controlPanel.disable("submit")
-    $controlPanel.enable("next")
-    if (!($elements[currentSlideIndex] instanceof Result)) $progress.decrement()
-    $presentation.slideBackward()
-  }
-
-  $handleQuestionOptionChange(questionIndex) {
-    const { $controlPanel, $elements, $presentation } = this
-    const currentSlideIndex = $presentation.currentSlideIndex()
-    const questionAtIndex = $elements[questionIndex]
-
-    if (questionIndex !== currentSlideIndex) return
-    if (!questionAtIndex.isAnswered()) {
-      $controlPanel.disable("next")
-      $controlPanel.disable("submit")
-    } else if (currentSlideIndex === $elements.length - 1) {
-      $controlPanel.disable("next")
-      $controlPanel.enable("submit")
-    } else $controlPanel.enable("next")
-  }
-
   async $handleSubmitButtonClick() {
     const {
-      $controlPanel,
       $elements,
       $metadata,
       $presentation,
+      $progress,
       $startQuestionsReview,
       $submissionCallback
     } = this
@@ -338,12 +278,14 @@ export default class Quiz extends Component {
       />
     )
 
-    $controlPanel.disable("prev")
-    $controlPanel.disable("submit")
     $presentation.appendSlide(resultNode)
+    $progress.addLevels(1)
     $elements.push(resultRefHolder.ref)
 
-    await $presentation.slideForward()
+    this.$resetControlPanelButtons($elements.length - 1)
+    $progress.setActiveLevel($elements.length)
+    await $presentation.showSlide($elements.length - 1)
+
     questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
 
@@ -358,8 +300,7 @@ export default class Quiz extends Component {
         elements,
         metadata: { autoSave, customSavedData, header, isGlobal, storageKey },
         submissionCallback
-      },
-      $handleQuestionOptionChange
+      }
     } = this
 
     const {
@@ -370,6 +311,7 @@ export default class Quiz extends Component {
     // Storage key is used by some methods called below
     this.$metadata = { autoSave, storageKey, isGlobal }
     this.$elements = []
+    this.$indices = { prev: null, next: null }
     this.$submissionCallback = submissionCallback
 
     this.$progress = null
@@ -387,7 +329,7 @@ export default class Quiz extends Component {
     const slides = []
     const elementRefs = []
 
-    elements.forEach((element, index) => {
+    elements.forEach((element) => {
       const { type, props } = element
       if (
         type !== QUESTION_QUIZ_ELEMENT_TYPE &&
@@ -404,7 +346,10 @@ export default class Quiz extends Component {
         const questionNode = (
           <Question
             {...props}
-            handleOptionChange={$handleQuestionOptionChange.bind(this, index)}
+            handleOptionChange={() => {
+              const currentSlideIndex = this.$presentation.currentSlideIndex()
+              this.$resetControlPanelButtons(currentSlideIndex)
+            }}
             refHolder={questionRefHolder}
           />
         )
@@ -479,11 +424,7 @@ export default class Quiz extends Component {
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
-    const {
-      $handleNextButtonClick,
-      $handlePrevButtonClick,
-      $handleSubmitButtonClick
-    } = this
+    const { $handleSubmitButtonClick } = this
 
     const quizNode = (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
@@ -501,25 +442,82 @@ export default class Quiz extends Component {
         />
         <ControlPanel
           controllingId={presentationControllingId}
-          handlePrevButtonClick={$handlePrevButtonClick.bind(this)}
-          handleNextButtonClick={$handleNextButtonClick.bind(this)}
+          handlePrevButtonClick={async () => {
+            const { $indices, $presentation, $progress } = this
+            if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
+              return
+
+            const prevIndex = $indices.prev
+            this.$resetControlPanelButtons(prevIndex)
+            $progress.setActiveLevel(prevIndex + 1)
+            await $presentation.showSlide(prevIndex)
+          }}
+          handleNextButtonClick={async () => {
+            const { $indices, $presentation, $progress } = this
+            if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
+              return
+
+            const nextIndex = $indices.next
+            this.$resetControlPanelButtons(nextIndex)
+            $progress.setActiveLevel(nextIndex + 1)
+            await $presentation.showSlide(nextIndex)
+          }}
           handleSubmitButtonClick={$handleSubmitButtonClick.bind(this)}
           refHolder={controlPanelRefHolder}
         />
       </section>
     )
 
-    if (resultIsPropagated || elementRefs[0] instanceof Question)
-      controlPanelRefHolder.ref.disable("next")
-    controlPanelRefHolder.ref.disable("prev")
-    controlPanelRefHolder.ref.disable("submit")
-
     this.$elements = elementRefs
     this.$progress = progressRefHolder.ref
     this.$presentation = presentationRefHolder.ref
     this.$controlPanel = controlPanelRefHolder.ref
 
+    // Enable and disable necessary buttons
+    this.$resetControlPanelButtons(resultIsPropagated ? slides.length - 1 : 0)
+
     return quizNode
+  }
+
+  $resetControlPanelButtons(currentSlideIndex) {
+    const { $controlPanel, $elements, $indices } = this
+
+    const currentSlide = $elements[currentSlideIndex]
+    const quizIsFinalized = $elements[$elements.length - 1] instanceof Result
+    const currentSlideIsFirst = currentSlideIndex === 0
+    const currentSlideIsLast = currentSlideIndex === $elements.length - 1
+
+    const currentSlideIsQuestion = currentSlide instanceof Question
+    const currentSlideIsAnsweredQuestion =
+      currentSlideIsQuestion && currentSlide.isAnswered()
+
+    // The prev button config
+    if (!currentSlideIsFirst) $indices.prev = currentSlideIndex - 1
+    else $indices.prev = null
+
+    // The next button config
+    if (
+      !currentSlideIsLast &&
+      (quizIsFinalized ||
+        !currentSlideIsQuestion ||
+        currentSlideIsAnsweredQuestion)
+    ) {
+      $indices.next = currentSlideIndex + 1
+    } else $indices.next = null
+
+    if ($indices.prev === null) $controlPanel.disable("prev")
+    else $controlPanel.enable("prev")
+
+    if ($indices.next === null) $controlPanel.disable("next")
+    else $controlPanel.enable("next")
+
+    if (
+      !quizIsFinalized &&
+      currentSlideIsLast &&
+      currentSlideIsAnsweredQuestion
+    )
+      $controlPanel.enable("submit")
+    else $controlPanel.disable("submit")
   }
 
   $retrieveSavedQuizData() {
@@ -553,13 +551,12 @@ export default class Quiz extends Component {
     return metadataToSave
   }
 
-  $startQuestionsReview() {
-    const { $controlPanel, $presentation, $progress } = this
+  async $startQuestionsReview() {
+    const { $presentation, $progress } = this
     if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
 
-    $presentation.restart()
+    this.$resetControlPanelButtons(0)
     $progress.restart()
-    $controlPanel.disable("prev")
-    $controlPanel.enable("next")
+    await $presentation.restart()
   }
 }

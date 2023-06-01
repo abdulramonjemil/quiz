@@ -154,4 +154,8 @@ export default class Presentation extends Component {
   slideIsChangeable() {
     return this.$slideIsChangeable
   }
+
+  slidesCount() {
+    return this.$slides.length
+  }
 }

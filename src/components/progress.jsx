@@ -1,4 +1,4 @@
-import Component from "../core/component"
+import Component, { createElementRefHolder } from "../core/component"
 import Styles from "../scss/progress.module.scss"
 
 const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
@@ -41,6 +41,7 @@ export default class Progress extends Component {
   $render() {
     this.$progressLevels = []
     this.$currentProgressLevelIndex = null
+    this.$progressList = null
 
     this.$change = {
       /**
@@ -83,15 +84,25 @@ export default class Progress extends Component {
     }
 
     this.$currentProgressLevelIndex = startLevelIsSet ? startLevel - 1 : 0
+    const progressListRefHolder = createElementRefHolder()
 
-    return (
+    const progressNode = (
       /* The outer div is used to determine max-width of inner one in CSS */
       <div>
         <div className={Styles.Progress} aria-hidden="true">
-          <ul className={Styles.Progress__List}>{[...$progressLevels]}</ul>
+          <ul
+            className={Styles.Progress__List}
+            refHolder={progressListRefHolder}
+          >
+            {[...$progressLevels]}
+          </ul>
         </div>
       </div>
     )
+
+    this.$progressList = progressListRefHolder.ref
+
+    return progressNode
   }
 
   /**
@@ -145,6 +156,32 @@ export default class Progress extends Component {
     this.$currentProgressLevelIndex = levelNumber - 1
   }
 
+  addLevels(count) {
+    if (!Number.isInteger(count) || count === 0)
+      throw new TypeError("Expected a positive levels count to add")
+
+    const {
+      $handleProgressLevelTransitionEnd,
+      $progressLevels,
+      $progressList
+    } = this
+
+    const currentHighestLevelNumber = $progressLevels.length
+    const handleTransitionEnd = $handleProgressLevelTransitionEnd.bind(this)
+
+    for (
+      let i = currentHighestLevelNumber + 1;
+      i <= currentHighestLevelNumber + count;
+      i += 1
+    ) {
+      const progressLevel = (
+        <ProgressLevel number={i} handleTransitionEnd={handleTransitionEnd} />
+      )
+      $progressLevels.push(progressLevel)
+      $progressList.appendChild(progressLevel)
+    }
+  }
+
   currentLevel() {
     return this.$currentProgressLevelIndex + 1
   }
@@ -161,6 +198,10 @@ export default class Progress extends Component {
   increment() {
     const { $currentProgressLevelIndex } = this
     this.$setActiveLevel($currentProgressLevelIndex + 2)
+  }
+
+  levelsCount() {
+    return this.$progressLevels.length
   }
 
   restart() {
