@@ -7,12 +7,14 @@ export default class ControlPanel extends Component {
       controllingId,
       handlePrevButtonClick,
       handleNextButtonClick,
-      handleSubmitButtonClick
+      handleSubmitButtonClick,
+      revalidator
     } = this.$props
 
     this.$prevButton = null
     this.$nextButton = null
-    this.$submitButton = null
+    this.$revalidator = revalidator
+    this.$cta = null
 
     const prevButtonRefHolder = createElementRefHolder()
     const nextButtonRefHolder = createElementRefHolder()
@@ -54,21 +56,35 @@ export default class ControlPanel extends Component {
 
     this.$prevButton = prevButtonRefHolder.ref
     this.$nextButton = nextButtonRefHolder.ref
-    this.$submitButton = submitButtonRefHolder.ref
+    this.$cta = submitButtonRefHolder.ref
     return controlPanelNode
   }
 
   disable(button) {
     if (button === "prev") this.$prevButton.disabled = true
     else if (button === "next") this.$nextButton.disabled = true
-    else if (button === "submit") this.$submitButton.disabled = true
+    else if (button === "submit") this.$cta.disabled = true
     else throw new TypeError(`Unsupported button: '${button}'`)
   }
 
   enable(button) {
     if (button === "prev") this.$prevButton.disabled = false
     else if (button === "next") this.$nextButton.disabled = false
-    else if (button === "submit") this.$submitButton.disabled = false
+    else if (button === "submit") this.$cta.disabled = false
     else throw new TypeError(`Unsupported button: '${button}'`)
+  }
+
+  revalidate(currentIndexToUse) {
+    const revalidationObject = this.$revalidator.call(null, currentIndexToUse)
+    const {
+      prev: prevIsEnabled,
+      next: nextIsEnabled,
+      cta: { isSubmit: ctaIsSubmit, isEnabled: ctaIsEnabled }
+    } = revalidationObject
+
+    this.$prevButton.disabled = !prevIsEnabled
+    this.$nextButton.disabled = !nextIsEnabled
+    this.$cta.disabled = !ctaIsEnabled
+    this.$cta.innerText = ctaIsSubmit ? "Submit" : "Toggle Result"
   }
 }

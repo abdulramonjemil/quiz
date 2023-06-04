@@ -246,21 +246,38 @@ export default class Quiz extends Component {
     )
   }
 
-  async $handleSubmitButtonClick() {
+  async $handleCtaButtonClick() {
     const {
       $elements,
+      $indices,
       $metadata,
       $presentation,
       $progress,
+      $questionElements,
       $startQuestionsReview,
       $submissionCallback
     } = this
 
-    const questionElements = $elements.filter(
-      (element) => element instanceof Question
-    )
+    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
+    const buttonIsResultToggler =
+      $elements[$elements.length - 1] instanceof Result
 
-    const gottenAnswersCount = questionElements.reduce(
+    if (buttonIsResultToggler) {
+      const currentSlideIndex = $presentation.currentSlideIndex()
+      const currentSlideIsResult =
+        $elements[currentSlideIndex] instanceof Result
+
+      if (currentSlideIsResult)
+        $presentation.showSlide($indices.lastShownBeforeResult)
+      else {
+        $indices.lastShownBeforeResult = currentSlideIndex
+        $presentation.showSlide($elements.length - 1)
+      }
+
+      return
+    }
+
+    const gottenAnswersCount = $questionElements.reduce(
       (previousValue, questionElement) =>
         questionElement.correctAnswerIsPicked()
           ? previousValue + 1
@@ -273,20 +290,19 @@ export default class Quiz extends Component {
       <Result
         answersGotten={gottenAnswersCount}
         handleExplanationsReview={$startQuestionsReview.bind(this)}
-        questionsCount={questionElements.length}
+        questionsCount={$questionElements.length}
         refHolder={resultRefHolder}
       />
     )
 
+    this.$indices.lastShownBeforeResult = $elements.length - 1
     $presentation.appendSlide(resultNode)
-    $progress.addLevels(1)
     $elements.push(resultRefHolder.ref)
 
-    this.$resetControlPanelButtons($elements.length - 1)
-    $progress.setActiveLevel($elements.length)
+    this.$controlPanel.revalidate($elements.length - 1)
     await $presentation.showSlide($elements.length - 1)
 
-    questionElements.forEach((questionElement) => questionElement.finalize())
+    $questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
 
     const savedQuizMetadata = this.$populateQuizMetadata($metadata.autoSave)
@@ -311,7 +327,9 @@ export default class Quiz extends Component {
     // Storage key is used by some methods called below
     this.$metadata = { autoSave, storageKey, isGlobal }
     this.$elements = []
-    this.$indices = { prev: null, next: null }
+    this.$questionElements = []
+
+    this.$indices = { prev: null, next: null, lastShownBeforeResult: null }
     this.$submissionCallback = submissionCallback
 
     this.$progress = null
@@ -328,6 +346,7 @@ export default class Quiz extends Component {
 
     const slides = []
     const elementRefs = []
+    const questionElementRefs = []
 
     elements.forEach((element) => {
       const { type, props } = element
@@ -348,7 +367,7 @@ export default class Quiz extends Component {
             {...props}
             handleOptionChange={() => {
               const currentSlideIndex = this.$presentation.currentSlideIndex()
-              this.$resetControlPanelButtons(currentSlideIndex)
+              this.$controlPanel.revalidate(currentSlideIndex)
             }}
             refHolder={questionRefHolder}
           />
@@ -356,6 +375,7 @@ export default class Quiz extends Component {
 
         slides.push(questionNode)
         elementRefs.push(questionRefHolder.ref)
+        questionElementRefs.push(questionRefHolder.ref)
       }
     })
 
@@ -424,7 +444,7 @@ export default class Quiz extends Component {
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
-    const { $handleSubmitButtonClick } = this
+    const { $handleCtaButtonClick, $resetControlPanelButtons } = this
 
     const quizNode = (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
@@ -448,7 +468,7 @@ export default class Quiz extends Component {
               return
 
             const prevIndex = $indices.prev
-            this.$resetControlPanelButtons(prevIndex)
+            this.$controlPanel.revalidate(prevIndex)
             $progress.setActiveLevel(prevIndex + 1)
             await $presentation.showSlide(prevIndex)
           }}
@@ -458,34 +478,38 @@ export default class Quiz extends Component {
               return
 
             const nextIndex = $indices.next
-            this.$resetControlPanelButtons(nextIndex)
+            this.$controlPanel.revalidate(nextIndex)
             $progress.setActiveLevel(nextIndex + 1)
             await $presentation.showSlide(nextIndex)
           }}
-          handleSubmitButtonClick={$handleSubmitButtonClick.bind(this)}
+          handleSubmitButtonClick={$handleCtaButtonClick.bind(this)}
           refHolder={controlPanelRefHolder}
+          revalidator={$resetControlPanelButtons.bind(this)}
         />
       </section>
     )
 
     this.$elements = elementRefs
+    this.$questionElements = questionElementRefs
     this.$progress = progressRefHolder.ref
     this.$presentation = presentationRefHolder.ref
     this.$controlPanel = controlPanelRefHolder.ref
 
     // Enable and disable necessary buttons
-    this.$resetControlPanelButtons(resultIsPropagated ? slides.length - 1 : 0)
+    this.$controlPanel.revalidate(resultIsPropagated ? slides.length - 1 : 0)
 
     return quizNode
   }
 
   $resetControlPanelButtons(currentSlideIndex) {
-    const { $controlPanel, $elements, $indices } = this
+    const { $elements, $questionElements, $indices } = this
 
     const currentSlide = $elements[currentSlideIndex]
     const quizIsFinalized = $elements[$elements.length - 1] instanceof Result
     const currentSlideIsFirst = currentSlideIndex === 0
     const currentSlideIsLast = currentSlideIndex === $elements.length - 1
+    const currentSlideIsJustBeforeResult =
+      quizIsFinalized && currentSlideIndex === $elements.length - 2
 
     const currentSlideIsQuestion = currentSlide instanceof Question
     const currentSlideIsAnsweredQuestion =
@@ -496,7 +520,8 @@ export default class Quiz extends Component {
     else $indices.prev = null
 
     // The next button config
-    if (
+    if (currentSlideIsJustBeforeResult) $indices.next = null
+    else if (
       !currentSlideIsLast &&
       (quizIsFinalized ||
         !currentSlideIsQuestion ||
@@ -505,19 +530,16 @@ export default class Quiz extends Component {
       $indices.next = currentSlideIndex + 1
     } else $indices.next = null
 
-    if ($indices.prev === null) $controlPanel.disable("prev")
-    else $controlPanel.enable("prev")
-
-    if ($indices.next === null) $controlPanel.disable("next")
-    else $controlPanel.enable("next")
-
-    if (
-      !quizIsFinalized &&
-      currentSlideIsLast &&
-      currentSlideIsAnsweredQuestion
-    )
-      $controlPanel.enable("submit")
-    else $controlPanel.disable("submit")
+    return {
+      prev: $indices.prev !== null,
+      next: $indices.next !== null,
+      cta: {
+        isSubmit: !quizIsFinalized,
+        isEnabled:
+          quizIsFinalized ||
+          $questionElements.every((question) => question.isAnswered())
+      }
+    }
   }
 
   $retrieveSavedQuizData() {
@@ -555,8 +577,10 @@ export default class Quiz extends Component {
     const { $presentation, $progress } = this
     if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
 
-    this.$resetControlPanelButtons(0)
+    this.$controlPanel.revalidate(0)
     $progress.restart()
     await $presentation.restart()
   }
 }
+
+// $resetControlPanelButtons
