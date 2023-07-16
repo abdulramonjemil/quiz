@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "description": "A library for embedding quizzes within Hashnode blog posts",
+  "license": "MIT",
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack.prod.js",

@@ -1,4 +1,3 @@
-/* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable max-classes-per-file */
 
 import Component, { createInstanceRefHolder } from "../core/component"
