@@ -1,11 +1,11 @@
-{
-  "extends": ["airbnb", "prettier"],
-  "env": { "browser": true },
-  "parserOptions": {
-    "ecmaVersion": 2020
+module.exports = {
+  extends: ["airbnb", "prettier"],
+  env: { browser: true },
+  parserOptions: {
+    ecmaVersion: 2020
   },
-  "rules": {
-    "import/extensions": ["error", "always", { "js": "never", "jsx": "never" }],
+  rules: {
+    "import/extensions": ["error", "always", { js: "never", jsx: "never" }],
     "react/destructuring-assignment": "off",
     "react/jsx-no-bind": "off",
     "react/jsx-props-no-spreading": "off",

@@ -1,11 +1,11 @@
-{
-  "extends": "stylelint-config-standard-scss",
-  "rules": {
+module.exports = {
+  extends: "stylelint-config-standard-scss",
+  rules: {
     "at-rule-empty-line-before": [
       "always",
       {
-        "except": ["blockless-after-blockless", "first-nested"],
-        "ignore": ["after-comment", "inside-block"]
+        except: ["blockless-after-blockless", "first-nested"],
+        ignore: ["after-comment", "inside-block"]
       }
     ],
     "declaration-empty-line-before": null,
@@ -13,7 +13,7 @@
     "property-no-unknown": [
       true,
       {
-        "ignoreSelectors": [":export"]
+        ignoreSelectors: [":export"]
       }
     ],
     "scss/at-if-no-null": null,
@@ -25,7 +25,7 @@
     "selector-class-pattern": null,
     "selector-pseudo-class-no-unknown": [
       true,
-      { "ignorePseudoClasses": ["export"] }
+      { ignorePseudoClasses: ["export"] }
     ]
   }
 }
