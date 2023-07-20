@@ -1,11 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
-const path = require("path")
 const { merge } = require("webpack-merge")
 const HTMLWebpackPlugin = require("html-webpack-plugin")
-const commonConfig = require("./webpack.config")
+const baseConfig = require("./webpack.config")
 /* eslint-enable import/no-extraneous-dependencies */
 
-module.exports = merge(commonConfig, {
+module.exports = merge(baseConfig, {
   devServer: {
     open: false,
     port: 8000,
@@ -68,10 +67,6 @@ module.exports = merge(commonConfig, {
         ]
       }
     ]
-  },
-  output: {
-    filename: "quiz.bundle.js",
-    path: path.resolve(__dirname, "dist")
   },
   plugins: [
     new HTMLWebpackPlugin({
