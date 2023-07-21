@@ -189,11 +189,10 @@ export default class Question extends Component {
       if (selectedAnswerInput === undefined)
         throw new Error("No answer is selected")
     } else {
-      if (typeof metadata !== "string")
-        throw new TypeError("metadata must be a string if present")
+      if (typeof metadata !== "object")
+        throw new TypeError("metadata must be an object if present")
 
-      const parsedMetadata = JSON.parse(metadata)
-      const selectedOption = parsedMetadata[QUESTION_METADATA_MAIN_KEY]
+      const selectedOption = metadata[QUESTION_METADATA_MAIN_KEY]
 
       const indexOfSelectedOptionLetter =
         LETTERS_FOR_ANSWER_CHOICES.indexOf(selectedOption)

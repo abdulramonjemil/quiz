@@ -304,9 +304,9 @@ export default class Quiz extends Component {
     $questionElements.forEach((questionElement) => questionElement.finalize())
     resultRefHolder.ref.renderIndicator()
 
-    const savedQuizMetadata = this.$populateQuizMetadata($metadata.autoSave)
+    const quizMetadata = this.$populateQuizMetadata($metadata.autoSave)
     if (typeof $submissionCallback === "function")
-      $submissionCallback.call(this, savedQuizMetadata)
+      $submissionCallback.call(this, quizMetadata)
   }
 
   $render() {
