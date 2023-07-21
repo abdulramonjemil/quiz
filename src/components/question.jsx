@@ -11,7 +11,11 @@ const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 
 const ENABLED_EXPLANATION_CLASS = Styles.Explanation_enabled
 const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
-const QUESTION_METADATA_MAIN_KEY = "selectedOption"
+
+/**
+ * @typedef QuestionMetadata
+ * @property {"A" | "B" | "C" | "D"} selectedOption
+ */
 
 function Option({ handleOptionChange, letter, name, text }) {
   const optionLabellingId = uniqueId()
@@ -172,14 +176,16 @@ export default class Question extends Component {
     this.$setAnswerSelectionState("enabled")
   }
 
+  /** @returns {QuestionMetadata} */
   exportInteractionMetadata() {
     const { $answerInputs } = this
     const selectedAnswerInput = $answerInputs.find((input) => input.checked)
     return {
-      [QUESTION_METADATA_MAIN_KEY]: selectedAnswerInput.value
+      selectedOption: selectedAnswerInput.value
     }
   }
 
+  /** @param {QuestionMetadata=} metadata */
   finalize(metadata) {
     const { $answerInputs, $correctAnswerInput } = this
     let selectedAnswerInput = null
@@ -192,7 +198,7 @@ export default class Question extends Component {
       if (typeof metadata !== "object")
         throw new TypeError("metadata must be an object if present")
 
-      const selectedOption = metadata[QUESTION_METADATA_MAIN_KEY]
+      const { selectedOption } = metadata
 
       const indexOfSelectedOptionLetter =
         LETTERS_FOR_ANSWER_CHOICES.indexOf(selectedOption)
