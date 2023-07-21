@@ -9,8 +9,8 @@ const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
 const CORRECT_OPTION_CLASS = Styles.Option_correct
 const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 
-const ENABLED_FEEDBACK_CLASS = Styles.FeedBack_enabled
-const SHOWN_FEEDBACK_CLASS = Styles.FeedBack_shown
+const ENABLED_EXPLANATION_CLASS = Styles.Explanation_enabled
+const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
 const QUESTION_METADATA_MAIN_KEY = "selectedOption"
 
 function Option({ handleOptionChange, letter, name, text }) {
@@ -45,24 +45,24 @@ function QuestionBox({ title, answerOptions }) {
   )
 }
 
-function handleFeedBackTogglerClick(rootRefHolder) {
-  const feedBackRoot = rootRefHolder.ref
-  feedBackRoot.classList.toggle(SHOWN_FEEDBACK_CLASS)
+function handleExplanationTogglerClick(rootRefHolder) {
+  const explanationRoot = rootRefHolder.ref
+  explanationRoot.classList.toggle(SHOWN_EXPLANATION_CLASS)
 }
 
-function FeedBack({ content, rootRefHolder }) {
+function Explanation({ content, rootRefHolder }) {
   if (typeof content !== "string" || content === "") return ""
   return (
-    <div className={Styles.FeedBack} refHolder={rootRefHolder}>
+    <div className={Styles.Explanation} refHolder={rootRefHolder}>
       <button
-        className={Styles.FeedBack__Toggler}
-        onClick={handleFeedBackTogglerClick.bind(null, rootRefHolder)}
+        className={Styles.Explanation__Toggler}
+        onClick={handleExplanationTogglerClick.bind(null, rootRefHolder)}
         type="button"
       >
         Toggle Explanations
       </button>
-      <hr className={Styles.FeedBack__Divider} />
-      <div className={Styles.FeedBack__Content}>{phraseToNode(content)}</div>
+      <hr className={Styles.Explanation__Divider} />
+      <div className={Styles.Explanation__Content}>{phraseToNode(content)}</div>
     </div>
   )
 }
@@ -82,11 +82,11 @@ export default class Question extends Component {
     }
   }
 
-  $setFeedbackState(state) {
+  $setExplanationState(state) {
     if (state === "enabled")
-      this.$feedBackElement.classList.add(ENABLED_FEEDBACK_CLASS)
+      this.$explanationElement.classList.add(ENABLED_EXPLANATION_CLASS)
     else if (state === "disabled")
-      this.$feedBackElement.classList.remove(ENABLED_FEEDBACK_CLASS)
+      this.$explanationElement.classList.remove(ENABLED_EXPLANATION_CLASS)
   }
 
   $setAnswerSelectionState(state) {
@@ -95,18 +95,18 @@ export default class Question extends Component {
   }
 
   $render() {
-    const { answer, feedBackContent, handleOptionChange, options, title } =
+    const { answer, explanation, handleOptionChange, options, title } =
       this.$props
     const answerOptions = []
     const groupingName = uniqueId()
 
     this.$answerInputs = null
     this.$correctAnswerInput = null
-    this.$feedBackElement = null
+    this.$explanationElement = null
     this.$fieldSet = null
 
     const fieldSetRefHolder = createElementRefHolder()
-    const feedBackRefHolder = createElementRefHolder()
+    const explanationRefHolder = createElementRefHolder()
     const questionNodeRefHolder = createElementRefHolder()
 
     for (let i = 0; i < options.length; i += 1) {
@@ -133,16 +133,16 @@ export default class Question extends Component {
             <fieldset refHolder={fieldSetRefHolder}>
               <QuestionBox title={title} answerOptions={answerOptions} />
             </fieldset>
-            <FeedBack
-              content={feedBackContent}
-              rootRefHolder={feedBackRefHolder}
+            <Explanation
+              content={explanation}
+              rootRefHolder={explanationRefHolder}
             />
           </div>
         </ScrollShadow>
       </div>
     )
 
-    this.$feedBackElement = feedBackRefHolder.ref
+    this.$explanationElement = explanationRefHolder.ref
     this.$fieldSet = fieldSetRefHolder.ref
     this.$answerInputs = Array.from(
       fieldSetRefHolder.ref.getElementsByTagName("input")
@@ -168,7 +168,7 @@ export default class Question extends Component {
     }
 
     Question.$styleAnswerInputOption($correctAnswerInput, "reset")
-    this.$setFeedbackState("disabled")
+    this.$setExplanationState("disabled")
     this.$setAnswerSelectionState("enabled")
   }
 
@@ -214,7 +214,7 @@ export default class Question extends Component {
       Question.$styleAnswerInputOption(selectedAnswerInput, "incorrect")
     Question.$styleAnswerInputOption($correctAnswerInput, "correct")
 
-    this.$setFeedbackState("enabled")
+    this.$setExplanationState("enabled")
     this.$setAnswerSelectionState("disabled")
   }
 

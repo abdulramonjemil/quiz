@@ -142,7 +142,7 @@ $option-letter-span: 30px;
   }
 }
 
-.FeedBack {
+.Explanation {
   background-color: utils.get-color(soft-dark);
   border-radius: utils.get-constant(border-radius);
   display: none;
@@ -184,10 +184,10 @@ $option-letter-span: 30px;
     }
   }
 
-  @mixin feedback-content-hidden-by-default {
+  @mixin explanation-part-hidden-by-default {
     display: none;
 
-    .FeedBack_shown & {
+    .Explanation_shown & {
       display: block;
     }
   }
@@ -198,7 +198,7 @@ $option-letter-span: 30px;
     margin-top: $gap-between-question-elements;
     width: 100%;
 
-    @include feedback-content-hidden-by-default;
+    @include explanation-part-hidden-by-default;
   }
 
   &__Content {
@@ -207,6 +207,6 @@ $option-letter-span: 30px;
     margin-top: $gap-between-question-elements;
     padding: 8px;
 
-    @include feedback-content-hidden-by-default;
+    @include explanation-part-hidden-by-default;
   }
 }

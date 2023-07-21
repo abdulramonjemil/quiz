@@ -156,7 +156,7 @@ class QuizProps {
     if (typeof props !== "object")
       throw new TypeError("question props must be an object")
 
-    const { title, options, answer, feedBackContent } = props
+    const { title, options, answer, explanation } = props
 
     if (!isFilledString(title))
       throw new TypeError("question title must be a non-empty string")
@@ -175,9 +175,9 @@ class QuizProps {
         `The question '${title}' has an invalid answer letter: ${answer}`
       )
 
-    if (feedBackContent !== undefined && !isFilledString(feedBackContent))
+    if (explanation !== undefined && !isFilledString(explanation))
       throw new TypeError(
-        "feedback content must be a non-empty string if present"
+        "Explanation content must be a non-empty string if present"
       )
 
     const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
@@ -185,7 +185,7 @@ class QuizProps {
       type: QUIZ_ELEMENT_TYPES.QUESTION,
       props: {
         answer,
-        feedBackContent,
+        explanation,
         options: [...options],
         title
       }
