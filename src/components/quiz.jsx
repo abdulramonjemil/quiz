@@ -548,7 +548,6 @@ export default class Quiz extends Component {
   }
 
   $populateQuizMetadata(saveToStorage) {
-    if (!webStorageIsAvailable("localStorage")) return null
     const { $elements } = this
     const questionElements = $elements.filter(
       (element) => element instanceof Question
@@ -567,7 +566,7 @@ export default class Quiz extends Component {
           : $elements.length
     })
 
-    if (saveToStorage)
+    if (saveToStorage && webStorageIsAvailable("localStorage"))
       window.localStorage.setItem(storageKeyToUse, metadataToSave)
     return metadataToSave
   }
