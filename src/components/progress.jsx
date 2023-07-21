@@ -5,7 +5,7 @@ const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
 const PROGRESS_BRIDGE_PSEUDO_ELEMENT = "::after"
 const PASSED_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_passed
 
-function ProgressLevel({ number, handleTransitionEnd, isPassed = false }) {
+function ProgressLevel({ levelNumber, handleTransitionEnd, isPassed = false }) {
   return (
     <li
       className={`${Styles.Progress__Level} ${
@@ -13,7 +13,7 @@ function ProgressLevel({ number, handleTransitionEnd, isPassed = false }) {
       }`}
       onTransitionEnd={handleTransitionEnd}
     >
-      <div className={Styles.Progress__Number}>{number}</div>
+      <div className={Styles.Progress__Number}>{levelNumber}</div>
     </li>
   )
 }
@@ -76,7 +76,7 @@ export default class Progress extends Component {
     for (let i = 1; i <= levelsCount; i += 1) {
       $progressLevels.push(
         <ProgressLevel
-          number={i}
+          levelNumber={i}
           handleTransitionEnd={handleTransitionEnd}
           isPassed={startLevelIsSet && startLevel > i}
         />
@@ -175,7 +175,10 @@ export default class Progress extends Component {
       i += 1
     ) {
       const progressLevel = (
-        <ProgressLevel number={i} handleTransitionEnd={handleTransitionEnd} />
+        <ProgressLevel
+          levelNumber={i}
+          handleTransitionEnd={handleTransitionEnd}
+        />
       )
       $progressLevels.push(progressLevel)
       $progressList.appendChild(progressLevel)
