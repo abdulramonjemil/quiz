@@ -32,16 +32,21 @@ const QUIZ_ELEMENT_TYPES = {
   QUESTION: "QUESTION"
 }
 
-const KEYS_FOR_SAVED_QUIZ_METADATA = {
-  QUESTION_METADATA_SET: "QUESTION_METADATA_SET",
-  ELEMENTS_COUNT: "ELEMENTS_COUNT"
-}
-
 /**
  * Internal map used to store quiz props objects to prevent accessing it from
  * the outside
  */
 const QUIZ_PROPS_MAP = new Map()
+
+/**
+ * @typedef {import("./question").QuestionMetadata} QuestionMetadata
+ */
+
+/**
+ * @typedef QuizMetadata
+ * @property {QuestionMetadata[]} questionMetadataSet
+ * @property {number} elementsCount
+ */
 
 class QuizProps {
   constructor(metadata, submissionCallback) {
@@ -389,25 +394,23 @@ export default class Quiz extends Component {
     let resultIsPropagated = false
 
     if (storedQuizData !== null) {
+      /** @type {QuizMetadata} */
       const parsedQuizData = JSON.parse(storedQuizData)
       const questionElements = elementRefs.filter(
         (element) => element instanceof Question
       )
 
-      const {
-        [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]:
-          questionMetadataList,
-        [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]: savedElementsCount
-      } = parsedQuizData
+      const { questionMetadataSet, elementsCount: savedElementsCount } =
+        parsedQuizData
 
       if (
-        questionMetadataList.length !== questionElements.length ||
+        questionMetadataSet.length !== questionElements.length ||
         savedElementsCount !== elementsCount
       ) {
         this.$clearQuizStoredData()
       } else {
         questionElements.forEach((questionElement, index) =>
-          questionElement.finalize(questionMetadataList[index])
+          questionElement.finalize(questionMetadataSet[index])
         )
 
         const gottenAnswersCount = questionElements.reduce(
@@ -553,14 +556,19 @@ export default class Quiz extends Component {
       (element) => element instanceof Question
     )
 
-    const metadataSet = questionElements.map((questionElement) =>
-      questionElement.exportInteractionMetadata()
+    const metadataSet = questionElements.map(
+      (questionElement) =>
+        /** @type {QuestionMetadata} */ (
+          questionElement.exportInteractionMetadata()
+        )
     )
 
     const storageKeyToUse = this.$getFullStorageKey()
+
+    /** @type {QuizMetadata} */
     const metadataToSave = {
-      [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataSet,
-      [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]:
+      questionMetadataSet: metadataSet,
+      elementsCount:
         $elements[$elements.length - 1] instanceof Result
           ? $elements.length - 1
           : $elements.length
