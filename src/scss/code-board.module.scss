@@ -75,7 +75,6 @@ code[class*="language-"] *,
 pre[class*="language-"] * {
   background: $code-board-background;
   font-family: utils.get-font-family(monospace);
-  font-weight: 300;
   line-height: utils.get-constant(line-height);
 }
 
