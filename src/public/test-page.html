@@ -32,16 +32,8 @@
       const SAMPLE_QUIZ_OBJECT = {
         metadata: {
           autoSave: false,
-          // customSavedData: JSON.stringify({
-          //   QUESTION_METADATA_SET: [
-          //     '{"selectedOption":"D"}',
-          //     '{"selectedOption":"D"}',
-          //     '{"selectedOption":"A"}'
-          //   ],
-          //   ELEMENTS_COUNT: 4
-          // }),
           // customSavedData:
-          //   '{"QUESTION_METADATA_SET":["{\\"selectedOption\\":\\"B\\"}","{\\"selectedOption\\":\\"C\\"}","{\\"selectedOption\\":\\"A\\"}"],"ELEMENTS_COUNT":4}',
+          //   '{"QUESTION_METADATA_SET":[{"selectedOption":"A"},{"selectedOption":"B"},{"selectedOption":"D"}],"ELEMENTS_COUNT":4}',
           header: "Test your knowledge",
           storageKey: "kajhaikaahoijldahadai-wof9q0",
           isGlobal: false
@@ -106,6 +98,7 @@
           ...SAMPLE_QUIZ_OBJECT,
           submissionCallback(data) {
             console.log(data)
+            console.log(JSON.stringify(data))
           }
         }),
         main
