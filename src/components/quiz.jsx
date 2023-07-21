@@ -409,8 +409,10 @@ export default class Quiz extends Component {
       ) {
         this.$clearQuizStoredData()
       } else {
-        questionElements.forEach((questionElement, index) =>
-          questionElement.finalize(questionMetadataSet[index])
+        questionElements.forEach(
+          /** @param {Question} questionElement */
+          (questionElement, index) =>
+            questionElement.finalize(questionMetadataSet[index])
         )
 
         const gottenAnswersCount = questionElements.reduce(
