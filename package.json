@@ -2,18 +2,23 @@
   "name": "quiz",
   "version": "1.0.0",
   "private": false,
-  "description": "A library for embedding quizzes within Hashnode blog posts",
+  "description": "A simple library for creating styled quizzes",
   "license": "MIT",
-  "main": "index.js",
+  "main": "src/components/quiz.jsx",
+  "module": "src/components/quiz.jsx",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
-    "build:dev": "webpack --config webpack.dev.js",
     "dev": "webpack serve --config webpack.dev.js",
     "format": "prettier --write .",
-    "lint": "eslint . && stylelint src/scss/**/*.scss",
-    "prepare": "husky install"
+    "lint": "eslint --ext .js,.jsx ./ && stylelint src/scss/**/*.scss",
+    "prepare": "husky install",
+    "prepublishOnly": "npm run build"
   },
   "author": "Abdulramon Jemil",
+  "keywords": [
+    "quiz",
+    "question"
+  ],
   "devDependencies": {
     "@babel/cli": "^7.20.7",
     "@babel/core": "^7.20.12",
