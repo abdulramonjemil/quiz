@@ -114,20 +114,20 @@ class QuizProps {
     if (typeof props !== "object")
       throw new TypeError("code board props must be an object")
 
-    const { title, language, content } = props
+    const { title, language, snippet } = props
 
     if (!isFilledString(title))
       throw new TypeError("code board title must be a non-empty string")
     if (!isFilledString(language))
       throw new TypeError("code board language must be a non-empty string")
-    if (!isFilledString(content))
-      throw new TypeError("code board content must be a non-empty string")
+    if (!isFilledString(snippet))
+      throw new TypeError("code board snippet must be a non-empty string")
 
     const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
     attachedPropsObject.elements.push({
       type: QUIZ_ELEMENT_TYPES.CODE_BOARD,
       props: {
-        content,
+        snippet,
         language,
         title
       }

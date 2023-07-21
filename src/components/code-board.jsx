@@ -13,7 +13,7 @@ window.Prism = window.Prism || {}
 Prism.plugins.autoloader.languages_path = PRISMJS_COMPONENTS_CDN_URL
 Prism.manual = true
 
-export default function CodeBoard({ content, language, title }) {
+export default function CodeBoard({ snippet, language, title }) {
   const codeRefHolder = createElementRefHolder()
   const codeBoardNode = (
     <div className={Styles.CodeBoard}>
@@ -21,7 +21,7 @@ export default function CodeBoard({ content, language, title }) {
       <div className={Styles.CodeWrapper}>
         <pre className={Styles.Code}>
           <code className={`language-${language}`} refHolder={codeRefHolder}>
-            {content.trim()}
+            {snippet.trim()}
           </code>
         </pre>
       </div>

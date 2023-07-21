@@ -63,7 +63,7 @@
             props: {
               title: "Whatever you think about the following code snippet",
               language: "js",
-              content:
+              snippet:
                 // eslint-disable-next-line quotes
                 'function invert(value) {\n  if (typeof value !== "string" || value === "") return 0\n  const highestCharCodeAtValue = 65536\n  const valueLength = value.length\n\n  let invertedValue = ""\n  for (let i = 0; i < valueLength; i++) {\n    const indexToUse = valueLength - 1 - i\n    const charCodeToUse = highestCharCodeAtValue - value.charCodeAt(indexToUse)\n    invertedValue += String.fromCharCode(charCodeToUse)\n  }\n\n  return invertedValue\n}\n'
             }
