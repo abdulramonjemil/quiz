@@ -396,6 +396,7 @@ export default class Quiz extends Component {
     if (storedQuizData !== null) {
       /** @type {QuizMetadata} */
       const parsedQuizData = JSON.parse(storedQuizData)
+      /** @type {Question[]} */
       const questionElements = elementRefs.filter(
         (element) => element instanceof Question
       )
@@ -409,10 +410,8 @@ export default class Quiz extends Component {
       ) {
         this.$clearQuizStoredData()
       } else {
-        questionElements.forEach(
-          /** @param {Question} questionElement */
-          (questionElement, index) =>
-            questionElement.finalize(questionMetadataSet[index])
+        questionElements.forEach((questionElement, index) =>
+          questionElement.finalize(questionMetadataSet[index])
         )
 
         const gottenAnswersCount = questionElements.reduce(
