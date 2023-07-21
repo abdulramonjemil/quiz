@@ -69,27 +69,19 @@ $code-board-vertical-padding: 10px;
 
 /* PrismJS selectors start here */
 
-$code-line-height: utils.get-constant(line-height) - 0.2em;
-
 code[class*="language-"],
 pre[class*="language-"],
 code[class*="language-"] *,
 pre[class*="language-"] * {
   background: $code-board-background;
   font-family: utils.get-font-family(monospace);
-  line-height: $code-line-height;
+  font-size: 1.05em;
+  line-height: utils.get-constant(line-height);
 }
 
 pre[class*="language-"] {
   padding: $code-board-vertical-padding $code-board-horizontal-padding;
   margin: 0;
-
-  // $max-immediately-visible-lines: 10;
-  // $total-code-board-vertical-padding: $code-board-vertical-padding * 2;
-  // max-height: calc(
-  //   $code-line-height * $max-immediately-visible-lines +
-  //     $total-code-board-vertical-padding
-  // );
 }
 
 /* PrismJS selectors end here */
