@@ -175,9 +175,9 @@ export default class Question extends Component {
   exportInteractionMetadata() {
     const { $answerInputs } = this
     const selectedAnswerInput = $answerInputs.find((input) => input.checked)
-    return JSON.stringify({
+    return {
       [QUESTION_METADATA_MAIN_KEY]: selectedAnswerInput.value
-    })
+    }
   }
 
   finalize(metadata) {

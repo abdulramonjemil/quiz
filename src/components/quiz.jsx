@@ -558,16 +558,21 @@ export default class Quiz extends Component {
     )
 
     const storageKeyToUse = this.$getFullStorageKey()
-    const metadataToSave = JSON.stringify({
+    const metadataToSave = {
       [KEYS_FOR_SAVED_QUIZ_METADATA.QUESTION_METADATA_SET]: metadataSet,
       [KEYS_FOR_SAVED_QUIZ_METADATA.ELEMENTS_COUNT]:
         $elements[$elements.length - 1] instanceof Result
           ? $elements.length - 1
           : $elements.length
-    })
+    }
 
-    if (saveToStorage && webStorageIsAvailable("localStorage"))
-      window.localStorage.setItem(storageKeyToUse, metadataToSave)
+    if (saveToStorage && webStorageIsAvailable("localStorage")) {
+      window.localStorage.setItem(
+        storageKeyToUse,
+        JSON.stringify(metadataToSave)
+      )
+    }
+
     return metadataToSave
   }
 
