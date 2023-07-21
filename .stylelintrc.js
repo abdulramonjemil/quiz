@@ -16,7 +16,7 @@ module.exports = {
     "selector-class-pattern": [
       // This pattern matches classes in the following formats (not an
       // exhaustive list), a variant of BEM. See https://getbem.com/naming/ to
-      // learn about the Block, Element, and Modifier methodology.
+      // learn about the Block-Element-Modifier methodology.
       //
       // - .Block
       // - .AnotherBlock
