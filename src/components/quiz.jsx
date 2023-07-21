@@ -18,6 +18,10 @@ import {
   webStorageIsAvailable
 } from "../core/library"
 
+/**
+ * @typedef {import("./question").QuestionMetadata} QuestionMetadata
+ */
+
 const DEFAULT_QUIZ_METADATA = {
   AUTO_SAVE: true,
   CUSTOM_SAVED_DATA: null,
@@ -37,10 +41,6 @@ const QUIZ_ELEMENT_TYPES = {
  * the outside
  */
 const QUIZ_PROPS_MAP = new Map()
-
-/**
- * @typedef {import("./question").QuestionMetadata} QuestionMetadata
- */
 
 /**
  * @typedef QuizMetadata
