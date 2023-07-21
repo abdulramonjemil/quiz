@@ -1,13 +1,6 @@
 module.exports = {
-  extends: "stylelint-config-standard-scss",
+  extends: ["stylelint-config-standard-scss", "stylelint-config-prettier-scss"],
   rules: {
-    "at-rule-empty-line-before": [
-      "always",
-      {
-        except: ["blockless-after-blockless", "first-nested"],
-        ignore: ["after-comment", "inside-block"]
-      }
-    ],
     "declaration-empty-line-before": null,
     "max-nesting-depth": 3,
     "property-no-unknown": [
@@ -20,9 +13,25 @@ module.exports = {
     "scss/at-use-no-unnamespaced": true,
     "scss/dollar-variable-empty-line-before": null,
     "scss/double-slash-comment-empty-line-before": null,
-    "scss/operator-no-newline-after": null,
-    "scss/operator-no-newline-before": null,
-    "selector-class-pattern": null,
+    "selector-class-pattern": [
+      // This pattern matches classes in the following formats (not an
+      // exhaustive list), a variant of BEM. See https://getbem.com/naming/ to
+      // learn about the Block, Element, and Modifier methodology.
+      //
+      // - .Block
+      // - .AnotherBlock
+      // - .Block__Elem
+      // - .AnotherBlock__Elem
+      // - .Block__AnotherElem
+      // - .Block__Elem_mod (modifier begins with '_' and lowercase letter)
+      // - .Block__Elem_fullMod
+      /^(?:[A-Z][a-z][a-z0-9]*)+(?:(?:__)([A-Z][a-z][a-z0-9]*)+)?(?:_[a-z]+(?:[A-Z][a-z]+)*)?$/,
+      {
+        message: (selector) =>
+          `Expected class selector '${selector}' to be in form of 'Block__Elem_mod'. ` +
+          "See config for more info."
+      }
+    ],
     "selector-pseudo-class-no-unknown": [
       true,
       { ignorePseudoClasses: ["export"] }

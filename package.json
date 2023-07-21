@@ -38,6 +38,7 @@
     "sass-loader": "^13.2.0",
     "style-loader": "^3.3.1",
     "stylelint": "^15.2.0",
+    "stylelint-config-prettier-scss": "^1.0.0",
     "stylelint-config-standard-scss": "^7.0.1",
     "webpack": "^5.75.0",
     "webpack-cli": "^5.0.1",

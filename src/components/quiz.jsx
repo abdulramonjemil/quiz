@@ -581,5 +581,3 @@ export default class Quiz extends Component {
     await $presentation.restart()
   }
 }
-
-// $resetControlPanelButtons

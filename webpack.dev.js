@@ -1,4 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
+const path = require("path")
 const { merge } = require("webpack-merge")
 const HTMLWebpackPlugin = require("html-webpack-plugin")
 const baseConfig = require("./webpack.config")
@@ -9,6 +10,7 @@ module.exports = merge(baseConfig, {
     open: false,
     port: 8000,
     static: {
+      directory: path.join(__dirname, "public"),
       watch: true
     }
   },
