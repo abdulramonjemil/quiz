@@ -341,8 +341,8 @@ export default class Quiz extends Component {
     this.$controlPanel = null
 
     const elementsCount = elements.length
-    if (elementsCount < 1)
-      throw new TypeError("There must be at least one quiz element")
+    if (elementsCount < 1 || elementsCount > 10)
+      throw new TypeError("There must be between one to ten quiz elements")
 
     const lastQuizElement = elements[elementsCount - 1]
     if (lastQuizElement.type !== QUESTION_QUIZ_ELEMENT_TYPE)
