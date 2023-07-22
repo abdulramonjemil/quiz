@@ -1,11 +1,22 @@
-import Component, { createElementRefHolder } from "../core/component"
+import Component from "../core/component"
 import Styles from "../scss/progress.module.scss"
 
 const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
 const PROGRESS_BRIDGE_PSEUDO_ELEMENT = "::after"
 const PASSED_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_passed
 
-function ProgressLevel({ levelNumber, handleTransitionEnd, isPassed = false }) {
+/**
+ * @typedef ProgressRevalidationOptions
+ * @property {number} activeLevel
+ * @property {number | null} highestEnabledLevel
+ */
+
+function ProgressLevel({
+  levelNumber,
+  handleLevelButtonClick,
+  handleTransitionEnd,
+  isPassed = false
+}) {
   return (
     <li
       className={`${Styles.Progress__Level} ${
@@ -13,7 +24,13 @@ function ProgressLevel({ levelNumber, handleTransitionEnd, isPassed = false }) {
       }`}
       onTransitionEnd={handleTransitionEnd}
     >
-      <div className={Styles.Progress__Number}>{levelNumber}</div>
+      <button
+        className={Styles.Progress__NumberButton}
+        onClick={handleLevelButtonClick}
+        type="button"
+      >
+        {levelNumber}
+      </button>
     </li>
   )
 }
@@ -39,9 +56,10 @@ export default class Progress extends Component {
   }
 
   $render() {
-    this.$progressLevels = []
-    this.$currentProgressLevelIndex = null
-    this.$progressList = null
+    const {
+      $handleProgressLevelTransitionEnd,
+      $props: { handleLevelButtonClick, levelsCount, revalidator, startLevel }
+    } = this
 
     this.$change = {
       /**
@@ -51,13 +69,11 @@ export default class Progress extends Component {
       indexOfDeterminerLevel: null,
       isOccurring: false
     }
+    this.$currentProgressLevelIndex = null
+    this.$progressLevels = []
+    this.$revalidator = revalidator
 
-    const {
-      $handleProgressLevelTransitionEnd,
-      $props: { levelsCount, startLevel },
-      $progressLevels
-    } = this
-
+    const progressLevels = []
     const handleTransitionEnd = $handleProgressLevelTransitionEnd.bind(this)
     let startLevelIsSet = false
 
@@ -74,8 +90,9 @@ export default class Progress extends Component {
     }
 
     for (let i = 1; i <= levelsCount; i += 1) {
-      $progressLevels.push(
+      progressLevels.push(
         <ProgressLevel
+          handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
           levelNumber={i}
           handleTransitionEnd={handleTransitionEnd}
           isPassed={startLevelIsSet && startLevel > i}
@@ -84,23 +101,17 @@ export default class Progress extends Component {
     }
 
     this.$currentProgressLevelIndex = startLevelIsSet ? startLevel - 1 : 0
-    const progressListRefHolder = createElementRefHolder()
 
     const progressNode = (
       /* The outer div is used to determine max-width of inner one in CSS */
       <div>
         <div className={Styles.Progress} aria-hidden="true">
-          <ul
-            className={Styles.Progress__List}
-            refHolder={progressListRefHolder}
-          >
-            {[...$progressLevels]}
-          </ul>
+          <ul className={Styles.Progress__List}>{[...progressLevels]}</ul>
         </div>
       </div>
     )
 
-    this.$progressList = progressListRefHolder.ref
+    this.$progressLevels = progressLevels
 
     return progressNode
   }
@@ -156,35 +167,6 @@ export default class Progress extends Component {
     this.$currentProgressLevelIndex = levelNumber - 1
   }
 
-  addLevels(count) {
-    if (!Number.isInteger(count) || count === 0)
-      throw new TypeError("Expected a positive levels count to add")
-
-    const {
-      $handleProgressLevelTransitionEnd,
-      $progressLevels,
-      $progressList
-    } = this
-
-    const currentHighestLevelNumber = $progressLevels.length
-    const handleTransitionEnd = $handleProgressLevelTransitionEnd.bind(this)
-
-    for (
-      let i = currentHighestLevelNumber + 1;
-      i <= currentHighestLevelNumber + count;
-      i += 1
-    ) {
-      const progressLevel = (
-        <ProgressLevel
-          levelNumber={i}
-          handleTransitionEnd={handleTransitionEnd}
-        />
-      )
-      $progressLevels.push(progressLevel)
-      $progressList.appendChild(progressLevel)
-    }
-  }
-
   currentLevel() {
     return this.$currentProgressLevelIndex + 1
   }
@@ -209,6 +191,20 @@ export default class Progress extends Component {
 
   restart() {
     this.$setActiveLevel(1)
+  }
+
+  /** @param {ProgressRevalidationOptions} options */
+  revalidate(options) {
+    const { activeLevel, highestEnabledLevel } = options
+    this.$setActiveLevel(activeLevel)
+    this.$progressLevels.forEach((progressLevel, index) => {
+      const levelButton = /** @type {Element} */ (progressLevel).querySelector(
+        "button"
+      )
+
+      levelButton.disabled =
+        highestEnabledLevel === null ? false : index > highestEnabledLevel - 1
+    })
   }
 
   setActiveLevel(levelNumber) {

@@ -1,19 +1,28 @@
 import Component, { createElementRefHolder } from "../core/component"
 import Styles from "../scss/control-panel.module.scss"
 
+/**
+ * @typedef CTARevalidationResult
+ * @property {boolean} isSubmit
+ * @property {boolean} isEnabled
+ *
+ * @typedef ControlPanelRevalidationOptions
+ * @property {boolean} prev
+ * @property {boolean} next
+ * @property {CTARevalidationResult} cta
+ */
+
 export default class ControlPanel extends Component {
   $render() {
     const {
       controllingId,
       handlePrevButtonClick,
       handleNextButtonClick,
-      handleSubmitButtonClick,
-      revalidator
+      handleSubmitButtonClick
     } = this.$props
 
     this.$prevButton = null
     this.$nextButton = null
-    this.$revalidator = revalidator
     this.$cta = null
 
     const prevButtonRefHolder = createElementRefHolder()
@@ -74,13 +83,13 @@ export default class ControlPanel extends Component {
     else throw new TypeError(`Unsupported button: '${button}'`)
   }
 
-  revalidate(currentIndexToUse) {
-    const revalidationObject = this.$revalidator.call(null, currentIndexToUse)
+  /** @param {ControlPanelRevalidationOptions} options */
+  revalidate(options) {
     const {
       prev: prevIsEnabled,
       next: nextIsEnabled,
       cta: { isSubmit: ctaIsSubmit, isEnabled: ctaIsEnabled }
-    } = revalidationObject
+    } = options
 
     this.$prevButton.disabled = !prevIsEnabled
     this.$nextButton.disabled = !nextIsEnabled

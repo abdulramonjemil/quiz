@@ -64,7 +64,8 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     }
   }
 
-  &__Number {
+  &__NumberButton {
+    background-color: transparent;
     border: $progress-element-thickness solid $unreached-progress-element-color;
     border-radius: utils.get-constant(border-radius);
     color: $unreached-progress-element-color;
@@ -79,6 +80,14 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     width: $progress-number-span;
     transition: border-color $progress-element-transition-duration,
       color $progress-element-transition-duration;
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled) {
+      cursor: pointer;
+    }
 
     @at-root %reached-progress-number {
       border-color: $reached-progress-element-color;
