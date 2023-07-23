@@ -390,10 +390,10 @@ export default class Quiz extends Component {
     )
 
     if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
-    const buttonIsResultToggler =
+    const buttonShouldToggleResult =
       $elements[$elements.length - 1] instanceof Result
 
-    if (buttonIsResultToggler) {
+    if (buttonShouldToggleResult) {
       const currentSlideIndex = $presentation.currentSlideIndex()
       const currentSlideIsResult = currentSlideIndex === $elements.length - 1
       const indexOfSlideToShow = currentSlideIsResult
@@ -432,7 +432,7 @@ export default class Quiz extends Component {
       />
     )
 
-    this.$indices.lastShownBeforeResult = $elements.length - 1
+    this.$indices.lastShownBeforeResult = $presentation.currentSlideIndex()
     $presentation.appendSlide(resultNode)
     $elements.push(resultRefHolder.ref)
 
@@ -733,13 +733,16 @@ export default class Quiz extends Component {
   }
 
   $startQuestionsReview() {
-    const { $presentation, $progress } = this
+    const { $controlPanel, $presentation, $progress } = this
     if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
 
-    this.$controlPanel.revalidate(
-      this.$getControlPanelRevalidationOptions(this.$getQuizDataForSlide(0))
+    const quizDataForFirstSlide = this.$getQuizDataForSlide(0)
+    $controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(quizDataForFirstSlide)
     )
-    $progress.restart()
+    $progress.revalidate(
+      this.$getProgressRevalidationOptions(quizDataForFirstSlide)
+    )
     $presentation.restart()
   }
 }

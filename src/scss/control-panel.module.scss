@@ -27,6 +27,10 @@
   padding: 8px 35px;
   transition: background-color linear 0.1s;
 
+  &:focus-visible {
+    outline: 2px solid utils.get-color(deep-light);
+  }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
@@ -37,10 +41,6 @@
 .Next {
   @extend %control-button;
   background-color: utils.get-color(soft-dark);
-
-  &:focus {
-    outline: 2px solid utils.get-color(deep-light);
-  }
 
   &:not(:disabled):hover {
     background-color: color.change(utils.get-color(soft-dark), $alpha: 0.8);
@@ -56,10 +56,6 @@
   grid-area: submit;
 
   $interaction-color: color.change($submit-button-color, $alpha: 0.8);
-
-  &:focus {
-    outline: 2px solid utils.get-color(deep-light);
-  }
 
   &:not(:disabled):hover {
     background-color: $interaction-color;

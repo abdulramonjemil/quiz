@@ -58,7 +58,7 @@ export default class Progress extends Component {
   $render() {
     const {
       $handleProgressLevelTransitionEnd,
-      $props: { handleLevelButtonClick, levelsCount, revalidator, startLevel }
+      $props: { handleLevelButtonClick, levelsCount, startLevel }
     } = this
 
     this.$change = {
@@ -71,7 +71,6 @@ export default class Progress extends Component {
     }
     this.$currentProgressLevelIndex = null
     this.$progressLevels = []
-    this.$revalidator = revalidator
 
     const progressLevels = []
     const handleTransitionEnd = $handleProgressLevelTransitionEnd.bind(this)
