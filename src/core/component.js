@@ -17,6 +17,7 @@ export default class Component {
 
     this.$children = children
 
+    /** @type {Node} */
     this.$composedNode = null
     this.reset()
   }
