@@ -712,12 +712,6 @@ export default class Quiz extends Component {
     return quizNode
   }
 
-  $retrieveSavedQuizData() {
-    if (!webStorageIsAvailable("localStorage")) return null
-    const storageKeyToUse = this.$getStorageKey()
-    return window.localStorage.getItem(storageKeyToUse)
-  }
-
   $startQuestionsReview() {
     const { $controlPanel, $presentation, $progress } = this
     if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
