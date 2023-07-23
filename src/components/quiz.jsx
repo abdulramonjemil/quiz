@@ -232,13 +232,7 @@ export default class Quiz extends Component {
     return [quizElement, quizInstanceRefHolder.ref]
   }
 
-  $clearQuizStoredData() {
-    if (!webStorageIsAvailable("localStorage")) return
-    const storageKeyToUse = this.$getFullStorageKey()
-    window.localStorage.removeItem(storageKeyToUse)
-  }
-
-  $getFullStorageKey() {
+  $getStorageKey() {
     const {
       $metadata: { isGlobal, storageKey }
     } = this
@@ -374,7 +368,7 @@ export default class Quiz extends Component {
         )
     )
 
-    const storageKeyToUse = this.$getFullStorageKey()
+    const storageKeyToUse = this.$getStorageKey()
 
     /** @type {QuizMetadata} */
     const metadataToSave = {
@@ -399,7 +393,13 @@ export default class Quiz extends Component {
     const {
       $props: {
         elements,
-        metadata: { autoSave, customSavedData, header, isGlobal, storageKey },
+        metadata: {
+          autoSave: autoSaveIsEnabled,
+          customSavedData,
+          header,
+          isGlobal,
+          storageKey
+        },
         submissionCallback
       }
     } = this
@@ -408,20 +408,6 @@ export default class Quiz extends Component {
       QUESTION: QUESTION_QUIZ_ELEMENT_TYPE,
       CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
     } = QUIZ_ELEMENT_TYPES
-
-    // Storage key is used by some methods called below
-    this.$metadata = { autoSave, storageKey, isGlobal }
-    this.$elements = []
-
-    this.$indices = { prev: null, next: null, lastShownBeforeResult: null }
-    this.$submissionCallback = submissionCallback
-
-    /** @type {Progress} */
-    this.$progress = null
-    /** @type {Presentation} */
-    this.$presentation = null
-    /** @type {ControlPanel} */
-    this.$controlPanel = null
 
     const elementsCount = elements.length
     if (elementsCount < 1 || elementsCount > 10)
@@ -473,19 +459,26 @@ export default class Quiz extends Component {
       }
     })
 
-    /**
-     * The format for the structure of the string expected to be returned by
-     * $retrieveSavedQuizData can be found in the definition of the
-     * $populateQuizMetadata function
-     */
-    const storedQuizData = autoSave
-      ? this.$retrieveSavedQuizData()
-      : customSavedData || null
+    let storedQuizData = customSavedData || null
+
+    if (
+      !storedQuizData &&
+      autoSaveIsEnabled &&
+      webStorageIsAvailable("localStorage")
+    ) {
+      const storageKeyToUse = this.$getStorageKey()
+      storedQuizData = window.localStorage.getItem(storageKeyToUse)
+    }
+
     let resultIsPropagated = false
 
     if (storedQuizData !== null) {
       /** @type {QuizMetadata} */
-      const parsedQuizData = JSON.parse(storedQuizData)
+      const parsedQuizData =
+        typeof storedQuizData === "string"
+          ? JSON.parse(storedQuizData)
+          : storedQuizData
+
       /** @type {Question[]} */
       const questionElements = elementRefs.filter(
         (element) => element instanceof Question
@@ -498,7 +491,10 @@ export default class Quiz extends Component {
         questionMetadataSet.length !== questionElements.length ||
         savedElementsCount !== elementsCount
       ) {
-        this.$clearQuizStoredData()
+        if (webStorageIsAvailable("localStorage")) {
+          const storageKeyToUse = this.$getStorageKey()
+          window.localStorage.removeItem(storageKeyToUse)
+        }
       } else {
         questionElements.forEach((questionElement, index) =>
           questionElement.finalize(questionMetadataSet[index])
@@ -646,6 +642,7 @@ export default class Quiz extends Component {
                   this.$getQuizDataForSlide(indexOfSlideToShow)
                 )
               )
+
               $presentation.showSlide(indexOfSlideToShow)
 
               return
@@ -695,30 +692,39 @@ export default class Quiz extends Component {
       </section>
     )
 
-    this.$elements = elementRefs
-    this.$progress = progressRefHolder.ref
-    this.$presentation = presentationRefHolder.ref
-    this.$controlPanel = controlPanelRefHolder.ref
-
-    // Enable and disable necessary buttons
     setTimeout(() => {
       const appropriateSlideQuizData = this.$getQuizDataForSlide(
         resultIsPropagated ? slides.length - 1 : 0
       )
+
       this.$controlPanel.revalidate(
         this.$getControlPanelRevalidationOptions(appropriateSlideQuizData)
       )
-      this.$progress.revalidate(
-        this.$getProgressRevalidationOptions(appropriateSlideQuizData)
-      )
     })
+
+    this.$metadata = { autoSave: autoSaveIsEnabled, storageKey, isGlobal }
+    this.$elements = elementRefs
+
+    this.$indices = {
+      prev: null,
+      next: null,
+      lastShownBeforeResult: resultIsPropagated ? slides.length - 2 : null
+    }
+    this.$submissionCallback = submissionCallback
+
+    /** @type {Progress} */
+    this.$progress = progressRefHolder.ref
+    /** @type {Presentation} */
+    this.$presentation = presentationRefHolder.ref
+    /** @type {ControlPanel} */
+    this.$controlPanel = controlPanelRefHolder.ref
 
     return quizNode
   }
 
   $retrieveSavedQuizData() {
     if (!webStorageIsAvailable("localStorage")) return null
-    const storageKeyToUse = this.$getFullStorageKey()
+    const storageKeyToUse = this.$getStorageKey()
     return window.localStorage.getItem(storageKeyToUse)
   }
 
