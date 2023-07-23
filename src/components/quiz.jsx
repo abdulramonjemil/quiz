@@ -272,7 +272,7 @@ export default class Quiz extends Component {
       },
       quiz: {
         isFinalized: quizIsFinalized,
-        questionsAreAnswered: quizQuestionsAreAnswered
+        indexOfNextQuestion: indexOfNextQuizQuestion
       }
     } = slideQuizData
 
@@ -297,7 +297,7 @@ export default class Quiz extends Component {
       next: $indices.next !== null,
       cta: {
         isSubmit: !quizIsFinalized,
-        isEnabled: quizIsFinalized || quizQuestionsAreAnswered
+        isEnabled: quizIsFinalized || indexOfNextQuizQuestion === null
       }
     }
   }
@@ -339,18 +339,8 @@ export default class Quiz extends Component {
     const slideIsQuestion = slide instanceof Question
     const slideIsAnsweredQuestion = slideIsQuestion && slide.isAnswered()
 
-    /** @type {boolean} */
-    let quizQuestionsAreAnswered = true
-
     const indexOfNextQuizQuestion = $elements.findIndex(
-      // Find is used to stop the loop once an unanswered question element is found
-      (element) => {
-        if (element instanceof Question && !element.isAnswered()) {
-          quizQuestionsAreAnswered = false
-          return true
-        }
-        return false
-      }
+      (element) => element instanceof Question && !element.isAnswered()
     )
 
     return {
@@ -366,8 +356,7 @@ export default class Quiz extends Component {
       quiz: {
         indexOfNextQuestion:
           indexOfNextQuizQuestion < 0 ? null : indexOfNextQuizQuestion,
-        isFinalized: quizIsFinalized,
-        questionsAreAnswered: quizQuestionsAreAnswered
+        isFinalized: quizIsFinalized
       }
     }
   }
