@@ -357,40 +357,6 @@ export default class Quiz extends Component {
     }
   }
 
-  $populateQuizMetadata(saveToStorage) {
-    const { $elements } = this
-    const questionElements = $elements.filter(
-      (element) => element instanceof Question
-    )
-
-    const metadataSet = questionElements.map(
-      (questionElement) =>
-        /** @type {QuestionMetadata} */ (
-          questionElement.exportInteractionMetadata()
-        )
-    )
-
-    const storageKeyToUse = this.$getStorageKey()
-
-    /** @type {QuizMetadata} */
-    const metadataToSave = {
-      questionMetadataSet: metadataSet,
-      elementsCount:
-        $elements[$elements.length - 1] instanceof Result
-          ? $elements.length - 1
-          : $elements.length
-    }
-
-    if (saveToStorage && webStorageIsAvailable("localStorage")) {
-      window.localStorage.setItem(
-        storageKeyToUse,
-        JSON.stringify(metadataToSave)
-      )
-    }
-
-    return metadataToSave
-  }
-
   $render() {
     const {
       $props: {
@@ -685,7 +651,29 @@ export default class Quiz extends Component {
             )
             resultRefHolder.ref.renderIndicator()
 
-            const quizMetadata = this.$populateQuizMetadata($metadata.autoSave)
+            const questionMetadataSet = questionElements.map(
+              (questionElement) =>
+                /** @type {QuestionMetadata} */ (
+                  questionElement.exportInteractionMetadata()
+                )
+            )
+
+            /** @type {QuizMetadata} */
+            const quizMetadata = {
+              questionMetadataSet,
+              elementsCount:
+                $elements[$elements.length - 1] instanceof Result
+                  ? $elements.length - 1
+                  : $elements.length
+            }
+
+            if ($metadata.autoSave && webStorageIsAvailable("localStorage")) {
+              window.localStorage.setItem(
+                this.$getStorageKey(),
+                JSON.stringify(quizMetadata)
+              )
+            }
+
             if (typeof $submissionCallback === "function")
               $submissionCallback.call(this, quizMetadata)
           }}
