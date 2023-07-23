@@ -1,4 +1,4 @@
-import { escapeHTMLContent, htmlStringToFragment } from "./library"
+import { escapeHTMLContent, htmlStringToFragment } from "../lib/dom"
 
 /**
  * The following terms are used in the descriptions of regular expressions used

@@ -12,11 +12,10 @@ import CodeBoard from "./code-board"
 import Result from "./result"
 import ControlPanel from "./control-panel"
 
-import {
-  isFilledString,
-  uniqueId,
-  webStorageIsAvailable
-} from "../core/library"
+import { isFilledString } from "../lib/value"
+
+import { uniqueId } from "../lib/id"
+import { webStorageIsAvailable } from "../lib/storage"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions

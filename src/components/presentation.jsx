@@ -13,6 +13,12 @@ const SLIDE_ANIMATION_OPTIONS = {
   iterations: 1
 }
 
+/**
+ * @typedef PresentationRevalidationOptions
+ * @property {number} activeSlide
+ * @property {any[]} slideContents
+ */
+
 class Slide extends Component {
   $render() {
     const { content } = this.$props
@@ -79,10 +85,6 @@ export default class Presentation extends Component {
     const slideToShow = slideInstances[indexOfSlideToShow]
     slideToShow.addToDOM(true)
 
-    this.$indexOfCurrentSlide = indexOfSlideToShow
-    this.$slideIsChangeable = true
-    this.$slides = slideInstances
-
     const presentationNode = (
       <div
         aria-live="polite"
@@ -92,6 +94,11 @@ export default class Presentation extends Component {
         {slideNodes}
       </div>
     )
+
+    this.$indexOfCurrentSlide = indexOfSlideToShow
+    this.$slideIsChangeable = true
+    this.$slideContents = [...slideContents]
+    this.$slides = slideInstances
 
     return presentationNode
   }
@@ -137,8 +144,19 @@ export default class Presentation extends Component {
     await this.$showSlide(0)
   }
 
+  // /** @param {PresentationRevalidationOptions} options */
+  // revalidate(options) {
+  //   const { activeSlide, slideContents } = options
+  //   // [A, C, E]
+  //   // [A, B, C, D, E]
+  // }
+
   async showSlide(slideIndex) {
     await this.$showSlide(slideIndex)
+  }
+
+  slideContents() {
+    return [...this.$slideContents]
   }
 
   slideIsChangeable() {
