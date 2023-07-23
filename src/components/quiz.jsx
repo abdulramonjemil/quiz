@@ -303,7 +303,7 @@ export default class Quiz extends Component {
   // eslint-disable-next-line class-methods-use-this
   $getProgressRevalidationOptions(slideQuizData) {
     const {
-      slide: { index: slideIndex },
+      slide: { index: slideIndex, isResult: slideIsResult },
       quiz: {
         indexOfNextQuestion: indexOfNextQuizQuestion,
         isFinalized: quizIsFinalized
@@ -311,7 +311,7 @@ export default class Quiz extends Component {
     } = slideQuizData
 
     return {
-      activeLevel: slideIndex + 1,
+      activeLevel: slideIsResult ? slideIndex : slideIndex + 1,
       highestEnabledLevel:
         quizIsFinalized || indexOfNextQuizQuestion === null
           ? null
@@ -329,6 +329,7 @@ export default class Quiz extends Component {
     const slideIsLast = slideIndex === $elements.length - 1
     const slideIsJustBeforeResult =
       quizIsFinalized && slideIndex === $elements.length - 2
+    const slideIsResult = quizIsFinalized && slideIsLast
 
     const slideIsQuestion = slide instanceof Question
     const slideIsAnsweredQuestion = slideIsQuestion && slide.isAnswered()
@@ -345,6 +346,7 @@ export default class Quiz extends Component {
         isLast: slideIsLast,
         isJustBeforeResult: slideIsJustBeforeResult,
         isQuestion: slideIsQuestion,
+        isResult: slideIsResult,
         ref: slide
       },
       quiz: {
