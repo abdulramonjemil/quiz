@@ -137,20 +137,6 @@ export default class Presentation extends Component {
     await this.$showSlide(0)
   }
 
-  async showSlide(slideIndex) {
-    await this.$showSlide(slideIndex)
-  }
-
-  async slideBackward() {
-    const { $indexOfCurrentSlide } = this
-    await this.$showSlide($indexOfCurrentSlide - 1)
-  }
-
-  async slideForward() {
-    const { $indexOfCurrentSlide } = this
-    await this.$showSlide($indexOfCurrentSlide + 1)
-  }
-
   slideIsChangeable() {
     return this.$slideIsChangeable
   }
