@@ -361,85 +361,6 @@ export default class Quiz extends Component {
     }
   }
 
-  async $handleCtaButtonClick() {
-    const {
-      $controlPanel,
-      $elements,
-      $indices,
-      $metadata,
-      $presentation,
-      $progress,
-      $startQuestionsReview,
-      $submissionCallback
-    } = this
-
-    /** @type {Question[]} */
-    const questionElements = $elements.filter(
-      (element) => element instanceof Question
-    )
-
-    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
-    const buttonShouldToggleResult =
-      $elements[$elements.length - 1] instanceof Result
-
-    if (buttonShouldToggleResult) {
-      const currentSlideIndex = $presentation.currentSlideIndex()
-      const currentSlideIsResult = currentSlideIndex === $elements.length - 1
-      const indexOfSlideToShow = currentSlideIsResult
-        ? $indices.lastShownBeforeResult
-        : $elements.length - 1
-
-      if (!currentSlideIsResult) {
-        $indices.lastShownBeforeResult = currentSlideIndex
-      }
-
-      $controlPanel.revalidate(
-        this.$getControlPanelRevalidationOptions(
-          this.$getQuizDataForSlide(indexOfSlideToShow)
-        )
-      )
-      $presentation.showSlide(indexOfSlideToShow)
-
-      return
-    }
-
-    const gottenAnswersCount = questionElements.reduce(
-      (previousValue, questionElement) =>
-        questionElement.correctAnswerIsPicked()
-          ? previousValue + 1
-          : previousValue,
-      0
-    )
-
-    const resultRefHolder = createInstanceRefHolder()
-    const resultNode = (
-      <Result
-        answersGotten={gottenAnswersCount}
-        handleExplanationsReview={$startQuestionsReview.bind(this)}
-        questionsCount={questionElements.length}
-        refHolder={resultRefHolder}
-      />
-    )
-
-    this.$indices.lastShownBeforeResult = $presentation.currentSlideIndex()
-    $presentation.appendSlide(resultNode)
-    $elements.push(resultRefHolder.ref)
-
-    $controlPanel.revalidate(
-      this.$getControlPanelRevalidationOptions(
-        this.$getQuizDataForSlide($elements.length - 1)
-      )
-    )
-    await $presentation.showSlide($elements.length - 1)
-
-    questionElements.forEach((questionElement) => questionElement.finalize())
-    resultRefHolder.ref.renderIndicator()
-
-    const quizMetadata = this.$populateQuizMetadata($metadata.autoSave)
-    if (typeof $submissionCallback === "function")
-      $submissionCallback.call(this, quizMetadata)
-  }
-
   $populateQuizMetadata(saveToStorage) {
     const { $elements } = this
     const questionElements = $elements.filter(
@@ -616,8 +537,6 @@ export default class Quiz extends Component {
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
-    const { $handleCtaButtonClick } = this
-
     const quizNode = (
       <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
         <Header labellingId={quizLabellingId}>{header}</Header>
@@ -688,7 +607,89 @@ export default class Quiz extends Component {
 
             $presentation.showSlide(nextIndex)
           }}
-          handleSubmitButtonClick={$handleCtaButtonClick.bind(this)}
+          handleSubmitButtonClick={async () => {
+            const {
+              $controlPanel,
+              $elements,
+              $indices,
+              $metadata,
+              $presentation,
+              $progress,
+              $startQuestionsReview,
+              $submissionCallback
+            } = this
+
+            /** @type {Question[]} */
+            const questionElements = $elements.filter(
+              (element) => element instanceof Question
+            )
+
+            if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
+              return
+            const buttonShouldToggleResult =
+              $elements[$elements.length - 1] instanceof Result
+
+            if (buttonShouldToggleResult) {
+              const currentSlideIndex = $presentation.currentSlideIndex()
+              const currentSlideIsResult =
+                currentSlideIndex === $elements.length - 1
+              const indexOfSlideToShow = currentSlideIsResult
+                ? $indices.lastShownBeforeResult
+                : $elements.length - 1
+
+              if (!currentSlideIsResult) {
+                $indices.lastShownBeforeResult = currentSlideIndex
+              }
+
+              $controlPanel.revalidate(
+                this.$getControlPanelRevalidationOptions(
+                  this.$getQuizDataForSlide(indexOfSlideToShow)
+                )
+              )
+              $presentation.showSlide(indexOfSlideToShow)
+
+              return
+            }
+
+            const gottenAnswersCount = questionElements.reduce(
+              (previousValue, questionElement) =>
+                questionElement.correctAnswerIsPicked()
+                  ? previousValue + 1
+                  : previousValue,
+              0
+            )
+
+            const resultRefHolder = createInstanceRefHolder()
+            const resultNode = (
+              <Result
+                answersGotten={gottenAnswersCount}
+                handleExplanationsReview={$startQuestionsReview.bind(this)}
+                questionsCount={questionElements.length}
+                refHolder={resultRefHolder}
+              />
+            )
+
+            this.$indices.lastShownBeforeResult =
+              $presentation.currentSlideIndex()
+            $presentation.appendSlide(resultNode)
+            $elements.push(resultRefHolder.ref)
+
+            $controlPanel.revalidate(
+              this.$getControlPanelRevalidationOptions(
+                this.$getQuizDataForSlide($elements.length - 1)
+              )
+            )
+            await $presentation.showSlide($elements.length - 1)
+
+            questionElements.forEach((questionElement) =>
+              questionElement.finalize()
+            )
+            resultRefHolder.ref.renderIndicator()
+
+            const quizMetadata = this.$populateQuizMetadata($metadata.autoSave)
+            if (typeof $submissionCallback === "function")
+              $submissionCallback.call(this, quizMetadata)
+          }}
           refHolder={controlPanelRefHolder}
         />
       </section>
