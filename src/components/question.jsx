@@ -1,6 +1,6 @@
 import Component, { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
-import { uniqueId } from "../core/library"
+import { uniqueId } from "../lib/id"
 import Styles from "../scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
