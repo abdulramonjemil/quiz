@@ -55,12 +55,9 @@ class Slide extends Component {
 
 export default class Presentation extends Component {
   $render() {
-    const {
-      controllingId,
-      slides: slideContents,
-      startingSlideIndex
-    } = this.$props
+    const { controllingId, slides, startingSlideIndex } = this.$props
 
+    const slideContents = Array.from(new Set(slides))
     const slideNodes = []
     const slideInstances = []
 
