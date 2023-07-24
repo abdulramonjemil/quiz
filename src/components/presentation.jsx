@@ -98,7 +98,7 @@ export default class Presentation extends Component {
     this.$indexOfCurrentSlide = indexOfSlideToShow
     this.$slideIsChangeable = true
     this.$slideContents = [...slideContents]
-    this.$slides = slideInstances
+    this.$slideInstances = slideInstances
 
     return presentationNode
   }
@@ -108,14 +108,14 @@ export default class Presentation extends Component {
       throw new TypeError("Expected a non-negative integer slide index")
     if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
-    const { $indexOfCurrentSlide, $slides } = this
+    const { $indexOfCurrentSlide, $slideInstances } = this
     if (slideIndex === $indexOfCurrentSlide) return
-    if (slideIndex >= $slides.length)
+    if (slideIndex >= $slideInstances.length)
       throw new RangeError(`There is no slide at index ${slideIndex}`)
 
     this.$slideIsChangeable = false
-    const currentSlide = $slides[$indexOfCurrentSlide]
-    const slideToShow = $slides[slideIndex]
+    const currentSlide = $slideInstances[$indexOfCurrentSlide]
+    const slideToShow = $slideInstances[slideIndex]
 
     await currentSlide.fadeOut()
     currentSlide.removeFromDOM()
@@ -133,7 +133,7 @@ export default class Presentation extends Component {
     )
 
     this.$composedNode.appendChild(slideNode)
-    this.$slides.push(slideRefHolder.ref)
+    this.$slideInstances.push(slideRefHolder.ref)
   }
 
   currentSlideIndex() {
@@ -148,6 +148,7 @@ export default class Presentation extends Component {
   // revalidate(options) {
   //   const { activeSlide, slideContents } = options
   //   // [A, C, E]
+  //   // [A, E, C]
   //   // [A, B, C, D, E]
   // }
 
@@ -164,6 +165,6 @@ export default class Presentation extends Component {
   }
 
   slidesCount() {
-    return this.$slides.length
+    return this.$slideInstances.length
   }
 }
