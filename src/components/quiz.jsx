@@ -507,20 +507,28 @@ export default class Quiz extends Component {
           handleLevelButtonClick={
             /** @param {number} levelNumber */
             (levelNumber) => {
+              const { $controlPanel, $presentation, $progress } = this
+
+              if (
+                !$presentation.slideIsChangeable() ||
+                !$progress.isChangeable()
+              )
+                return
+
               // Levels start from 1 not 0
               const levelSlideQuizData = this.$getQuizDataForSlide(
                 levelNumber - 1
               )
 
-              this.$controlPanel.revalidate(
+              $controlPanel.revalidate(
                 this.$getControlPanelRevalidationOptions(levelSlideQuizData)
               )
 
-              this.$progress.revalidate(
+              $progress.revalidate(
                 this.$getProgressRevalidationOptions(levelSlideQuizData)
               )
 
-              this.$presentation.showSlide(levelNumber - 1)
+              $presentation.showSlide(levelNumber - 1)
             }
           }
           levelsCount={elementsCount}
