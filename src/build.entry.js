@@ -4,8 +4,8 @@
  * with an HTML page (causing the object to be defined in the global scope).
  */
 
-import Polyfiller from "./src/core/polyfiller"
-import Quiz from "./index"
+import Polyfiller from "./core/polyfiller"
+import Quiz from "./components/quiz"
 
 Polyfiller.polyfillForBrowser()
 window.Quiz = Quiz
