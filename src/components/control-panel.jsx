@@ -1,4 +1,5 @@
 import Component, { createElementRefHolder } from "../core/component"
+import { attemptElementFocus, attemptTabbableFocus } from "../lib/focus"
 import Styles from "../scss/control-panel.module.scss"
 
 /**
@@ -73,17 +74,6 @@ export default class ControlPanel extends Component {
     return controlPanelNode
   }
 
-  /** @param {"next" | "prev"} action */
-  simulate(action) {
-    if (action === "prev") {
-      this.$prevButton.focus()
-      this.$prevButton.click()
-    } else if (action === "next") {
-      this.$nextButton.focus()
-      this.$nextButton.click()
-    } else throw new Error(`Unknown control panel action: '${action}'`)
-  }
-
   /** @param {ControlPanelRevalidationOptions} options */
   revalidate(options) {
     const {
@@ -101,11 +91,22 @@ export default class ControlPanel extends Component {
         button.contains(document.activeElement) && !buttonIsEnabled
     )
 
-    if (shouldRefocus) this.$alternateFocusable.ref.focus()
+    if (shouldRefocus) attemptElementFocus(this.$alternateFocusable.ref)
     this.$cta.innerText = ctaIsSubmit ? "Submit" : "Toggle Result"
 
     this.$prevButton.disabled = !enablePrev
     this.$nextButton.disabled = !enableNext
     this.$cta.disabled = !enableCTA
+  }
+
+  /** @param {"next" | "prev"} action */
+  simulateClick(action) {
+    if (action === "prev") {
+      attemptTabbableFocus(this.$prevButton)
+      this.$prevButton.click()
+    } else if (action === "next") {
+      attemptTabbableFocus(this.$nextButton)
+      this.$nextButton.click()
+    } else throw new Error(`Unknown control panel action: '${action}'`)
   }
 }

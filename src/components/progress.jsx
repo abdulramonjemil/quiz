@@ -1,4 +1,5 @@
 import Component from "../core/component"
+import { attemptTabbableFocus } from "../lib/focus"
 import Styles from "../scss/progress.module.scss"
 
 const MAIN_PROGRESS_BRIDGE_PROPERTY = "width"
@@ -208,5 +209,21 @@ export default class Progress extends Component {
 
   setActiveLevel(levelNumber) {
     this.$setActiveLevel(levelNumber)
+  }
+
+  /**
+   * @param {number} progressLevel - A 1-index based progress level to click
+   */
+  simulateClick(progressLevel) {
+    const levelButton =
+      this.$progressLevels[progressLevel - 1]?.querySelector("button")
+
+    if (levelButton) {
+      attemptTabbableFocus(levelButton)
+      levelButton.click()
+      return true
+    }
+
+    return false
   }
 }

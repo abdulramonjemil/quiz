@@ -505,11 +505,17 @@ export default class Quiz extends Component {
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
+    const slideNumberShortcut = {
+      pressedNumber: null,
+      pressedNumberIsUsed: false
+    }
+
     const quizNode = (
       <section
         aria-labelledby={quizLabellingId}
         className={Styles.Quiz}
         refHolder={quizSectionRefHolder}
+        tabIndex={-1}
         onKeyDownCapture={(event) => {
           const { $presentation, $elements } = this
 
@@ -522,13 +528,43 @@ export default class Quiz extends Component {
             return
           }
 
-          if (event.key.toLowerCase() === "p") {
-            this.$controlPanel.simulate("prev")
-          } else if (event.key.toLowerCase() === "n") {
-            this.$controlPanel.simulate("next")
+          if (["p", "n"].includes(event.key.toLowerCase())) {
+            const options = { p: "prev", n: "next" }
+            this.$controlPanel.simulateClick(options[event.key.toLowerCase()])
+            return
+          }
+
+          /**
+           * If the key is a number, we only jump to the slide at the number if
+           * there is no other slide that begin with the same number.
+           */
+          if (/\d/.test(event.key)) {
+            const slidesCount = this.$presentation.slidesCount()
+            if (!slideNumberShortcut.pressedNumber) {
+              if (slidesCount < Number(event.key) * 10) {
+                this.$progress.simulateClick(Number(event.key))
+              } else {
+                slideNumberShortcut.pressedNumber = Number(event.key)
+              }
+            } else {
+              slideNumberShortcut.pressedNumberIsUsed = true
+              this.$progress.simulateClick(
+                slideNumberShortcut.pressedNumber * 10 + Number(event.key)
+              )
+            }
           }
         }}
-        tabIndex={-1}
+        onKeyUpCapture={(event) => {
+          const { pressedNumber, pressedNumberIsUsed } = slideNumberShortcut
+          if (Number(event.key) !== pressedNumber) return
+
+          if (!pressedNumberIsUsed) {
+            this.$progress.simulateClick(slideNumberShortcut.pressedNumber)
+          }
+
+          slideNumberShortcut.pressedNumber = null
+          slideNumberShortcut.pressedNumberIsUsed = false
+        }}
       >
         <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
