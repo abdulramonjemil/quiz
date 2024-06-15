@@ -55,7 +55,10 @@ function handleExplanationTogglerClick(rootRefHolder) {
 }
 
 function Explanation({ content, rootRefHolder }) {
-  if (typeof content !== "string" || content === "") return ""
+  if (typeof content !== "string" || content === "") {
+    return <div refHolder={rootRefHolder} />
+  }
+
   return (
     <div className={Styles.Explanation} refHolder={rootRefHolder}>
       <button
