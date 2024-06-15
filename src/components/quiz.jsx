@@ -381,7 +381,7 @@ export default class Quiz extends Component {
     } = QUIZ_ELEMENT_TYPES
 
     const elementsCount = elements.length
-    if (elementsCount < 1 || elementsCount > 10)
+    if (elementsCount < 1)
       throw new TypeError("There must be between one to ten quiz elements")
 
     const lastQuizElement = elements[elementsCount - 1]
