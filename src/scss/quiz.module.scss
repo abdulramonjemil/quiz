@@ -1,14 +1,14 @@
 @use "partials/utils";
-@import "https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";
 
 %reset-element {
-  @include utils.font-family(sans-serif);
-
   color: utils.get-color(deep-light);
+  font-family: inherit;
+
   border: none;
   box-sizing: border-box;
-  padding: 0;
+
   line-height: utils.get-constant(line-height);
+  padding: 0;
   margin: 0;
 }
 
@@ -31,11 +31,6 @@
 
   * {
     @extend %reset-element;
-  }
-
-  pre,
-  code {
-    @include utils.font-family(monospace);
   }
 
   code:not(pre code) {

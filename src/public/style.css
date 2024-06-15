@@ -1,4 +1,14 @@
+@import "https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap";
+
 body {
   margin: 0;
   padding: 50px 0;
+  font-family: "Inter", sans-serif;
+}
+
+pre,
+code,
+pre[class*="language-"],
+code[class*="language-"] {
+  font-family: "Fira Code", monospace;
 }

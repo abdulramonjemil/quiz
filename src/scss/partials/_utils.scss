@@ -16,18 +16,6 @@ $constants: (
   "line-height": 1.8em
 );
 
-$font-families: (
-  "monospace": (
-    "Fira Code",
-    monospace
-  ),
-
-  "sans-serif": (
-    "Inter",
-    sans-serif
-  )
-);
-
 @function get-color($color) {
   @if not map-has-key($colors, $color) {
     @error "Unsupported color: '#{$color}'";
@@ -40,18 +28,4 @@ $font-families: (
     @error "Unsupported constant: '#{$constant}'";
   }
   @return map.get($constants, $constant);
-}
-
-@function get-font-family($family) {
-  @if not map-has-key($font-families, $family) {
-    @error "Unsupported font family: '#{$family}'";
-  }
-  @return map.get($font-families, $family);
-}
-
-@mixin font-family($family) {
-  @if not map-has-key($font-families, $family) {
-    @error "Unsupported font family: '#{$family}'";
-  }
-  font-family: map.get($font-families, $family);
 }
