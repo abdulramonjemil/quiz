@@ -9,7 +9,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
 
 .Progress {
   margin: auto;
-  margin-top: 20px;
+  margin-top: 28px;
   max-width: max(90%, 500px);
 
   &__List {
@@ -31,7 +31,11 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       flex-grow: 0;
     }
 
-    $width-of-reached-progress-number: calc(100% - $progress-number-span);
+    &_active {
+      // Placeholder for the ".Progress__Level_active" class
+    }
+
+    $progress-bridge-full-width: calc(100% - $progress-number-span);
 
     @at-root %progress-bridge {
       content: "";
@@ -47,7 +51,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       @extend %progress-bridge;
 
       background-color: $unreached-progress-element-color;
-      width: $width-of-reached-progress-number;
+      width: $progress-bridge-full-width;
     }
 
     &:not(:last-child)::after {
@@ -58,19 +62,24 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       z-index: 1;
       transition: width $progress-element-transition-duration;
 
-      @at-root .Progress__Level_passed#{&} {
-        width: $width-of-reached-progress-number;
+      @at-root .Progress__Level:not(
+            .Progress__Level_active,
+            .Progress__Level_active ~ *
+          )#{&} {
+        width: $progress-bridge-full-width;
       }
     }
   }
 
   &__NumberButton {
     background-color: transparent;
-    border: $progress-element-thickness solid $unreached-progress-element-color;
+    border: $progress-element-thickness dotted $unreached-progress-element-color;
     border-radius: utils.get-constant(border-radius);
-    color: $unreached-progress-element-color;
     height: $progress-number-span;
-    display: block;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     $top-bottom-border-width: $progress-element-thickness * 2;
     $content-height: $progress-number-span - $top-bottom-border-width;
@@ -82,24 +91,24 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       color $progress-element-transition-duration;
 
     &:disabled {
+      color: $unreached-progress-element-color;
       cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      outline: 2px solid utils.get-color("deep-light");
+      outline-offset: 2px;
     }
 
     &:not(:disabled) {
       cursor: pointer;
-    }
 
-    @at-root %reached-progress-number {
       border-color: $reached-progress-element-color;
       color: $reached-progress-element-color;
     }
 
-    .Progress__Level:first-child & {
-      @extend %reached-progress-number;
-    }
-
-    .Progress__Level_passed + .Progress__Level & {
-      @extend %reached-progress-number;
+    .Progress__Level:not(.Progress__Level_active ~ *) & {
+      border-style: solid;
     }
   }
 }

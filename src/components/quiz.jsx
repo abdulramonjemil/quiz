@@ -539,9 +539,9 @@ export default class Quiz extends Component {
            * there is no other slide that begin with the same number.
            */
           if (/\d/.test(event.key)) {
-            const slidesCount = this.$presentation.slidesCount()
+            const levelsCount = this.$progress.levelsCount()
             if (!slideNumberShortcut.pressedNumber) {
-              if (slidesCount < Number(event.key) * 10) {
+              if (levelsCount < Number(event.key) * 10) {
                 this.$progress.simulateClick(Number(event.key))
               } else {
                 slideNumberShortcut.pressedNumber = Number(event.key)
@@ -572,12 +572,7 @@ export default class Quiz extends Component {
             /** @param {number} levelNumber */
             (levelNumber) => {
               const { $controlPanel, $presentation, $progress } = this
-
-              if (
-                !$presentation.slideIsChangeable() ||
-                !$progress.isChangeable()
-              )
-                return
+              if (!$presentation.slideIsChangeable()) return
 
               // Levels start from 1 not 0
               const levelSlideQuizData = this.$getQuizDataForSlide(
@@ -610,8 +605,7 @@ export default class Quiz extends Component {
           alternateFocusable={quizSectionRefHolder}
           handlePrevButtonClick={() => {
             const { $controlPanel, $indices, $presentation, $progress } = this
-            if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
-              return
+            if (!$presentation.slideIsChangeable()) return
 
             const prevIndex = $indices.prev
             const prevIndexQuizData = this.$getQuizDataForSlide(prevIndex)
@@ -627,8 +621,7 @@ export default class Quiz extends Component {
           }}
           handleNextButtonClick={() => {
             const { $controlPanel, $indices, $presentation, $progress } = this
-            if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
-              return
+            if (!$presentation.slideIsChangeable()) return
 
             const nextIndex = $indices.next
             const nextIndexQuizData = this.$getQuizDataForSlide(nextIndex)
@@ -650,7 +643,6 @@ export default class Quiz extends Component {
               $indices,
               $metadata,
               $presentation,
-              $progress,
               $startQuestionsReview,
               $submissionCallback
             } = this
@@ -660,8 +652,7 @@ export default class Quiz extends Component {
               (element) => element instanceof Question
             )
 
-            if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
-              return
+            if (!$presentation.slideIsChangeable()) return
             const buttonShouldToggleResult =
               $elements[$elements.length - 1] instanceof Result
 
@@ -790,7 +781,7 @@ export default class Quiz extends Component {
 
   $startQuestionsReview() {
     const { $controlPanel, $presentation, $progress } = this
-    if (!$presentation.slideIsChangeable() || !$progress.isChangeable()) return
+    if (!$presentation.slideIsChangeable()) return
 
     const quizDataForFirstSlide = this.$getQuizDataForSlide(0)
     $controlPanel.revalidate(
