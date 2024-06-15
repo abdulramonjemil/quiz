@@ -75,11 +75,12 @@ $max-indicator-bar-dashoffset-value: math.div(
     flex-direction: column;
     flex: 0 1 max-content;
     justify-content: center;
-    opacity: 0;
-    transition: opacity linear math.div($DURATION_OF_INDICATOR_ANIMATION, 2);
-    transition-delay: math.div($DURATION_OF_INDICATOR_ANIMATION, 2);
 
-    .Indicator_rendered + & {
+    opacity: 0;
+    transition: opacity linear $DURATION_OF_INDICATOR_ANIMATION * math.div(7, 9);
+    transition-delay: $DURATION_OF_INDICATOR_ANIMATION * math.div(2, 9);
+
+    .Indicator_transitionAnimated + & {
       opacity: 1;
     }
 
@@ -150,6 +151,10 @@ $max-indicator-bar-dashoffset-value: math.div(
   justify-content: center;
   position: relative;
   width: $result-indicator-dimension;
+
+  &_transitionAnimated {
+    // Used to render the indicator animations
+  }
 
   @container (width <= 720px) {
     --result-indicator-dimension: 180px;
@@ -245,7 +250,7 @@ $max-indicator-bar-dashoffset-value: math.div(
     stroke-linecap: round;
     transition: stroke-dashoffset $DURATION_OF_INDICATOR_ANIMATION ease-in-out;
 
-    .Indicator_rendered & {
+    .Indicator_transitionAnimated & {
       stroke-dashoffset: $real-dashoffset;
     }
   }

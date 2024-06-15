@@ -582,11 +582,8 @@ export default class Quiz extends Component {
             /** @param {number} levelNumber */
             (levelNumber) => {
               const { $controlPanel, $presentation, $progress } = this
-              if (!$presentation.slideIsChangeable()) return
-
-              // Levels start from 1 not 0
               const levelSlideQuizData = this.$getQuizDataForSlide(
-                levelNumber - 1
+                levelNumber - 1 // Levels start from 1 not 0
               )
 
               $controlPanel.revalidate(
@@ -597,7 +594,7 @@ export default class Quiz extends Component {
                 this.$getProgressRevalidationOptions(levelSlideQuizData)
               )
 
-              $presentation.showSlide(levelNumber - 1)
+              $presentation.revalidate({ activeSlide: levelNumber - 1 })
             }
           }
           levelsCount={elementsCount}
@@ -615,8 +612,6 @@ export default class Quiz extends Component {
           alternateFocusable={quizSectionRefHolder}
           handlePrevButtonClick={() => {
             const { $controlPanel, $indices, $presentation, $progress } = this
-            if (!$presentation.slideIsChangeable()) return
-
             const prevIndex = $indices.prev
             const prevIndexQuizData = this.$getQuizDataForSlide(prevIndex)
 
@@ -627,12 +622,10 @@ export default class Quiz extends Component {
             $progress.revalidate(
               this.$getProgressRevalidationOptions(prevIndexQuizData)
             )
-            $presentation.showSlide(prevIndex)
+            $presentation.revalidate({ activeSlide: prevIndex })
           }}
           handleNextButtonClick={() => {
             const { $controlPanel, $indices, $presentation, $progress } = this
-            if (!$presentation.slideIsChangeable()) return
-
             const nextIndex = $indices.next
             const nextIndexQuizData = this.$getQuizDataForSlide(nextIndex)
 
@@ -644,9 +637,9 @@ export default class Quiz extends Component {
               this.$getProgressRevalidationOptions(nextIndexQuizData)
             )
 
-            $presentation.showSlide(nextIndex)
+            $presentation.revalidate({ activeSlide: nextIndex })
           }}
-          handleSubmitButtonClick={async () => {
+          handleSubmitButtonClick={() => {
             const {
               $controlPanel,
               $elements,
@@ -662,7 +655,6 @@ export default class Quiz extends Component {
               (element) => element instanceof Question
             )
 
-            if (!$presentation.slideIsChangeable()) return
             const buttonShouldToggleResult =
               $elements[$elements.length - 1] instanceof Result
 
@@ -684,8 +676,7 @@ export default class Quiz extends Component {
                 )
               )
 
-              $presentation.showSlide(indexOfSlideToShow)
-
+              $presentation.revalidate({ activeSlide: indexOfSlideToShow })
               return
             }
 
@@ -717,11 +708,13 @@ export default class Quiz extends Component {
                 this.$getQuizDataForSlide($elements.length - 1)
               )
             )
-            await $presentation.showSlide($elements.length - 1)
+
+            $presentation.revalidate({ activeSlide: $elements.length - 1 })
 
             questionElements.forEach((questionElement) =>
               questionElement.finalize()
             )
+
             resultRefHolder.ref.renderIndicator()
 
             const questionMetadataSet = questionElements.map(
@@ -791,9 +784,8 @@ export default class Quiz extends Component {
 
   $startQuestionsReview() {
     const { $controlPanel, $presentation, $progress } = this
-    if (!$presentation.slideIsChangeable()) return
-
     const quizDataForFirstSlide = this.$getQuizDataForSlide(0)
+
     $controlPanel.revalidate(
       this.$getControlPanelRevalidationOptions(quizDataForFirstSlide)
     )

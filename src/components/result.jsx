@@ -5,7 +5,7 @@ import ScrollShadow from "./scroll-shadow"
 const DEFAULT_RESULT_PERCENTAGE_VALUE = 0
 const {
   CIRCUMFERENCE_OF_INDICATOR_BAR,
-  Indicator_rendered: RENDERED_INDICATOR_CLASS,
+  Indicator_transitionAnimated: TRANSITION_ANIMATED_INDICATOR_CLASS,
   MAX_INDICATOR_BAR_DASHOFFSET_VALUE,
   PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET,
   PROPERTY_FOR_SCORED_PERCENTAGE
@@ -65,7 +65,11 @@ function renderResultIndicator(
   }
 
   window.requestAnimationFrame(setPercentValue)
-  indicator.classList.add(RENDERED_INDICATOR_CLASS)
+  // The settimeout is needed to trigger the animation by transition since
+  // without it, the transition wouldn't take effect.
+  setTimeout(() => {
+    indicator.classList.add(TRANSITION_ANIMATED_INDICATOR_CLASS)
+  }, 0)
 }
 
 function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {

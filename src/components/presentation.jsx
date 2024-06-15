@@ -3,20 +3,10 @@ import Component, { createInstanceRefHolder } from "../core/component"
 import Styles from "../scss/presentation.module.scss"
 
 const SHOWN_SLIDE_CLASS = Styles.Slide_shown
-const OPAQUE_SLIDE_CLASS = Styles.Slide_opaque
-
-const SLIDE_FADING_IN_KEYFRAMES = [{ opacity: "0" }, { opacity: "1" }]
-const SLIDE_FADING_OUT_KEYFRAMES = [{ opacity: "1" }, { opacity: "0" }]
-const SLIDE_ANIMATION_OPTIONS = {
-  duration: 200,
-  fill: "forwards",
-  iterations: 1
-}
 
 /**
  * @typedef PresentationRevalidationOptions
  * @property {number} activeSlide
- * @property {any[]} slideContents
  */
 
 class Slide extends Component {
@@ -29,27 +19,12 @@ class Slide extends Component {
     )
   }
 
-  fadeIn() {
-    return this.$composedNode.animate(
-      SLIDE_FADING_IN_KEYFRAMES,
-      SLIDE_ANIMATION_OPTIONS
-    ).finished
-  }
-
-  fadeOut() {
-    return this.$composedNode.animate(
-      SLIDE_FADING_OUT_KEYFRAMES,
-      SLIDE_ANIMATION_OPTIONS
-    ).finished
-  }
-
-  removeFromDOM() {
-    this.$composedNode.classList.remove(SHOWN_SLIDE_CLASS)
-  }
-
-  addToDOM(forceVisibility = false) {
-    this.$composedNode.classList.add(SHOWN_SLIDE_CLASS)
-    if (forceVisibility) this.$composedNode.classList.add(OPAQUE_SLIDE_CLASS)
+  /** @param {"shown" | "hidden"} state */
+  setShownState(state) {
+    const { classList } = this.$composedNode
+    if (state === "shown") classList.add(SHOWN_SLIDE_CLASS)
+    else if (state === "hidden") classList.remove(SHOWN_SLIDE_CLASS)
+    else throw new TypeError(`Unknown state: '${state}'`)
   }
 }
 
@@ -80,7 +55,7 @@ export default class Presentation extends Component {
     }
 
     const slideToShow = slideInstances[indexOfSlideToShow]
-    slideToShow.addToDOM(true)
+    slideToShow.setShownState("shown")
 
     const presentationNode = (
       <div
@@ -93,34 +68,27 @@ export default class Presentation extends Component {
     )
 
     this.$indexOfCurrentSlide = indexOfSlideToShow
-    this.$slideIsChangeable = true
     this.$slideContents = [...slideContents]
     this.$slideInstances = slideInstances
 
     return presentationNode
   }
 
-  async $showSlide(slideIndex) {
+  $showSlide(slideIndex) {
     if (!Number.isInteger(slideIndex) || slideIndex < 0)
       throw new TypeError("Expected a non-negative integer slide index")
-    if (!this.$slideIsChangeable) throw new Error("Currently changing slides")
 
     const { $indexOfCurrentSlide, $slideInstances } = this
     if (slideIndex === $indexOfCurrentSlide) return
     if (slideIndex >= $slideInstances.length)
       throw new RangeError(`There is no slide at index ${slideIndex}`)
 
-    this.$slideIsChangeable = false
     const currentSlide = $slideInstances[$indexOfCurrentSlide]
     const slideToShow = $slideInstances[slideIndex]
 
-    await currentSlide.fadeOut()
-    currentSlide.removeFromDOM()
-    slideToShow.addToDOM()
-    await slideToShow.fadeIn()
-
+    currentSlide.setShownState("hidden")
+    slideToShow.setShownState("shown")
     this.$indexOfCurrentSlide = slideIndex
-    this.$slideIsChangeable = true
   }
 
   appendSlide(slideContent) {
@@ -137,92 +105,18 @@ export default class Presentation extends Component {
     return this.$indexOfCurrentSlide
   }
 
-  async restart() {
-    await this.$showSlide(0)
+  restart() {
+    this.$showSlide(0)
   }
 
   /** @param {PresentationRevalidationOptions} options */
   async revalidate(options) {
-    const {
-      activeSlide: newActiveSlideIndex,
-      slideContents: newSlideContents
-    } = options
-    const { $indexOfCurrentSlide, $slideContents, $slideInstances } = this
-
-    const currentSlideContents = $slideContents
-    const currentSlideInstances = $slideInstances
-    const currentSlideNodes = Array.from(this.$composedNode.childNodes)
-
-    const newSlideNodes = []
-    const newSlideInstances = []
-
-    newSlideContents.forEach((slideContent) => {
-      const indexOfContentInCurrentList = currentSlideContents.findIndex(
-        (content) => content === slideContent
-      )
-
-      if (indexOfContentInCurrentList >= 0) {
-        newSlideNodes.push(currentSlideNodes[indexOfContentInCurrentList])
-        newSlideInstances.push(
-          currentSlideInstances[indexOfContentInCurrentList]
-        )
-      } else {
-        const slideRefHolder = createInstanceRefHolder()
-        newSlideNodes.push(
-          <Slide content={slideContent} refHolder={slideRefHolder} />
-        )
-        newSlideInstances.push(slideRefHolder.ref)
-      }
-    })
-
-    const currentVisibleSlideRemainsVisible =
-      $slideContents[$indexOfCurrentSlide] ===
-      newSlideContents[newActiveSlideIndex]
-
-    if (currentVisibleSlideRemainsVisible) {
-      // No fading in/out is required
-      this.$composedNode.replaceChildren(...newSlideNodes)
-      this.$indexOfCurrentSlide = newActiveSlideIndex
-    } else {
-      const indexOfVisibleSlideInNewSet = newSlideContents.findIndex(
-        (content) => content === currentSlideContents[$indexOfCurrentSlide]
-      )
-      const currentVisibleSlideIsRemoved = indexOfVisibleSlideInNewSet < 0
-
-      if (currentVisibleSlideIsRemoved) {
-        const currentVisibleSlideNode = currentSlideNodes[$indexOfCurrentSlide]
-        // The currently shown slide is kept there temporarily so it fades out normally
-        newSlideNodes.push(currentVisibleSlideNode)
-
-        // Manually set the index of current slide to the newly active slide
-        // appended to the list just for purposes of properly fading out
-        this.$indexOfCurrentSlide = newSlideNodes.length - 1
-        this.$composedNode.replaceChildren(...newSlideNodes)
-
-        await this.$showSlide(newActiveSlideIndex)
-        // After fading out, the node is removed, and the childnodes are reset again
-        this.$composedNode.removeChild(currentVisibleSlideNode)
-      } else {
-        this.$indexOfCurrentSlide = indexOfVisibleSlideInNewSet
-        this.$composedNode.replaceChildren(...newSlideNodes)
-        await this.$showSlide(newActiveSlideIndex)
-      }
-    }
-
-    this.$slideContents = newSlideContents
-    this.$slideInstances = newSlideInstances
-  }
-
-  async showSlide(slideIndex) {
-    await this.$showSlide(slideIndex)
+    const { activeSlide: newActiveSlideIndex } = options
+    this.$showSlide(newActiveSlideIndex)
   }
 
   slideContents() {
     return [...this.$slideContents]
-  }
-
-  slideIsChangeable() {
-    return this.$slideIsChangeable
   }
 
   slidesCount() {
