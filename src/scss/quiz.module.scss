@@ -23,7 +23,11 @@
   padding: 25px 16px;
   max-width: 1000px;
   margin: auto;
-  outline: 2px solid white;
+
+  &:focus-visible {
+    outline: 2px solid black;
+    outline-offset: 2px;
+  }
 
   * {
     @extend %reset-element;
