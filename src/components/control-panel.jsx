@@ -99,14 +99,17 @@ export default class ControlPanel extends Component {
     this.$cta.disabled = !enableCTA
   }
 
-  /** @param {"next" | "prev"} action */
-  simulateClick(action) {
-    if (action === "prev") {
+  /** @param {"next" | "prev" | "cta"} button */
+  simulateClick(button) {
+    if (button === "prev") {
       attemptTabbableFocus(this.$prevButton)
       this.$prevButton.click()
-    } else if (action === "next") {
+    } else if (button === "next") {
       attemptTabbableFocus(this.$nextButton)
       this.$nextButton.click()
-    } else throw new Error(`Unknown control panel action: '${action}'`)
+    } else if (button === "cta") {
+      attemptTabbableFocus(this.$cta)
+      this.$cta.click()
+    } else throw new Error(`Unknown control panel button: '${button}'`)
   }
 }

@@ -534,6 +534,16 @@ export default class Quiz extends Component {
             return
           }
 
+          if (event.key.toLocaleLowerCase() === "t") {
+            const currentSlideIndex = this.$presentation.currentSlideIndex()
+            const {
+              quiz: { isFinalized: quizIsFinalized }
+            } = this.$getQuizDataForSlide(currentSlideIndex)
+
+            if (quizIsFinalized) this.$controlPanel.simulateClick("cta")
+            return
+          }
+
           /**
            * If the key is a number, we only jump to the slide at the number if
            * there is no other slide that begin with the same number.
