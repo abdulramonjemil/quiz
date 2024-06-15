@@ -70,11 +70,8 @@ export default class Progress extends Component {
     this.$currentProgressLevelIndex = startLevelIsSet ? startLevel - 1 : 0
 
     const progressNode = (
-      /* The outer div is used to determine max-width of inner one in CSS */
-      <div>
-        <div className={Styles.Progress} aria-hidden="true">
-          <ul className={Styles.Progress__List}>{[...progressLevels]}</ul>
-        </div>
+      <div className={Styles.Progress} aria-hidden="true">
+        <ul className={Styles.Progress__List}>{[...progressLevels]}</ul>
       </div>
     )
 

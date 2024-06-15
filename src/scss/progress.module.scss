@@ -9,13 +9,13 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
 
 .Progress {
   margin: auto;
-  margin-top: 28px;
-  max-width: max(90%, 500px);
+  margin-top: 10px;
 
   &__List {
     display: flex;
     justify-content: center;
     list-style-type: none;
+    padding: 4px 0;
     width: 100%;
   }
 
@@ -23,7 +23,8 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     cursor: default;
     display: block;
     flex-grow: 1;
-    max-width: 250px;
+    min-width: 34px;
+    max-width: 80px;
     position: relative;
 
     &:last-child {
