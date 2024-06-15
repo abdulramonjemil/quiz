@@ -1,81 +1,33 @@
 /* eslint-disable import/no-extraneous-dependencies */
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const path = require("path")
 const { merge } = require("webpack-merge")
-const HTMLWebpackPlugin = require("html-webpack-plugin")
 const baseConfig = require("./webpack.config")
 /* eslint-enable import/no-extraneous-dependencies */
 
 module.exports = merge(baseConfig, {
   devServer: {
+    devMiddleware: { writeToDisk: true },
     open: false,
     port: 8000,
-    static: {
-      directory: path.join(__dirname, "public"),
-      watch: true
-    }
-  },
-  mode: "development",
-  module: {
-    rules: [
+    static: [
       {
-        test: /\.scss$/,
-        exclude: /\.module\.scss$/,
-        use: [
-          {
-            loader: "style-loader"
-          },
-          {
-            loader: "css-loader",
-            options: {
-              modules: {
-                mode: "icss"
-              }
-            }
-          },
-          {
-            loader: "resolve-url-loader"
-          },
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
+        directory: path.join(__dirname, "/src/public"),
+        publicPath: "/",
+        watch: true
       },
       {
-        test: /\.module\.scss$/,
-        use: [
-          {
-            loader: "style-loader"
-          },
-          {
-            loader: "css-loader",
-            options: {
-              modules: {
-                mode: "local"
-              }
-            }
-          },
-          {
-            loader: "resolve-url-loader"
-          },
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
+        directory: path.join(__dirname, "dist"),
+        publicPath: "/dist",
+        watch: true
       }
     ]
   },
-  plugins: [
-    new HTMLWebpackPlugin({
-      inject: "head",
-      scriptLoading: "blocking",
-      // Contains arbitrary code used to test the app
-      template: "./src/public/test-page.html"
-    })
-  ]
+
+  mode: "development",
+  output: {
+    filename: "quiz.bundle.js",
+    path: path.resolve(__dirname, "dist")
+  },
+  plugins: [new MiniCssExtractPlugin({ filename: "quiz.bundle.css" })]
 })

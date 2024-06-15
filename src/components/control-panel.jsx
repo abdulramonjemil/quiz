@@ -15,12 +15,16 @@ import Styles from "../scss/control-panel.module.scss"
 export default class ControlPanel extends Component {
   $render() {
     const {
+      // This is focused when the next or prev buttons are disabled
+      alternateFocusable,
+
       controllingId,
       handlePrevButtonClick,
       handleNextButtonClick,
       handleSubmitButtonClick
     } = this.$props
 
+    this.$alternateFocusable = alternateFocusable
     this.$prevButton = null
     this.$nextButton = null
     this.$cta = null
@@ -69,31 +73,39 @@ export default class ControlPanel extends Component {
     return controlPanelNode
   }
 
-  disable(button) {
-    if (button === "prev") this.$prevButton.disabled = true
-    else if (button === "next") this.$nextButton.disabled = true
-    else if (button === "submit") this.$cta.disabled = true
-    else throw new TypeError(`Unsupported button: '${button}'`)
-  }
-
-  enable(button) {
-    if (button === "prev") this.$prevButton.disabled = false
-    else if (button === "next") this.$nextButton.disabled = false
-    else if (button === "submit") this.$cta.disabled = false
-    else throw new TypeError(`Unsupported button: '${button}'`)
+  /** @param {"next" | "prev"} action */
+  simulate(action) {
+    if (action === "prev") {
+      this.$prevButton.focus()
+      this.$prevButton.click()
+    } else if (action === "next") {
+      this.$nextButton.focus()
+      this.$nextButton.click()
+    } else throw new Error(`Unknown control panel action: '${action}'`)
   }
 
   /** @param {ControlPanelRevalidationOptions} options */
   revalidate(options) {
     const {
-      prev: prevIsEnabled,
-      next: nextIsEnabled,
-      cta: { isSubmit: ctaIsSubmit, isEnabled: ctaIsEnabled }
+      prev: enablePrev,
+      next: enableNext,
+      cta: { isSubmit: ctaIsSubmit, isEnabled: enableCTA }
     } = options
 
-    this.$prevButton.disabled = !prevIsEnabled
-    this.$nextButton.disabled = !nextIsEnabled
-    this.$cta.disabled = !ctaIsEnabled
+    const shouldRefocus = [
+      [this.$prevButton, enablePrev],
+      [this.$nextButton, enableNext],
+      [this.$cta, enableCTA]
+    ].some(
+      ([button, buttonIsEnabled]) =>
+        button.contains(document.activeElement) && !buttonIsEnabled
+    )
+
+    if (shouldRefocus) this.$alternateFocusable.ref.focus()
     this.$cta.innerText = ctaIsSubmit ? "Submit" : "Toggle Result"
+
+    this.$prevButton.disabled = !enablePrev
+    this.$nextButton.disabled = !enableNext
+    this.$cta.disabled = !enableCTA
   }
 }

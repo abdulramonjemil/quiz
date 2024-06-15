@@ -141,13 +141,77 @@ export default class Presentation extends Component {
     await this.$showSlide(0)
   }
 
-  // /** @param {PresentationRevalidationOptions} options */
-  // revalidate(options) {
-  //   const { activeSlide, slideContents } = options
-  //   // [A, C, E]
-  //   // [A, E, C]
-  //   // [A, B, C, D, E]
-  // }
+  /** @param {PresentationRevalidationOptions} options */
+  async revalidate(options) {
+    const {
+      activeSlide: newActiveSlideIndex,
+      slideContents: newSlideContents
+    } = options
+    const { $indexOfCurrentSlide, $slideContents, $slideInstances } = this
+
+    const currentSlideContents = $slideContents
+    const currentSlideInstances = $slideInstances
+    const currentSlideNodes = Array.from(this.$composedNode.childNodes)
+
+    const newSlideNodes = []
+    const newSlideInstances = []
+
+    newSlideContents.forEach((slideContent) => {
+      const indexOfContentInCurrentList = currentSlideContents.findIndex(
+        (content) => content === slideContent
+      )
+
+      if (indexOfContentInCurrentList >= 0) {
+        newSlideNodes.push(currentSlideNodes[indexOfContentInCurrentList])
+        newSlideInstances.push(
+          currentSlideInstances[indexOfContentInCurrentList]
+        )
+      } else {
+        const slideRefHolder = createInstanceRefHolder()
+        newSlideNodes.push(
+          <Slide content={slideContent} refHolder={slideRefHolder} />
+        )
+        newSlideInstances.push(slideRefHolder.ref)
+      }
+    })
+
+    const currentVisibleSlideRemainsVisible =
+      $slideContents[$indexOfCurrentSlide] ===
+      newSlideContents[newActiveSlideIndex]
+
+    if (currentVisibleSlideRemainsVisible) {
+      // No fading in/out is required
+      this.$composedNode.replaceChildren(...newSlideNodes)
+      this.$indexOfCurrentSlide = newActiveSlideIndex
+    } else {
+      const indexOfVisibleSlideInNewSet = newSlideContents.findIndex(
+        (content) => content === currentSlideContents[$indexOfCurrentSlide]
+      )
+      const currentVisibleSlideIsRemoved = indexOfVisibleSlideInNewSet < 0
+
+      if (currentVisibleSlideIsRemoved) {
+        const currentVisibleSlideNode = currentSlideNodes[$indexOfCurrentSlide]
+        // The currently shown slide is kept there temporarily so it fades out normally
+        newSlideNodes.push(currentVisibleSlideNode)
+
+        // Manually set the index of current slide to the newly active slide
+        // appended to the list just for purposes of properly fading out
+        this.$indexOfCurrentSlide = newSlideNodes.length - 1
+        this.$composedNode.replaceChildren(...newSlideNodes)
+
+        await this.$showSlide(newActiveSlideIndex)
+        // After fading out, the node is removed, and the childnodes are reset again
+        this.$composedNode.removeChild(currentVisibleSlideNode)
+      } else {
+        this.$indexOfCurrentSlide = indexOfVisibleSlideInNewSet
+        this.$composedNode.replaceChildren(...newSlideNodes)
+        await this.$showSlide(newActiveSlideIndex)
+      }
+    }
+
+    this.$slideContents = newSlideContents
+    this.$slideInstances = newSlideInstances
+  }
 
   async showSlide(slideIndex) {
     await this.$showSlide(slideIndex)

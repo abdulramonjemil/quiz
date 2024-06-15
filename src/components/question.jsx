@@ -12,9 +12,11 @@ const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 const ENABLED_EXPLANATION_CLASS = Styles.Explanation_enabled
 const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
 
+/** @typedef {"A" | "B" | "C" | "D"} AnswerOption */
+
 /**
  * @typedef QuestionMetadata
- * @property {"A" | "B" | "C" | "D"} selectedOption
+ * @property {AnswerOption} selectedOption
  */
 
 function Option({ handleOptionChange, letter, name, text }) {
@@ -226,8 +228,28 @@ export default class Question extends Component {
     this.$setAnswerSelectionState("disabled")
   }
 
+  isAnswerable() {
+    return this.$fieldSet.disabled === false
+  }
+
   isAnswered() {
     const { $answerInputs } = this
     return $answerInputs.some((input) => input.checked)
+  }
+
+  /** @param {AnswerOption} option */
+  selectAnswer(option) {
+    if (!this.isAnswerable()) return
+
+    const { $answerInputs } = this
+    const answerIndex = LETTERS_FOR_ANSWER_CHOICES.findIndex(
+      (letter) => letter.toLowerCase() === option.toLowerCase()
+    )
+
+    const inputAtIndex = $answerInputs[answerIndex]
+    if (answerIndex >= 0 && inputAtIndex instanceof HTMLInputElement) {
+      inputAtIndex.focus()
+      inputAtIndex.click()
+    }
   }
 }

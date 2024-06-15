@@ -1,4 +1,4 @@
-/* eslint-disable-next-line import/no-cycle */
+import { resolveToNode } from "../lib/dom"
 import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
 
 const PROP_FOR_REF_HOLDER = "refHolder"
@@ -32,18 +32,6 @@ function retrieveRealNSFromRegistered(namespace) {
     SEPARATOR_IN_REGISTERED_NAMESPACE
   )
   return realNamespace
-}
-
-function resolveToNode(value) {
-  if (value instanceof Node) return value
-  if (typeof value === "boolean" || value === null || value === undefined)
-    return document.createTextNode("")
-  if (Array.isArray(value))
-    return value.reduce((fragment, currentItem) => {
-      fragment.append(resolveToNode(currentItem))
-      return fragment
-    }, document.createDocumentFragment())
-  return document.createTextNode(String(value))
 }
 
 function isEventAttribute(attribute) {
@@ -193,6 +181,5 @@ export {
   registerNamespace as ns,
   resolveFragment as Fragment,
   resolveJSXElement as jsx,
-  resolveJSXElement as jsxs,
-  resolveToNode
+  resolveJSXElement as jsxs
 }

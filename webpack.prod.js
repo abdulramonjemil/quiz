@@ -8,61 +8,6 @@ const commonConfig = require("./webpack.config")
 
 module.exports = merge(commonConfig, {
   mode: "production",
-  module: {
-    rules: [
-      {
-        test: /\.scss$/,
-        exclude: /\.module\.scss$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader
-          },
-          {
-            loader: "css-loader",
-            options: {
-              modules: {
-                mode: "icss"
-              }
-            }
-          },
-          {
-            loader: "resolve-url-loader"
-          },
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
-      },
-      {
-        test: /\.module\.scss$/,
-        use: [
-          {
-            loader: MiniCssExtractPlugin.loader
-          },
-          {
-            loader: "css-loader",
-            options: {
-              modules: {
-                mode: "local"
-              }
-            }
-          },
-          {
-            loader: "resolve-url-loader"
-          },
-          {
-            loader: "sass-loader",
-            options: {
-              sourceMap: true
-            }
-          }
-        ]
-      }
-    ]
-  },
   optimization: {
     minimizer: [new CssMinimizerPlugin(), "..."]
   },

@@ -1,6 +1,9 @@
 /* eslint-disable max-classes-per-file */
 
-import Component, { createInstanceRefHolder } from "../core/component"
+import Component, {
+  createElementRefHolder,
+  createInstanceRefHolder
+} from "../core/component"
 import Styles from "../scss/quiz.module.scss"
 
 /* Must be imported after importing styles above to allow overrides */
@@ -13,7 +16,6 @@ import Result from "./result"
 import ControlPanel from "./control-panel"
 
 import { isFilledString } from "../lib/value"
-
 import { uniqueId } from "../lib/id"
 import { webStorageIsAvailable } from "../lib/storage"
 
@@ -43,7 +45,9 @@ const QUIZ_ELEMENT_TYPES = {
 
 /**
  * Internal map used to store quiz props objects to prevent accessing it from
- * the outside
+ * the outside. This map is meant to be used with the QuizProps class to
+ * make it behave like it has private properties. This could've been done with
+ * TypeScript or JSDoc but I was a noob when I initially wrote this.
  */
 const QUIZ_PROPS_MAP = new Map()
 
@@ -115,9 +119,9 @@ class QuizProps {
       throw new TypeError("props definition must be an object")
 
     const { metadata, elements, submissionCallback } = propsDefinition
-    const quizProps = new QuizProps(metadata, submissionCallback)
-    quizProps.addElements(elements)
-    return quizProps
+    const props = new QuizProps(metadata, submissionCallback)
+    props.addElements(elements)
+    return props
   }
 
   addCodeBoard(props) {
@@ -208,8 +212,8 @@ export default class Quiz extends Component {
     return QuizProps
   }
 
-  static create(quizProps, container) {
-    if (!(quizProps instanceof QuizProps))
+  static create({ props, container }) {
+    if (!(props instanceof QuizProps))
       throw new TypeError(
         "quiz props passed to 'Quiz.create' must be an instance of 'QuizProps'"
       )
@@ -220,7 +224,7 @@ export default class Quiz extends Component {
         "quiz container passed to 'Quiz.create' must be an instance of 'Element' if present"
       )
 
-    const quizPropsToUse = QUIZ_PROPS_MAP.get(quizProps)
+    const quizPropsToUse = QUIZ_PROPS_MAP.get(props)
     const quizInstanceRefHolder = createInstanceRefHolder()
 
     // eslint-disable-next-line react/jsx-props-no-spreading
@@ -496,12 +500,36 @@ export default class Quiz extends Component {
 
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
+    const quizSectionRefHolder = createElementRefHolder()
     const progressRefHolder = createInstanceRefHolder()
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
     const quizNode = (
-      <section className={Styles.Quiz} aria-labelledby={quizLabellingId}>
+      <section
+        aria-labelledby={quizLabellingId}
+        className={Styles.Quiz}
+        refHolder={quizSectionRefHolder}
+        onKeyDownCapture={(event) => {
+          const { $presentation, $elements } = this
+
+          if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
+            const currentSlideIndex = $presentation.currentSlideIndex()
+            const currentElement = $elements[currentSlideIndex]
+            if (currentElement instanceof Question) {
+              currentElement.selectAnswer(event.key.toLowerCase())
+            }
+            return
+          }
+
+          if (event.key.toLowerCase() === "p") {
+            this.$controlPanel.simulate("prev")
+          } else if (event.key.toLowerCase() === "n") {
+            this.$controlPanel.simulate("next")
+          }
+        }}
+        tabIndex={-1}
+      >
         <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
           handleLevelButtonClick={
@@ -543,6 +571,7 @@ export default class Quiz extends Component {
         />
         <ControlPanel
           controllingId={presentationControllingId}
+          alternateFocusable={quizSectionRefHolder}
           handlePrevButtonClick={() => {
             const { $controlPanel, $indices, $presentation, $progress } = this
             if (!$presentation.slideIsChangeable() || !$progress.isChangeable())
@@ -696,6 +725,10 @@ export default class Quiz extends Component {
 
       this.$controlPanel.revalidate(
         this.$getControlPanelRevalidationOptions(appropriateSlideQuizData)
+      )
+
+      this.$progress.revalidate(
+        this.$getProgressRevalidationOptions(appropriateSlideQuizData)
       )
     })
 

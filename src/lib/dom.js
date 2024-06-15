@@ -1,4 +1,14 @@
-import { resolveToNode } from "../core/jsx-runtime"
+export function resolveToNode(value) {
+  if (value instanceof Node) return value
+  if (typeof value === "boolean" || value === null || value === undefined)
+    return document.createTextNode("")
+  if (Array.isArray(value))
+    return value.reduce((fragment, currentItem) => {
+      fragment.append(resolveToNode(currentItem))
+      return fragment
+    }, document.createDocumentFragment())
+  return document.createTextNode(String(value))
+}
 
 export function escapeHTMLContent(unsafeText) {
   const div = document.createElement("div")

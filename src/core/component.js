@@ -1,5 +1,4 @@
-/* eslint-disable-next-line import/no-cycle */
-import { resolveToNode } from "./jsx-runtime"
+import { resolveToNode } from "../lib/dom"
 
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
