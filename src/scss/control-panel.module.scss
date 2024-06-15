@@ -48,7 +48,7 @@
 }
 
 .Submit {
-  $submit-button-color: rgb(104 4 107);
+  $submit-button-color: utils.get-color("purple");
 
   @extend %control-button;
   background-color: $submit-button-color;
