@@ -135,19 +135,23 @@ function createElement(tagName, props, children) {
 function resolveTypeAsComponent(func, props, children) {
   const { [PROP_FOR_REF_HOLDER]: providedInstanceRefHolder, ...propsToPass } =
     props
+
   const instanceRefIsRequested = providedInstanceRefHolder !== undefined
+  let componentIsFunction = false
 
   try {
     // Will throw an error if it is a class
     const componentComposedNode = func(propsToPass, children)
-    const componentIsFunction = true // Error isn't thrown by calling func()
+    componentIsFunction = true // Error isn't thrown by calling func()
     if (instanceRefIsRequested && componentIsFunction)
       throw new Error(
-        "'instance ref' cannot be requested for a function component"
+        `'instance ref' cannot be requested for a function component: '${func.name}'`
       )
     return componentComposedNode
   } catch (error) {
+    if (componentIsFunction) throw error
     const DefinedComponent = func
+
     const component = new DefinedComponent(propsToPass, children)
     if (!(component instanceof Component))
       throw new Error(`${DefinedComponent.name} does not extend 'Component'`)
