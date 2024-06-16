@@ -136,22 +136,22 @@ export const SAMPLE_QUIZ_DATA = [
   //       "The loop prints each element of the array separated by a space, resulting in '1 2 3 4 5'."
   //   }
   // },
-  // {
-  //   type: "QUESTION",
-  //   props: {
-  //     title:
-  //       "What is the purpose of the return 0 statement in the main function?",
-  //     answer: "C",
-  //     options: [
-  //       "To print the value 0",
-  //       "To initialize the program",
-  //       "To indicate that the program ended successfully",
-  //       "To create a new process"
-  //     ],
-  //     explanation:
-  //       "The return 0 statement indicates that the program ended successfully."
-  //   }
-  // },
+  {
+    type: "QUESTION",
+    props: {
+      title:
+        "What is the purpose of the return 0 statement in the main function?",
+      answer: "C",
+      options: [
+        "To print the value 0",
+        "To initialize the program",
+        "To indicate that the program ended successfully",
+        "To create a new process"
+      ],
+      explanation:
+        "The return 0 statement indicates that the program ended successfully."
+    }
+  },
   {
     type: "QUESTION",
     props: {

@@ -2,7 +2,6 @@ import Component from "../core/component"
 import { attemptTabbableFocus } from "../lib/focus"
 import Styles from "../scss/progress.module.scss"
 
-const PASSED_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_passed
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
 
 /**
@@ -11,17 +10,9 @@ const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
  * @property {number | null} highestEnabledLevel
  */
 
-function ProgressLevel({
-  levelNumber,
-  handleLevelButtonClick,
-  isPassed = false
-}) {
+function ProgressLevel({ levelNumber, handleLevelButtonClick }) {
   return (
-    <li
-      className={`${Styles.Progress__Level} ${
-        isPassed ? PASSED_PROGRESS_LEVEL_CLASS : ""
-      }`}
-    >
+    <li className={Styles.Progress__Level}>
       <button
         className={Styles.Progress__NumberButton}
         onClick={handleLevelButtonClick}
@@ -36,38 +27,22 @@ function ProgressLevel({
 export default class Progress extends Component {
   $render() {
     const {
-      $props: { handleLevelButtonClick, levelsCount, startLevel }
+      $props: { handleLevelButtonClick, levelsCount, activeLevel }
     } = this
 
     this.$currentProgressLevelIndex = null
     this.$progressLevels = []
 
     const progressLevels = []
-    let startLevelIsSet = false
-
-    if (startLevel !== undefined) {
-      if (
-        !Number.isInteger(startLevel) ||
-        startLevel <= 0 ||
-        startLevel > levelsCount
-      ) {
-        throw new TypeError(`Invalid start level: ${startLevel}`)
-      } else {
-        startLevelIsSet = true
-      }
-    }
 
     for (let i = 1; i <= levelsCount; i += 1) {
       progressLevels.push(
         <ProgressLevel
           handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
           levelNumber={i}
-          isPassed={startLevelIsSet && startLevel > i}
         />
       )
     }
-
-    this.$currentProgressLevelIndex = startLevelIsSet ? startLevel - 1 : 0
 
     const progressNode = (
       <div className={Styles.Progress} aria-hidden="true">
@@ -75,7 +50,25 @@ export default class Progress extends Component {
       </div>
     )
 
+    let activeLevelIsProvided = false
+
+    if (activeLevel !== undefined) {
+      if (
+        !Number.isInteger(activeLevel) ||
+        activeLevel <= 0 ||
+        activeLevel > levelsCount
+      ) {
+        throw new TypeError(`Invalid start level: ${activeLevel}`)
+      } else {
+        activeLevelIsProvided = true
+      }
+    }
+
     this.$progressLevels = progressLevels
+    this.$currentProgressLevelIndex = activeLevelIsProvided
+      ? activeLevel - 1
+      : 0
+    this.$setActiveLevel(activeLevel)
 
     return progressNode
   }
@@ -133,7 +126,7 @@ export default class Progress extends Component {
   revalidate(options) {
     const { activeLevel, highestEnabledLevel } = options
     this.$setActiveLevel(activeLevel)
-    this.$setHigestEnabledLevel(highestEnabledLevel)
+    this.$setHigestEnabledLevel(highestEnabledLevel || null)
   }
 
   /**

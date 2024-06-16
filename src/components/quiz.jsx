@@ -599,7 +599,7 @@ export default class Quiz extends Component {
           }
           levelsCount={elementsCount}
           refHolder={progressRefHolder}
-          startLevel={resultIsPropagated ? elementsCount : 1}
+          activeLevel={resultIsPropagated ? elementsCount : 1}
         />
         <Presentation
           controllingId={presentationControllingId}
@@ -748,20 +748,6 @@ export default class Quiz extends Component {
       </section>
     )
 
-    setTimeout(() => {
-      const appropriateSlideQuizData = this.$getQuizDataForSlide(
-        resultIsPropagated ? slides.length - 1 : 0
-      )
-
-      this.$controlPanel.revalidate(
-        this.$getControlPanelRevalidationOptions(appropriateSlideQuizData)
-      )
-
-      this.$progress.revalidate(
-        this.$getProgressRevalidationOptions(appropriateSlideQuizData)
-      )
-    })
-
     this.$metadata = { autoSave: autoSaveIsEnabled, storageKey, isGlobal }
     this.$elements = elementRefs
 
@@ -778,6 +764,18 @@ export default class Quiz extends Component {
     this.$presentation = presentationRefHolder.ref
     /** @type {ControlPanel} */
     this.$controlPanel = controlPanelRefHolder.ref
+
+    const appropriateSlideQuizData = this.$getQuizDataForSlide(
+      resultIsPropagated ? slides.length - 1 : 0
+    )
+
+    this.$controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(appropriateSlideQuizData)
+    )
+
+    this.$progress.revalidate(
+      this.$getProgressRevalidationOptions(appropriateSlideQuizData)
+    )
 
     return quizNode
   }

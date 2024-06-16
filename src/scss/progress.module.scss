@@ -15,8 +15,11 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     display: flex;
     justify-content: center;
     list-style-type: none;
+
+    margin: auto;
     padding: 4px 0;
     width: 100%;
+    max-width: max(90%, 500px);
   }
 
   &__Level {
@@ -24,7 +27,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     display: block;
     flex-grow: 1;
     min-width: 34px;
-    max-width: 80px;
+    max-width: 200px;
     position: relative;
 
     &:last-child {
