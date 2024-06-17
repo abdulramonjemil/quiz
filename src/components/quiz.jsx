@@ -430,7 +430,6 @@ export default class Quiz extends Component {
 
     $presentation.revalidate({ activeSlide: $elementInstances.length - 1 })
     questionInstances.forEach((questionElement) => questionElement.finalize())
-    resultInstance.renderIndicator()
 
     const questionMetadataSet = questionInstances.map((questionElement) =>
       questionElement.exportInteractionMetadata()
@@ -652,7 +651,6 @@ export default class Quiz extends Component {
 
         elementNodes.push(resultNode)
         elementInstances.push(resultInstance)
-        resultInstance.renderIndicator()
       }
     }
 

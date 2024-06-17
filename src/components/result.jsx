@@ -159,9 +159,6 @@ export default class Result extends Component {
     const scoredPercentage = Math.floor((answersGotten / questionsCount) * 100)
     const indicatorRenderFnRefHolder = {}
 
-    this.$indicatorIsRendered = false
-    this.$indicatorRenderFn = null
-
     const resultNode = (
       <div className={Styles.ResultContainer}>
         <ScrollShadow maxSizes={{ bottom: 25 }}>
@@ -180,13 +177,7 @@ export default class Result extends Component {
       </div>
     )
 
-    this.$indicatorRenderFn = indicatorRenderFnRefHolder.ref
+    indicatorRenderFnRefHolder.ref.call()
     return resultNode
-  }
-
-  renderIndicator() {
-    if (this.$indicatorIsRendered) return
-    this.$indicatorRenderFn.call()
-    this.$indicatorIsRendered = true
   }
 }
