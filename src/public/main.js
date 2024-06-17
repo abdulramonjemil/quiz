@@ -13,7 +13,7 @@ const sampleProps = {
       elementsCount: 2
     },
     header: "Test your knowledge",
-    storageKey: "kajhaikaahoijldahadai-wof9q0",
+    storageKey: "sample-quiz",
     isGlobal: false
   },
   submissionCallback: (...all) => {

@@ -78,7 +78,6 @@ const DEFAULT_QUIZ_METADATA = {
 }
 
 const QUIZ_DATA_STORE = "localStorage"
-const QUIZ_STORAGE_KEY_RANDOMIZER = "yq2TpI58ul6g3sLioISGNPSroqxcqc"
 const QUIZ_ELEMENT_TYPES = {
   CODE_BOARD: "CODE_BOARD",
   QUESTION: "QUESTION"
@@ -88,16 +87,21 @@ const QUIZ_ELEMENT_TYPES = {
 function normalizeQuizMetadataConfig(metadata) {
   const { AUTO_SAVE, STORED_DATA, HEADER, IS_GLOBAL, STORAGE_KEY } =
     DEFAULT_QUIZ_METADATA
-  const quizGlobalizationValue = metadata?.isGlobal ?? IS_GLOBAL
 
+  if (metadata?.isGlobal === true && typeof metadata?.storageKey !== "string") {
+    throw new Error("Storage key is required for a global quiz")
+  }
+
+  const globalizationValue = metadata?.isGlobal ?? IS_GLOBAL
   return {
     autoSave: metadata?.autoSave ?? AUTO_SAVE,
     storedData: metadata?.storedData ?? STORED_DATA,
     header: metadata?.header ?? HEADER,
     storageKey:
-      QUIZ_STORAGE_KEY_RANDOMIZER +
-      (quizGlobalizationValue === true ? "" : window.location.pathname) +
-      (metadata?.storageKey ?? STORAGE_KEY)
+      // eslint-disable-next-line prefer-template
+      "QUIZDATA" +
+      `@k=>${metadata?.storageKey ?? STORAGE_KEY}` +
+      (globalizationValue === true ? "" : `@p=>${window.location.pathname}`)
   }
 }
 
