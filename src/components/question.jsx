@@ -1,6 +1,6 @@
 import Component, { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
-import { attemptElementFocus } from "../lib/focus"
+import { attemptElementFocus, attemptTabbableFocus } from "../lib/focus"
 import { uniqueId } from "../lib/id"
 import Styles from "../scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
@@ -241,17 +241,25 @@ export default class Question extends Component {
     return $answerInputs.some((input) => input.checked)
   }
 
-  /** @param {AnswerOption} option */
-  simulateOptionClick(option) {
-    const { $answerInputs } = this
-    const answerIndex = LETTERS_FOR_ANSWER_CHOICES.findIndex(
-      (letter) => letter.toLowerCase() === option.toLowerCase()
-    )
+  /** @param {{ type: "option", value: AnswerOption } | { type: "toggle" }} options  */
+  simulateClick(options) {
+    if (options.type === "toggle") {
+      const toggleButton = this.$explanationElement.querySelector("button")
+      if (!(toggleButton instanceof HTMLElement)) return
 
-    const inputAtIndex = $answerInputs[answerIndex]
-    if (answerIndex >= 0 && inputAtIndex instanceof HTMLElement) {
-      attemptElementFocus(inputAtIndex)
-      inputAtIndex.click()
+      attemptTabbableFocus(toggleButton)
+      toggleButton.click()
+    } else {
+      const { $answerInputs } = this
+      const answerIndex = LETTERS_FOR_ANSWER_CHOICES.findIndex(
+        (letter) => letter.toLowerCase() === options.value.toLowerCase()
+      )
+
+      const inputAtIndex = $answerInputs[answerIndex]
+      if (answerIndex >= 0 && inputAtIndex instanceof HTMLElement) {
+        attemptElementFocus(inputAtIndex)
+        inputAtIndex.click()
+      }
     }
   }
 }

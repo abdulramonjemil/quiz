@@ -524,8 +524,12 @@ export default class Quiz extends Component {
     if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
       const currentSlideIndex = $presentation.currentSlideIndex()
       const currentElement = $elementInstances[currentSlideIndex]
+
       if (currentElement instanceof Question) {
-        currentElement.simulateOptionClick(event.key.toLowerCase())
+        currentElement.simulateClick({
+          type: "option",
+          value: event.key.toLowerCase()
+        })
       }
       return
     }
@@ -534,6 +538,20 @@ export default class Quiz extends Component {
       const options = { p: "prev", n: "next" }
       this.$controlPanel.simulateClick(options[event.key.toLowerCase()])
       return
+    }
+
+    if (event.key.toLowerCase() === "e") {
+      const currentSlideIndex = this.$presentation.currentSlideIndex()
+      const {
+        quiz: { isFinalized: quizIsFinalized }
+      } = this.$getQuizDataForSlide(currentSlideIndex)
+
+      const currentElementInstance = this.$elementInstances[currentSlideIndex]
+      const elementIsQuestion = currentElementInstance instanceof Question
+
+      if (quizIsFinalized && elementIsQuestion) {
+        currentElementInstance.simulateClick({ type: "toggle" })
+      }
     }
 
     if (event.key.toLocaleLowerCase() === "t") {
