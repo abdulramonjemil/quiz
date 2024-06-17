@@ -7,11 +7,11 @@ const { Quiz } = window
 const sampleProps = {
   elements: SAMPLE_QUIZ_DATA,
   metadata: {
-    autoSave: false,
-    storedData: {
-      questionMetadataSet: [{ selectedOption: "B" }],
-      elementsCount: 2
-    },
+    autoSave: true,
+    // storedData: {
+    //   questionMetadataSet: [{ selectedOption: "B" }],
+    //   elementsCount: 2
+    // },
     header: "Test your knowledge",
     storageKey: "sample-quiz",
     isGlobal: false

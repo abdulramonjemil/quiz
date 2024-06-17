@@ -438,7 +438,8 @@ export default class Quiz extends Component {
     /** @type {ExportedQuizData} */
     const quizData = {
       questionMetadataSet,
-      elementsCount: $elementInstances.length
+      // Subtract 1 to exclude the added result element
+      elementsCount: $elementInstances.length - 1
     }
 
     if ($metadata.autoSave) storeQuizData(quizData, $metadata.storageKey)
