@@ -176,7 +176,11 @@ $option-letter-span: 30px;
 
     &:focus {
       background-color: $toggler-interaction-bg-color;
-      outline: none;
+    }
+
+    &:focus-visible {
+      outline: 2px solid utils.get-color(deep-light);
+      outline-offset: 2px;
     }
 
     &:hover {
