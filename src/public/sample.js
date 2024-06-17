@@ -117,15 +117,15 @@ export const SAMPLE_QUIZ_DATA = [
   //       "The stdio.h header file is necessary to include for using printf() in C."
   //   }
   // },
-  // {
-  //   type: "CODE_BOARD",
-  //   props: {
-  //     title: "Looping through an array in C",
-  //     language: "c",
-  //     snippet:
-  //       '#include <stdio.h>\n\nint main() {\n    int arr[5] = {1, 2, 3, 4, 5};\n    for(int i = 0; i < 5; i++) {\n        printf("%d ", arr[i]);\n    }\n    return 0;\n}'
-  //   }
-  // },
+  {
+    type: "CODE_BOARD",
+    props: {
+      title: "Looping through an array in C",
+      language: "c",
+      snippet:
+        '#include <stdio.h>\n\nint main() {\n    int arr[5] = {1, 2, 3, 4, 5};\n    for(int i = 0; i < 5; i++) {\n        printf("%d ", arr[i]);\n    }\n    return 0;\n}'
+    }
+  },
   // {
   //   type: "QUESTION",
   //   props: {
@@ -136,22 +136,22 @@ export const SAMPLE_QUIZ_DATA = [
   //       "The loop prints each element of the array separated by a space, resulting in '1 2 3 4 5'."
   //   }
   // },
-  {
-    type: "QUESTION",
-    props: {
-      title:
-        "What is the purpose of the return 0 statement in the main function?",
-      answer: "C",
-      options: [
-        "To print the value 0",
-        "To initialize the program",
-        "To indicate that the program ended successfully",
-        "To create a new process"
-      ],
-      explanation:
-        "The return 0 statement indicates that the program ended successfully."
-    }
-  },
+  // {
+  //   type: "QUESTION",
+  //   props: {
+  //     title:
+  //       "What is the purpose of the return 0 statement in the main function?",
+  //     answer: "C",
+  //     options: [
+  //       "To print the value 0",
+  //       "To initialize the program",
+  //       "To indicate that the program ended successfully",
+  //       "To create a new process"
+  //     ],
+  //     explanation:
+  //       "The return 0 statement indicates that the program ended successfully."
+  //   }
+  // },
   {
     type: "QUESTION",
     props: {

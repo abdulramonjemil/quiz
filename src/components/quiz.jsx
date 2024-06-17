@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 import Component, {
   createElementRefHolder,
   createInstanceRefHolder
@@ -15,9 +13,9 @@ import CodeBoard from "./code-board"
 import Result from "./result"
 import ControlPanel from "./control-panel"
 
-import { isFilledString } from "../lib/value"
 import { uniqueId } from "../lib/id"
 import { webStorageIsAvailable } from "../lib/storage"
+import { tryJSONParse } from "../lib/parse"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
@@ -29,228 +27,232 @@ import { webStorageIsAvailable } from "../lib/storage"
  * @typedef {ReturnType<typeof Quiz.prototype.$getQuizDataForSlide>} SlideQuizData
  */
 
+/**
+ * @typedef ExportedQuizData
+ * @property {QuestionMetadata[]} questionMetadataSet
+ * @property {number} elementsCount
+ */
+
+/**
+ * @typedef QuizQuestionElement
+ * @property {"QUESTION"} type
+ * @property {{
+ *   title: string,
+ *   answer: "A" | "B" | "C" | "D",
+ *   options: [string, string, ...string[]] & { length: 2 | 3 | 4 },
+ *   explanation?: string | undefined
+ * }} props
+ */
+
+/**
+ * @typedef QuizCodeBoardElement
+ * @property {"CODE_BOARD"} type
+ * @property {{
+ *   title: string,
+ *   language: string,
+ *   snippet: string
+ * }} props
+ */
+
+/** @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizElement */
+
+/**
+ * @typedef QuizProps
+ * @property {QuizElement[]} elements
+ * @property {(ExportedQuizData) => void} submissionCallback
+ * @property {{
+ *   autoSave?: boolean | undefined,
+ *   customSavedData?: string | undefined,
+ *   header?: string | undefined,
+ *   isGlobal?: boolean | undefined,
+ *   storageKey?: string | undefined
+ * }} [metadata]
+ */
+
 const DEFAULT_QUIZ_METADATA = {
   AUTO_SAVE: true,
   CUSTOM_SAVED_DATA: null,
   HEADER: "Test your knowledge",
-  IS_GLOBAL_VALUE: false,
+  IS_GLOBAL: false,
   STORAGE_KEY: ""
 }
 
+const QUIZ_DATA_STORE = "localStorage"
 const QUIZ_STORAGE_KEY_RANDOMIZER = "yq2TpI58ul6g3sLioISGNPSroqxcqc"
 const QUIZ_ELEMENT_TYPES = {
   CODE_BOARD: "CODE_BOARD",
   QUESTION: "QUESTION"
 }
 
-/**
- * Internal map used to store quiz props objects to prevent accessing it from
- * the outside. This map is meant to be used with the QuizProps class to
- * make it behave like it has private properties. This could've been done with
- * TypeScript or JSDoc but I was a noob when I initially wrote this.
- */
-const QUIZ_PROPS_MAP = new Map()
+/** @param {QuizProps["metadata"]} metadata  */
+function normalizeQuizMetadataConfig(metadata) {
+  const { AUTO_SAVE, CUSTOM_SAVED_DATA, HEADER, IS_GLOBAL, STORAGE_KEY } =
+    DEFAULT_QUIZ_METADATA
+  const quizGlobalizationValue = metadata?.isGlobal ?? IS_GLOBAL
 
-/**
- * @typedef QuizMetadata
- * @property {QuestionMetadata[]} questionMetadataSet
- * @property {number} elementsCount
- */
-
-class QuizProps {
-  constructor(metadata, submissionCallback) {
-    if (metadata !== undefined && typeof metadata !== "object")
-      throw new TypeError("quiz metadata must be an object if present")
-
-    const { autoSave, customSavedData, header, isGlobal, storageKey } =
-      metadata || {}
-
-    if (autoSave !== undefined && typeof autoSave !== "boolean")
-      throw new TypeError("quiz auto-save option must be boolean")
-
-    if (
-      customSavedData !== undefined &&
-      (typeof customSavedData !== "string" || !isFilledString(customSavedData))
-    ) {
-      throw new TypeError("custom saved quiz data must be a non-empty string")
-    }
-
-    if (isGlobal !== undefined && typeof isGlobal !== "boolean")
-      throw new TypeError("quiz global state must be boolean")
-
-    if (storageKey !== undefined && !isFilledString(storageKey))
-      throw new TypeError("storage key must be a non-empty string")
-
-    if (isGlobal === true && storageKey === undefined)
-      throw new TypeError("a global quiz must have a non-empty storage key")
-
-    if (header !== undefined && !isFilledString(header))
-      throw new TypeError("header must be a non-empty string")
-
-    if (
-      submissionCallback !== undefined &&
-      typeof submissionCallback !== "function"
-    ) {
-      throw new TypeError(
-        "quiz submission callback must be a function if present"
-      )
-    }
-
-    QUIZ_PROPS_MAP.set(this, {
-      metadata: {
-        autoSave:
-          autoSave !== undefined ? autoSave : DEFAULT_QUIZ_METADATA.AUTO_SAVE,
-        customSavedData:
-          customSavedData || DEFAULT_QUIZ_METADATA.CUSTOM_SAVED_DATA,
-        header: header || DEFAULT_QUIZ_METADATA.HEADER,
-        isGlobal:
-          isGlobal !== undefined
-            ? isGlobal
-            : DEFAULT_QUIZ_METADATA.IS_GLOBAL_VALUE,
-        storageKey: storageKey || DEFAULT_QUIZ_METADATA.STORAGE_KEY
-      },
-      elements: [],
-      submissionCallback
-    })
-  }
-
-  static define(propsDefinition) {
-    if (typeof propsDefinition !== "object")
-      throw new TypeError("props definition must be an object")
-
-    const { metadata, elements, submissionCallback } = propsDefinition
-    const props = new QuizProps(metadata, submissionCallback)
-    props.addElements(elements)
-    return props
-  }
-
-  addCodeBoard(props) {
-    if (typeof props !== "object")
-      throw new TypeError("code board props must be an object")
-
-    const { title, language, snippet } = props
-
-    if (!isFilledString(title))
-      throw new TypeError("code board title must be a non-empty string")
-    if (!isFilledString(language))
-      throw new TypeError("code board language must be a non-empty string")
-    if (!isFilledString(snippet))
-      throw new TypeError("code board snippet must be a non-empty string")
-
-    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
-    attachedPropsObject.elements.push({
-      type: QUIZ_ELEMENT_TYPES.CODE_BOARD,
-      props: {
-        snippet,
-        language,
-        title
-      }
-    })
-  }
-
-  addElements(elements) {
-    if (
-      !Array.isArray(elements) ||
-      elements.some((element) => typeof element !== "object")
-    ) {
-      throw new TypeError(
-        "elements in props definition must be an array of objects"
-      )
-    }
-
-    elements.forEach((element) => {
-      const { type, props } = element
-      if (type === QUIZ_ELEMENT_TYPES.CODE_BOARD) this.addCodeBoard(props)
-      else if (type === QUIZ_ELEMENT_TYPES.QUESTION) this.addQuestion(props)
-      else throw new TypeError(`Unknow quiz element type: ${type}`)
-    })
-  }
-
-  addQuestion(props) {
-    if (typeof props !== "object")
-      throw new TypeError("question props must be an object")
-
-    const { title, options, answer, explanation } = props
-
-    if (!isFilledString(title))
-      throw new TypeError("question title must be a non-empty string")
-
-    if (!Array.isArray(options) || options.length < 2 || options.length > 4) {
-      throw new TypeError("question options must be between two to four items")
-    }
-
-    if (!options.every((option) => isFilledString(option)))
-      throw new TypeError("Every option must be a non-empty string")
-
-    const possibleAnswerLetters = ["A", "B", "C", "D"].slice(0, options.length)
-
-    if (typeof answer !== "string" || !possibleAnswerLetters.includes(answer))
-      throw new TypeError(
-        `The question '${title}' has an invalid answer letter: ${answer}`
-      )
-
-    if (explanation !== undefined && !isFilledString(explanation))
-      throw new TypeError(
-        "Explanation content must be a non-empty string if present"
-      )
-
-    const attachedPropsObject = QUIZ_PROPS_MAP.get(this)
-    attachedPropsObject.elements.push({
-      type: QUIZ_ELEMENT_TYPES.QUESTION,
-      props: {
-        answer,
-        explanation,
-        options: [...options],
-        title
-      }
-    })
+  return {
+    autoSave: metadata?.autoSave ?? AUTO_SAVE,
+    customSavedData: metadata?.customSavedData ?? CUSTOM_SAVED_DATA,
+    header: metadata?.header ?? HEADER,
+    storageKey:
+      QUIZ_STORAGE_KEY_RANDOMIZER +
+      (quizGlobalizationValue === true ? "" : window.location.pathname) +
+      (metadata?.storageKey ?? STORAGE_KEY)
   }
 }
 
-export default class Quiz extends Component {
-  static get Props() {
-    return QuizProps
+/**
+ * @param {QuizProps["elements"]} elements
+ */
+function assertValidQuizElementConfig(elements) {
+  const { QUESTION: QUESTION_QUIZ_ELEMENT_TYPE } = QUIZ_ELEMENT_TYPES
+  const elementsCount = elements.length
+
+  if (elementsCount < 2)
+    throw new TypeError("There must be at least two quiz elements")
+
+  const lastQuizElement = elements[elementsCount - 1]
+  if (lastQuizElement.type !== QUESTION_QUIZ_ELEMENT_TYPE)
+    throw new TypeError("The last element in a quiz must be a question")
+}
+
+/**
+ * @param {QuizProps["elements"]} elements
+ * @param {() => void} handleQuestionOptionChange
+ */
+function buildQuizElements(elements, handleQuestionOptionChange) {
+  /** @type {HTMLElement[]} */
+  const elementNodes = []
+  /** @type {(Question | null)[]} */
+  const elementInstances = []
+
+  const {
+    QUESTION: QUESTION_QUIZ_ELEMENT_TYPE,
+    CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
+  } = QUIZ_ELEMENT_TYPES
+
+  elements.forEach((element) => {
+    const { type, props } = element
+    if (
+      type !== QUESTION_QUIZ_ELEMENT_TYPE &&
+      type !== CODE_BOARD_QUIZ_ELEMENT_TYPE
+    ) {
+      throw new TypeError(`Unsupported quiz element type: '${type}'`)
+    }
+
+    /** @type {HTMLElement} */
+    let slideNode
+    /** @type {Question | null} */
+    let slideInstance
+
+    if (type === CODE_BOARD_QUIZ_ELEMENT_TYPE) {
+      slideNode = <CodeBoard {...props} />
+      slideInstance = null
+    } else if (type === QUESTION_QUIZ_ELEMENT_TYPE) {
+      const questionInstanceRefHolder = createInstanceRefHolder()
+      slideNode = (
+        <Question
+          {...props}
+          handleOptionChange={handleQuestionOptionChange}
+          refHolder={questionInstanceRefHolder}
+        />
+      )
+      slideInstance = questionInstanceRefHolder.ref
+    }
+
+    elementNodes.push(slideNode)
+    elementInstances.push(slideInstance)
+  })
+
+  return { elementNodes, elementInstances }
+}
+
+/** @param {string} storageKey */
+function getStoredQuizData(storageKey) {
+  return webStorageIsAvailable(QUIZ_DATA_STORE)
+    ? window.localStorage.getItem(storageKey)
+    : null
+}
+
+/** @param {string} storageKey */
+function removeStoredQuizData(storageKey) {
+  if (!webStorageIsAvailable(QUIZ_DATA_STORE)) return
+  window.localStorage.removeItem(storageKey)
+}
+
+/**
+ * @param {ExportedQuizData} data
+ * @param {string} storageKey
+ */
+function storeQuizData(data, storageKey) {
+  if (!webStorageIsAvailable(QUIZ_DATA_STORE)) return
+  window.localStorage.setItem(storageKey, JSON.stringify(data))
+}
+
+/**
+ * @param {unknown} data
+ * @param {QuizProps["elements"]} elements
+ * @returns {data is ExportedQuizData}
+ */
+function isValidQuizData(data, elements) {
+  if (typeof data !== "object") return false
+  const questionElements = elements.filter(
+    (element) => element.type === "QUESTION"
+  )
+
+  const { questionMetadataSet, elementsCount } =
+    /** @type {ExportedQuizData} */ (data)
+
+  return (
+    questionMetadataSet.length === questionElements.length &&
+    elementsCount === elements.length
+  )
+}
+
+/**
+ * @param {Question[]} questionInstances
+ * @param {() => void} handleExplanationBtnClick
+ */
+function buildQuizResult(questionInstances, handleExplanationBtnClick) {
+  const gottenAnswersCount = questionInstances.reduce(
+    (previousValue, instance) =>
+      instance.correctAnswerIsPicked() ? previousValue + 1 : previousValue,
+    0
+  )
+
+  const resultRefHolder = createInstanceRefHolder()
+  const resultNode = (
+    <Result
+      answersGotten={gottenAnswersCount}
+      handleExplanationBtnClick={handleExplanationBtnClick}
+      questionsCount={questionInstances.length}
+      refHolder={resultRefHolder}
+    />
+  )
+
+  return {
+    resultNode,
+    resultInstance: /** @type {Result} */ (resultRefHolder.ref)
   }
+}
 
+/**
+ * @template {QuizProps} Props
+ * @extends {Component<Props>}
+ */
+export default class Quiz extends Component {
+  /**
+   * @param {{
+   *   props: QuizProps,
+   *   container?: Element | undefined
+   * }} param0
+   */
   static create({ props, container }) {
-    if (!(props instanceof QuizProps))
-      throw new TypeError(
-        "quiz props passed to 'Quiz.create' must be an instance of 'QuizProps'"
-      )
-
     const containerIsElementInstance = container instanceof Element
-    if (container !== undefined && !containerIsElementInstance)
-      throw new TypeError(
-        "quiz container passed to 'Quiz.create' must be an instance of 'Element' if present"
-      )
-
-    const quizPropsToUse = QUIZ_PROPS_MAP.get(props)
     const quizInstanceRefHolder = createInstanceRefHolder()
-
-    // eslint-disable-next-line react/jsx-props-no-spreading
-    const quizElement = (
-      <Quiz {...quizPropsToUse} refHolder={quizInstanceRefHolder} />
-    )
+    const quizElement = <Quiz {...props} refHolder={quizInstanceRefHolder} />
     if (containerIsElementInstance) container.replaceChildren(quizElement)
     return [quizElement, quizInstanceRefHolder.ref]
-  }
-
-  $getStorageKey() {
-    const {
-      $metadata: { isGlobal, storageKey }
-    } = this
-
-    /**
-     * Storage key will be a non-empty string if isGlobal is true. Else, all
-     * quizzes that have no storage key and are global will share the same full
-     * storage key which will be equal to QUIZ_STORAGE_KEY_RANDOMIZER. This is
-     * enforced in QuizProps.
-     */
-    return (
-      QUIZ_STORAGE_KEY_RANDOMIZER +
-      (isGlobal ? "" : window.location.pathname) +
-      storageKey
-    )
   }
 
   /**
@@ -324,20 +326,21 @@ export default class Quiz extends Component {
 
   /** @param {number} slideIndex */
   $getQuizDataForSlide(slideIndex) {
-    const { $elements } = this
+    const { $elementInstances } = this
 
-    const slide = $elements[slideIndex]
-    const quizIsFinalized = $elements[$elements.length - 1] instanceof Result
+    const slide = $elementInstances[slideIndex]
+    const quizIsFinalized =
+      $elementInstances[$elementInstances.length - 1] instanceof Result
     const slideIsFirst = slideIndex === 0
-    const slideIsLast = slideIndex === $elements.length - 1
+    const slideIsLast = slideIndex === $elementInstances.length - 1
     const slideIsJustBeforeResult =
-      quizIsFinalized && slideIndex === $elements.length - 2
+      quizIsFinalized && slideIndex === $elementInstances.length - 2
     const slideIsResult = quizIsFinalized && slideIsLast
 
     const slideIsQuestion = slide instanceof Question
     const slideIsAnsweredQuestion = slideIsQuestion && slide.isAnswered()
 
-    const indexOfNextQuizQuestion = $elements.findIndex(
+    const indexOfNextQuizQuestion = $elementInstances.findIndex(
       (element) => element instanceof Question && !element.isAnswered()
     )
 
@@ -360,403 +363,325 @@ export default class Quiz extends Component {
     }
   }
 
-  $render() {
+  /** @param {"prev" | "next"} button */
+  $handleCPanelBtnClick(button) {
+    const { $controlPanel, $indices, $presentation, $progress } = this
+    const appropriateIndex = button === "prev" ? $indices.prev : $indices.next
+    const quizData = this.$getQuizDataForSlide(appropriateIndex)
+
+    $controlPanel.revalidate(this.$getControlPanelRevalidationOptions(quizData))
+    $progress.revalidate(this.$getProgressRevalidationOptions(quizData))
+    $presentation.revalidate({ activeSlide: appropriateIndex })
+  }
+
+  $handleCPanelSubmitCTAClick() {
     const {
-      $props: {
-        elements,
-        metadata: {
-          autoSave: autoSaveIsEnabled,
-          customSavedData,
-          header,
-          isGlobal,
-          storageKey
-        },
-        submissionCallback
-      }
+      $elementInstances,
+      $metadata,
+      $submissionCallback,
+      $presentation,
+      $controlPanel
     } = this
 
-    const {
-      QUESTION: QUESTION_QUIZ_ELEMENT_TYPE,
-      CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
-    } = QUIZ_ELEMENT_TYPES
+    const questionInstances = $elementInstances.filter(
+      /** @returns {element is Question} */ (element) =>
+        element instanceof Question
+    )
 
-    const elementsCount = elements.length
-    if (elementsCount < 2)
-      throw new TypeError("There must be at least two quiz elements")
+    const { resultNode, resultInstance } = buildQuizResult(
+      questionInstances,
+      this.$handleResultExplanationBtnClick.bind(this)
+    )
 
-    const lastQuizElement = elements[elementsCount - 1]
-    if (lastQuizElement.type !== QUESTION_QUIZ_ELEMENT_TYPE)
-      throw new TypeError("The last element in a quiz must be a question")
+    this.$indices.lastShownBeforeResult = $presentation.currentSlideIndex()
 
-    const slides = []
-    const elementRefs = []
+    $presentation.appendSlide(resultNode)
+    $elementInstances.push(resultInstance)
 
-    elements.forEach((element) => {
-      const { type, props } = element
-      if (
-        type !== QUESTION_QUIZ_ELEMENT_TYPE &&
-        type !== CODE_BOARD_QUIZ_ELEMENT_TYPE
+    $controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(
+        this.$getQuizDataForSlide($elementInstances.length - 1)
       )
-        throw new TypeError(`Unsupported quiz element type: '${type}'`)
+    )
 
-      if (type === CODE_BOARD_QUIZ_ELEMENT_TYPE) {
-        const codeBoardNode = <CodeBoard {...props} />
-        slides.push(codeBoardNode)
-        elementRefs.push(null)
-      } else if (type === QUESTION_QUIZ_ELEMENT_TYPE) {
-        const questionRefHolder = createInstanceRefHolder()
-        const questionNode = (
-          <Question
-            {...props}
-            handleOptionChange={() => {
-              const currentSlideIndex = this.$presentation.currentSlideIndex()
-              const currentSlideQuizData =
-                this.$getQuizDataForSlide(currentSlideIndex)
+    $presentation.revalidate({ activeSlide: $elementInstances.length - 1 })
+    questionInstances.forEach((questionElement) => questionElement.finalize())
+    resultInstance.renderIndicator()
 
-              this.$controlPanel.revalidate(
-                this.$getControlPanelRevalidationOptions(currentSlideQuizData)
-              )
+    const questionMetadataSet = questionInstances.map((questionElement) =>
+      questionElement.exportInteractionMetadata()
+    )
 
-              this.$progress.revalidate(
-                this.$getProgressRevalidationOptions(currentSlideQuizData)
-              )
-            }}
-            refHolder={questionRefHolder}
-          />
-        )
-
-        slides.push(questionNode)
-        elementRefs.push(questionRefHolder.ref)
-      }
-    })
-
-    let storedQuizData = customSavedData || null
-
-    if (
-      !storedQuizData &&
-      autoSaveIsEnabled &&
-      webStorageIsAvailable("localStorage")
-    ) {
-      const storageKeyToUse = this.$getStorageKey()
-      storedQuizData = window.localStorage.getItem(storageKeyToUse)
+    /** @type {ExportedQuizData} */
+    const quizData = {
+      questionMetadataSet,
+      elementsCount: $elementInstances.length
     }
 
-    let resultIsPropagated = false
+    if ($metadata.autoSave) storeQuizData(quizData, $metadata.storageKey)
+    if (typeof $submissionCallback === "function") {
+      $submissionCallback.call(this, quizData)
+    }
+  }
 
-    if (storedQuizData !== null) {
-      /** @type {QuizMetadata} */
-      const parsedQuizData =
-        typeof storedQuizData === "string"
-          ? JSON.parse(storedQuizData)
-          : storedQuizData
+  $handleCPanelToggleCTAClick() {
+    const { $indices, $elementInstances, $presentation, $controlPanel } = this
+    const resultIndexIfPresent = $elementInstances.length - 1
 
-      /** @type {Question[]} */
-      const questionElements = elementRefs.filter(
-        (element) => element instanceof Question
+    const currentSlideIndex = $presentation.currentSlideIndex()
+    const currentSlideIsResult = currentSlideIndex === resultIndexIfPresent
+    const indexOfSlideToShow = currentSlideIsResult
+      ? $indices.lastShownBeforeResult
+      : resultIndexIfPresent
+
+    if (!currentSlideIsResult) {
+      $indices.lastShownBeforeResult = currentSlideIndex
+    }
+
+    $controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(
+        this.$getQuizDataForSlide(indexOfSlideToShow)
       )
+    )
 
-      const { questionMetadataSet, elementsCount: savedElementsCount } =
-        parsedQuizData
+    $presentation.revalidate({ activeSlide: indexOfSlideToShow })
+  }
 
-      if (
-        questionMetadataSet.length !== questionElements.length ||
-        savedElementsCount !== elementsCount
-      ) {
-        if (webStorageIsAvailable("localStorage")) {
-          const storageKeyToUse = this.$getStorageKey()
-          window.localStorage.removeItem(storageKeyToUse)
+  /** @param {number} levelNumber */
+  $handleProgressButtonClick(levelNumber) {
+    const { $controlPanel, $presentation, $progress } = this
+    const levelSlideQuizData = this.$getQuizDataForSlide(
+      levelNumber - 1 // Levels start from 1 not 0
+    )
+
+    $controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(levelSlideQuizData)
+    )
+
+    $progress.revalidate(
+      this.$getProgressRevalidationOptions(levelSlideQuizData)
+    )
+
+    $presentation.revalidate({ activeSlide: levelNumber - 1 })
+  }
+
+  $handleQuestionOptionChange() {
+    const currentSlideIndex = this.$presentation.currentSlideIndex()
+    const currentSlideQuizData = this.$getQuizDataForSlide(currentSlideIndex)
+
+    this.$controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(currentSlideQuizData)
+    )
+
+    this.$progress.revalidate(
+      this.$getProgressRevalidationOptions(currentSlideQuizData)
+    )
+  }
+
+  $handleResultExplanationBtnClick() {
+    const { $controlPanel, $presentation, $progress } = this
+    const quizDataForFirstSlide = this.$getQuizDataForSlide(0)
+
+    $controlPanel.revalidate(
+      this.$getControlPanelRevalidationOptions(quizDataForFirstSlide)
+    )
+    $progress.revalidate(
+      this.$getProgressRevalidationOptions(quizDataForFirstSlide)
+    )
+    $presentation.restart()
+  }
+
+  /** @param {KeyboardEvent} event */
+  $handleRootKeyDownCapture(event) {
+    const { $presentation, $elementInstances, $shortcutData } = this
+
+    if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
+      const currentSlideIndex = $presentation.currentSlideIndex()
+      const currentElement = $elementInstances[currentSlideIndex]
+      if (currentElement instanceof Question) {
+        currentElement.simulateOptionClick(event.key.toLowerCase())
+      }
+      return
+    }
+
+    if (["p", "n"].includes(event.key.toLowerCase())) {
+      const options = { p: "prev", n: "next" }
+      this.$controlPanel.simulateClick(options[event.key.toLowerCase()])
+      return
+    }
+
+    if (event.key.toLocaleLowerCase() === "t") {
+      const currentSlideIndex = this.$presentation.currentSlideIndex()
+      const {
+        quiz: { isFinalized: quizIsFinalized }
+      } = this.$getQuizDataForSlide(currentSlideIndex)
+
+      if (quizIsFinalized) this.$controlPanel.simulateClick("cta")
+      return
+    }
+
+    /**
+     * If the key is a number, we only jump to the slide at the number if
+     * there is no other slide that begin with the same number.
+     */
+    if (/\d/.test(event.key)) {
+      const levelsCount = this.$progress.levelsCount()
+      if (!$shortcutData.pressedNumber) {
+        if (levelsCount < Number(event.key) * 10) {
+          this.$progress.simulateClick(Number(event.key))
+        } else {
+          $shortcutData.pressedNumber = Number(event.key)
         }
       } else {
-        questionElements.forEach((questionElement, index) =>
-          questionElement.finalize(questionMetadataSet[index])
+        $shortcutData.pressedNumberIsUsed = true
+        this.$progress.simulateClick(
+          $shortcutData.pressedNumber * 10 + Number(event.key)
+        )
+      }
+    }
+  }
+
+  /** @param {KeyboardEvent} event */
+  $handleRootKeyUpCapture(event) {
+    const { $progress, $shortcutData } = this
+    const { pressedNumber, pressedNumberIsUsed } = $shortcutData
+    if (Number(event.key) !== pressedNumber) return
+
+    if (!pressedNumberIsUsed) {
+      $progress.simulateClick($shortcutData.pressedNumber)
+    }
+
+    $shortcutData.pressedNumber = null
+    $shortcutData.pressedNumberIsUsed = false
+  }
+
+  $render() {
+    const { elements, submissionCallback } = /** @type {QuizProps} */ (
+      this.$props
+    )
+
+    const {
+      autoSave: autoSaveIsEnabled,
+      customSavedData,
+      header,
+      storageKey
+    } = normalizeQuizMetadataConfig(this.$props.metadata)
+
+    assertValidQuizElementConfig(elements)
+
+    const { elementNodes, elementInstances: builtInstances } =
+      buildQuizElements(elements, this.$handleQuestionOptionChange.bind(this))
+
+    const elementInstances = /** @type {(Question | Result | null)[]} */ (
+      builtInstances
+    )
+
+    const availableQuizData =
+      customSavedData ??
+      (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
+
+    if (availableQuizData !== null) {
+      const quizDataParseResult = tryJSONParse(availableQuizData)
+      const quizDataParseValue = quizDataParseResult.value
+
+      if (
+        !quizDataParseResult.success ||
+        !isValidQuizData(quizDataParseValue, elements)
+      ) {
+        const dataWasSuppliedDirectly = typeof customSavedData === "string"
+        if (dataWasSuppliedDirectly) {
+          throw new Error(`Invalid quiz data supplied:\n\n${customSavedData}`)
+        } else {
+          // Data was read from storage
+          removeStoredQuizData(storageKey)
+        }
+      } else {
+        const questionInstances = elementInstances.filter(
+          /** @returns {element is Question} */ (element) =>
+            element instanceof Question
         )
 
-        const gottenAnswersCount = questionElements.reduce(
-          (previousValue, questionElement) =>
-            questionElement.correctAnswerIsPicked()
-              ? previousValue + 1
-              : previousValue,
-          0
+        const { questionMetadataSet } = quizDataParseValue
+        questionInstances.forEach((instance, index) =>
+          instance.finalize(questionMetadataSet[index])
         )
 
-        const resultRefHolder = createInstanceRefHolder()
-        const resultNode = (
-          <Result
-            answersGotten={gottenAnswersCount}
-            handleExplanationsReview={this.$startQuestionsReview.bind(this)}
-            questionsCount={questionElements.length}
-            refHolder={resultRefHolder}
-          />
+        const { resultNode, resultInstance } = buildQuizResult(
+          questionInstances,
+          this.$handleResultExplanationBtnClick.bind(this)
         )
 
-        slides.push(resultNode)
-        elementRefs.push(resultRefHolder.ref)
-        resultIsPropagated = true
-
-        // Render the result after a little delay
-        setTimeout(() => resultRefHolder.ref.renderIndicator(), 200)
+        elementNodes.push(resultNode)
+        elementInstances.push(resultInstance)
+        resultInstance.renderIndicator()
       }
     }
 
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
-    const quizSectionRefHolder = createElementRefHolder()
+    const quizRootRefHolder = createElementRefHolder()
     const progressRefHolder = createInstanceRefHolder()
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
-    const slideNumberShortcut = {
-      pressedNumber: null,
-      pressedNumberIsUsed: false
-    }
+    const resultIsPropagated =
+      elementInstances[elementInstances.length - 1] instanceof Result
 
     const quizNode = (
       <section
         aria-labelledby={quizLabellingId}
         className={Styles.Quiz}
-        refHolder={quizSectionRefHolder}
+        refHolder={quizRootRefHolder}
         tabIndex={-1}
-        onKeyDownCapture={(event) => {
-          const { $presentation, $elements } = this
-
-          if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
-            const currentSlideIndex = $presentation.currentSlideIndex()
-            const currentElement = $elements[currentSlideIndex]
-            if (currentElement instanceof Question) {
-              currentElement.selectAnswer(event.key.toLowerCase())
-            }
-            return
-          }
-
-          if (["p", "n"].includes(event.key.toLowerCase())) {
-            const options = { p: "prev", n: "next" }
-            this.$controlPanel.simulateClick(options[event.key.toLowerCase()])
-            return
-          }
-
-          if (event.key.toLocaleLowerCase() === "t") {
-            const currentSlideIndex = this.$presentation.currentSlideIndex()
-            const {
-              quiz: { isFinalized: quizIsFinalized }
-            } = this.$getQuizDataForSlide(currentSlideIndex)
-
-            if (quizIsFinalized) this.$controlPanel.simulateClick("cta")
-            return
-          }
-
-          /**
-           * If the key is a number, we only jump to the slide at the number if
-           * there is no other slide that begin with the same number.
-           */
-          if (/\d/.test(event.key)) {
-            const levelsCount = this.$progress.levelsCount()
-            if (!slideNumberShortcut.pressedNumber) {
-              if (levelsCount < Number(event.key) * 10) {
-                this.$progress.simulateClick(Number(event.key))
-              } else {
-                slideNumberShortcut.pressedNumber = Number(event.key)
-              }
-            } else {
-              slideNumberShortcut.pressedNumberIsUsed = true
-              this.$progress.simulateClick(
-                slideNumberShortcut.pressedNumber * 10 + Number(event.key)
-              )
-            }
-          }
-        }}
-        onKeyUpCapture={(event) => {
-          const { pressedNumber, pressedNumberIsUsed } = slideNumberShortcut
-          if (Number(event.key) !== pressedNumber) return
-
-          if (!pressedNumberIsUsed) {
-            this.$progress.simulateClick(slideNumberShortcut.pressedNumber)
-          }
-
-          slideNumberShortcut.pressedNumber = null
-          slideNumberShortcut.pressedNumberIsUsed = false
-        }}
+        onKeyDownCapture={this.$handleRootKeyDownCapture.bind(this)}
+        onKeyUpCapture={this.$handleRootKeyUpCapture.bind(this)}
       >
         <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
-          handleLevelButtonClick={
-            /** @param {number} levelNumber */
-            (levelNumber) => {
-              const { $controlPanel, $presentation, $progress } = this
-              const levelSlideQuizData = this.$getQuizDataForSlide(
-                levelNumber - 1 // Levels start from 1 not 0
-              )
-
-              $controlPanel.revalidate(
-                this.$getControlPanelRevalidationOptions(levelSlideQuizData)
-              )
-
-              $progress.revalidate(
-                this.$getProgressRevalidationOptions(levelSlideQuizData)
-              )
-
-              $presentation.revalidate({ activeSlide: levelNumber - 1 })
-            }
-          }
-          levelsCount={elementsCount}
+          handleLevelButtonClick={this.$handleProgressButtonClick.bind(this)}
+          levelsCount={elements.length}
           refHolder={progressRefHolder}
-          activeLevel={resultIsPropagated ? elementsCount : 1}
+          activeLevel={resultIsPropagated ? elements.length : 1}
         />
         <Presentation
           controllingId={presentationControllingId}
           refHolder={presentationRefHolder}
-          slides={slides}
-          startingSlideIndex={resultIsPropagated ? slides.length - 1 : 0}
+          slides={elementNodes}
+          startingSlideIndex={resultIsPropagated ? elementNodes.length - 1 : 0}
         />
         <ControlPanel
           controllingId={presentationControllingId}
-          alternateFocusable={quizSectionRefHolder}
-          handlePrevButtonClick={() => {
-            const { $controlPanel, $indices, $presentation, $progress } = this
-            const prevIndex = $indices.prev
-            const prevIndexQuizData = this.$getQuizDataForSlide(prevIndex)
+          alternateFocusable={quizRootRefHolder}
+          handlePrevButtonClick={this.$handleCPanelBtnClick.bind(this, "prev")}
+          handleNextButtonClick={this.$handleCPanelBtnClick.bind(this, "next")}
+          handleCTAButtonClick={() => {
+            const { $elementInstances } = this
+            const resultIndexIfPresent = $elementInstances.length - 1
+            const shouldToggleResult =
+              $elementInstances[resultIndexIfPresent] instanceof Result
 
-            $controlPanel.revalidate(
-              this.$getControlPanelRevalidationOptions(prevIndexQuizData)
-            )
-
-            $progress.revalidate(
-              this.$getProgressRevalidationOptions(prevIndexQuizData)
-            )
-            $presentation.revalidate({ activeSlide: prevIndex })
-          }}
-          handleNextButtonClick={() => {
-            const { $controlPanel, $indices, $presentation, $progress } = this
-            const nextIndex = $indices.next
-            const nextIndexQuizData = this.$getQuizDataForSlide(nextIndex)
-
-            $controlPanel.revalidate(
-              this.$getControlPanelRevalidationOptions(nextIndexQuizData)
-            )
-
-            $progress.revalidate(
-              this.$getProgressRevalidationOptions(nextIndexQuizData)
-            )
-
-            $presentation.revalidate({ activeSlide: nextIndex })
-          }}
-          handleSubmitButtonClick={() => {
-            const {
-              $controlPanel,
-              $elements,
-              $indices,
-              $metadata,
-              $presentation,
-              $startQuestionsReview,
-              $submissionCallback
-            } = this
-
-            /** @type {Question[]} */
-            const questionElements = $elements.filter(
-              (element) => element instanceof Question
-            )
-
-            const buttonShouldToggleResult =
-              $elements[$elements.length - 1] instanceof Result
-
-            if (buttonShouldToggleResult) {
-              const currentSlideIndex = $presentation.currentSlideIndex()
-              const currentSlideIsResult =
-                currentSlideIndex === $elements.length - 1
-              const indexOfSlideToShow = currentSlideIsResult
-                ? $indices.lastShownBeforeResult
-                : $elements.length - 1
-
-              if (!currentSlideIsResult) {
-                $indices.lastShownBeforeResult = currentSlideIndex
-              }
-
-              $controlPanel.revalidate(
-                this.$getControlPanelRevalidationOptions(
-                  this.$getQuizDataForSlide(indexOfSlideToShow)
-                )
-              )
-
-              $presentation.revalidate({ activeSlide: indexOfSlideToShow })
-              return
-            }
-
-            const gottenAnswersCount = questionElements.reduce(
-              (previousValue, questionElement) =>
-                questionElement.correctAnswerIsPicked()
-                  ? previousValue + 1
-                  : previousValue,
-              0
-            )
-
-            const resultRefHolder = createInstanceRefHolder()
-            const resultNode = (
-              <Result
-                answersGotten={gottenAnswersCount}
-                handleExplanationsReview={$startQuestionsReview.bind(this)}
-                questionsCount={questionElements.length}
-                refHolder={resultRefHolder}
-              />
-            )
-
-            this.$indices.lastShownBeforeResult =
-              $presentation.currentSlideIndex()
-            $presentation.appendSlide(resultNode)
-            $elements.push(resultRefHolder.ref)
-
-            $controlPanel.revalidate(
-              this.$getControlPanelRevalidationOptions(
-                this.$getQuizDataForSlide($elements.length - 1)
-              )
-            )
-
-            $presentation.revalidate({ activeSlide: $elements.length - 1 })
-
-            questionElements.forEach((questionElement) =>
-              questionElement.finalize()
-            )
-
-            resultRefHolder.ref.renderIndicator()
-
-            const questionMetadataSet = questionElements.map(
-              (questionElement) =>
-                /** @type {QuestionMetadata} */ (
-                  questionElement.exportInteractionMetadata()
-                )
-            )
-
-            /** @type {QuizMetadata} */
-            const quizMetadata = {
-              questionMetadataSet,
-              elementsCount:
-                $elements[$elements.length - 1] instanceof Result
-                  ? $elements.length - 1
-                  : $elements.length
-            }
-
-            if ($metadata.autoSave && webStorageIsAvailable("localStorage")) {
-              window.localStorage.setItem(
-                this.$getStorageKey(),
-                JSON.stringify(quizMetadata)
-              )
-            }
-
-            if (typeof $submissionCallback === "function")
-              $submissionCallback.call(this, quizMetadata)
+            if (shouldToggleResult) this.$handleCPanelToggleCTAClick()
+            else this.$handleCPanelSubmitCTAClick()
           }}
           refHolder={controlPanelRefHolder}
         />
       </section>
     )
 
-    this.$metadata = { autoSave: autoSaveIsEnabled, storageKey, isGlobal }
-    this.$elements = elementRefs
+    this.$metadata = { autoSave: autoSaveIsEnabled, storageKey }
+    this.$elementInstances = elementInstances
+    this.$submissionCallback = submissionCallback
+
+    this.$shortcutData = {
+      pressedNumber: /** @type {number | null} */ (null),
+      pressedNumberIsUsed: false
+    }
 
     this.$indices = {
       prev: null,
       next: null,
-      lastShownBeforeResult: resultIsPropagated ? slides.length - 2 : null
+      lastShownBeforeResult: resultIsPropagated ? elementNodes.length - 2 : null
     }
-    this.$submissionCallback = submissionCallback
 
     /** @type {Progress} */
     this.$progress = progressRefHolder.ref
@@ -766,7 +691,7 @@ export default class Quiz extends Component {
     this.$controlPanel = controlPanelRefHolder.ref
 
     const appropriateSlideQuizData = this.$getQuizDataForSlide(
-      resultIsPropagated ? slides.length - 1 : 0
+      resultIsPropagated ? elementNodes.length - 1 : 0
     )
 
     this.$controlPanel.revalidate(
@@ -778,18 +703,5 @@ export default class Quiz extends Component {
     )
 
     return quizNode
-  }
-
-  $startQuestionsReview() {
-    const { $controlPanel, $presentation, $progress } = this
-    const quizDataForFirstSlide = this.$getQuizDataForSlide(0)
-
-    $controlPanel.revalidate(
-      this.$getControlPanelRevalidationOptions(quizDataForFirstSlide)
-    )
-    $progress.revalidate(
-      this.$getProgressRevalidationOptions(quizDataForFirstSlide)
-    )
-    $presentation.restart()
   }
 }

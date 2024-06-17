@@ -10,6 +10,8 @@ const sampleProps = {
     autoSave: false,
     // customSavedData:
     //   '{"questionMetadataSet":[{"selectedOption":"A"},{"selectedOption":"B"},{"selectedOption":"D"}],"elementsCount":4}',
+    customSavedData:
+      '{"questionMetadataSet":[{"selectedOption":"B"}],"elementsCount":2}',
     header: "Test your knowledge",
     storageKey: "kajhaikaahoijldahadai-wof9q0",
     isGlobal: false
@@ -21,5 +23,5 @@ const sampleProps = {
 
 Quiz.create({
   container: main,
-  props: Quiz.Props.define(sampleProps)
+  props: sampleProps
 })

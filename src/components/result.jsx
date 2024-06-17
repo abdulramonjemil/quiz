@@ -132,7 +132,7 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
 
 function ResultBoard({
   answersGotten,
-  handleExplanationsReview,
+  handleExplanationBtnClick,
   questionsCount
 }) {
   return (
@@ -143,7 +143,7 @@ function ResultBoard({
       </p>
       <button
         className={Styles.Result__ReviewButton}
-        onClick={handleExplanationsReview}
+        onClick={handleExplanationBtnClick}
         type="submit"
       >
         Review Explanations
@@ -154,7 +154,7 @@ function ResultBoard({
 
 export default class Result extends Component {
   $render() {
-    const { answersGotten, handleExplanationsReview, questionsCount } =
+    const { answersGotten, handleExplanationBtnClick, questionsCount } =
       this.$props
     const scoredPercentage = Math.floor((answersGotten / questionsCount) * 100)
     const indicatorRenderFnRefHolder = {}
@@ -172,7 +172,7 @@ export default class Result extends Component {
             />
             <ResultBoard
               answersGotten={answersGotten}
-              handleExplanationsReview={handleExplanationsReview}
+              handleExplanationBtnClick={handleExplanationBtnClick}
               questionsCount={questionsCount}
             />
           </div>

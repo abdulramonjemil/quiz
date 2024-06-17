@@ -22,7 +22,7 @@ export default class ControlPanel extends Component {
       controllingId,
       handlePrevButtonClick,
       handleNextButtonClick,
-      handleSubmitButtonClick
+      handleCTAButtonClick
     } = this.$props
 
     this.$alternateFocusable = alternateFocusable
@@ -58,7 +58,7 @@ export default class ControlPanel extends Component {
           <button
             aria-controls={controllingId}
             className={Styles.Submit}
-            onClick={handleSubmitButtonClick}
+            onClick={handleCTAButtonClick}
             refHolder={submitButtonRefHolder}
             type="button"
           >

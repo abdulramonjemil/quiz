@@ -4,6 +4,12 @@ const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
 const REF = Symbol("REF")
 
+/**
+ * This class is used as an abstract class that actual
+ * UI components extend.
+ *
+ * @template {ComponentProps} [Props=Record<string, unknown>]
+ */
 export default class Component {
   constructor(props, children) {
     if (new.target === Component)
@@ -12,6 +18,11 @@ export default class Component {
     if (typeof props !== "object" || props === null)
       throw new TypeError("'props' must be an object")
 
+    /**
+     * @readonly
+     * @protected
+     * @type {Props}
+     */
     this.$props = props
 
     this.$children = children

@@ -1,5 +1,6 @@
 import Component, { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
+import { attemptElementFocus } from "../lib/focus"
 import { uniqueId } from "../lib/id"
 import Styles from "../scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
@@ -228,8 +229,11 @@ export default class Question extends Component {
     this.$setAnswerSelectionState("disabled")
   }
 
-  isAnswerable() {
-    return this.$fieldSet.disabled === false
+  isFinalized() {
+    return (
+      this.$fieldSet.disabled === true &&
+      this.$explanationElement.classList.contains(ENABLED_EXPLANATION_CLASS)
+    )
   }
 
   isAnswered() {
@@ -238,17 +242,15 @@ export default class Question extends Component {
   }
 
   /** @param {AnswerOption} option */
-  selectAnswer(option) {
-    if (!this.isAnswerable()) return
-
+  simulateOptionClick(option) {
     const { $answerInputs } = this
     const answerIndex = LETTERS_FOR_ANSWER_CHOICES.findIndex(
       (letter) => letter.toLowerCase() === option.toLowerCase()
     )
 
     const inputAtIndex = $answerInputs[answerIndex]
-    if (answerIndex >= 0 && inputAtIndex instanceof HTMLInputElement) {
-      inputAtIndex.focus()
+    if (answerIndex >= 0 && inputAtIndex instanceof HTMLElement) {
+      attemptElementFocus(inputAtIndex)
       inputAtIndex.click()
     }
   }

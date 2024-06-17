@@ -47,10 +47,11 @@ export default class Presentation extends Component {
 
     let indexOfSlideToShow = 0
     if (Number.isInteger(startingSlideIndex)) {
-      if (startingSlideIndex < 0 || startingSlideIndex >= slideNodes.length)
+      if (startingSlideIndex < 0 || startingSlideIndex >= slideNodes.length) {
         throw new RangeError(
           `There is no slide at index: ${startingSlideIndex}`
         )
+      }
       indexOfSlideToShow = startingSlideIndex
     }
 
