@@ -16,6 +16,7 @@ import ControlPanel from "./control-panel"
 import { uniqueId } from "../lib/id"
 import { webStorageIsAvailable } from "../lib/storage"
 import { tryJSONParse } from "../lib/parse"
+import { attemptElementFocus } from "../lib/focus"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
@@ -513,6 +514,7 @@ export default class Quiz extends Component {
       this.$getProgressRevalidationOptions(quizDataForFirstSlide)
     )
     $presentation.restart()
+    attemptElementFocus(this.$composedNode)
   }
 
   /** @param {KeyboardEvent} event */
@@ -670,7 +672,7 @@ export default class Quiz extends Component {
         />
         <ControlPanel
           controllingId={presentationControllingId}
-          alternateFocusable={quizRootRefHolder}
+          altFocusableRefHolder={quizRootRefHolder}
           handlePrevButtonClick={this.$handleCPanelBtnClick.bind(this, "prev")}
           handleNextButtonClick={this.$handleCPanelBtnClick.bind(this, "next")}
           handleCTAButtonClick={() => {

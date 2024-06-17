@@ -17,15 +17,14 @@ export default class ControlPanel extends Component {
   $render() {
     const {
       // This is focused when the next or prev buttons are disabled
-      alternateFocusable,
-
+      altFocusableRefHolder,
       controllingId,
       handlePrevButtonClick,
       handleNextButtonClick,
       handleCTAButtonClick
     } = this.$props
 
-    this.$alternateFocusable = alternateFocusable
+    this.$altFocusableRefHolder = altFocusableRefHolder
     this.$prevButton = null
     this.$nextButton = null
     this.$cta = null
@@ -91,7 +90,7 @@ export default class ControlPanel extends Component {
         button.contains(document.activeElement) && !buttonIsEnabled
     )
 
-    if (shouldRefocus) attemptElementFocus(this.$alternateFocusable.ref)
+    if (shouldRefocus) attemptElementFocus(this.$altFocusableRefHolder.ref)
     this.$cta.innerText = ctaIsSubmit ? "Submit" : "Toggle Result"
 
     this.$prevButton.disabled = !enablePrev
