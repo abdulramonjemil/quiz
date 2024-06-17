@@ -62,7 +62,7 @@ import { tryJSONParse } from "../lib/parse"
  * @property {(ExportedQuizData) => void} submissionCallback
  * @property {{
  *   autoSave?: boolean | undefined,
- *   customSavedData?: string | undefined,
+ *   storedData?: ExportedQuizData | null | undefined,
  *   header?: string | undefined,
  *   isGlobal?: boolean | undefined,
  *   storageKey?: string | undefined
@@ -71,7 +71,7 @@ import { tryJSONParse } from "../lib/parse"
 
 const DEFAULT_QUIZ_METADATA = {
   AUTO_SAVE: true,
-  CUSTOM_SAVED_DATA: null,
+  STORED_DATA: null,
   HEADER: "Test your knowledge",
   IS_GLOBAL: false,
   STORAGE_KEY: ""
@@ -86,13 +86,13 @@ const QUIZ_ELEMENT_TYPES = {
 
 /** @param {QuizProps["metadata"]} metadata  */
 function normalizeQuizMetadataConfig(metadata) {
-  const { AUTO_SAVE, CUSTOM_SAVED_DATA, HEADER, IS_GLOBAL, STORAGE_KEY } =
+  const { AUTO_SAVE, STORED_DATA, HEADER, IS_GLOBAL, STORAGE_KEY } =
     DEFAULT_QUIZ_METADATA
   const quizGlobalizationValue = metadata?.isGlobal ?? IS_GLOBAL
 
   return {
     autoSave: metadata?.autoSave ?? AUTO_SAVE,
-    customSavedData: metadata?.customSavedData ?? CUSTOM_SAVED_DATA,
+    storedData: metadata?.storedData ?? STORED_DATA,
     header: metadata?.header ?? HEADER,
     storageKey:
       QUIZ_STORAGE_KEY_RANDOMIZER +
@@ -167,17 +167,56 @@ function buildQuizElements(elements, handleQuestionOptionChange) {
   return { elementNodes, elementInstances }
 }
 
-/** @param {string} storageKey */
-function getStoredQuizData(storageKey) {
-  return webStorageIsAvailable(QUIZ_DATA_STORE)
-    ? window.localStorage.getItem(storageKey)
-    : null
+/**
+ * @param {unknown} data
+ * @returns {data is ExportedQuizData}
+ */
+function isValidQuizData(data) {
+  if (typeof data !== "object") return false
+  const { questionMetadataSet, elementsCount } =
+    /** @type {ExportedQuizData} */ (data)
+  return Array.isArray(questionMetadataSet) && typeof elementsCount === "number"
 }
 
 /** @param {string} storageKey */
 function removeStoredQuizData(storageKey) {
   if (!webStorageIsAvailable(QUIZ_DATA_STORE)) return
   window.localStorage.removeItem(storageKey)
+}
+
+/** @param {string} storageKey */
+function getStoredQuizData(storageKey) {
+  const data = webStorageIsAvailable(QUIZ_DATA_STORE)
+    ? window.localStorage.getItem(storageKey)
+    : null
+
+  if (!data) return null
+
+  const parseResult = tryJSONParse(data)
+  if (!parseResult.success) {
+    removeStoredQuizData(storageKey)
+    return null
+  }
+
+  const { value } = parseResult
+  return isValidQuizData(value) ? value : null
+}
+
+/**
+ * @param {ExportedQuizData} data
+ * @param {QuizProps["elements"]} quizElements
+ * @returns {data is ExportedQuizData}
+ */
+function storedDataIsValidForQuiz(data, quizElements) {
+  const { questionMetadataSet, elementsCount } = data
+  const questionElements = quizElements.filter(
+    (element) => element.type === "QUESTION"
+  )
+
+  return (
+    questionMetadataSet.length === questionElements.length &&
+    elementsCount === quizElements.length
+  )
 }
 
 /**
@@ -187,26 +226,6 @@ function removeStoredQuizData(storageKey) {
 function storeQuizData(data, storageKey) {
   if (!webStorageIsAvailable(QUIZ_DATA_STORE)) return
   window.localStorage.setItem(storageKey, JSON.stringify(data))
-}
-
-/**
- * @param {unknown} data
- * @param {QuizProps["elements"]} elements
- * @returns {data is ExportedQuizData}
- */
-function isValidQuizData(data, elements) {
-  if (typeof data !== "object") return false
-  const questionElements = elements.filter(
-    (element) => element.type === "QUESTION"
-  )
-
-  const { questionMetadataSet, elementsCount } =
-    /** @type {ExportedQuizData} */ (data)
-
-  return (
-    questionMetadataSet.length === questionElements.length &&
-    elementsCount === elements.length
-  )
 }
 
 /**
@@ -562,7 +581,7 @@ export default class Quiz extends Component {
 
     const {
       autoSave: autoSaveIsEnabled,
-      customSavedData,
+      storedData,
       header,
       storageKey
     } = normalizeQuizMetadataConfig(this.$props.metadata)
@@ -577,21 +596,16 @@ export default class Quiz extends Component {
     )
 
     const availableQuizData =
-      customSavedData ??
-      (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
+      storedData ?? (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
 
-    if (availableQuizData !== null) {
-      const quizDataParseResult = tryJSONParse(availableQuizData)
-      const quizDataParseValue = quizDataParseResult.value
-
-      if (
-        !quizDataParseResult.success ||
-        !isValidQuizData(quizDataParseValue, elements)
-      ) {
-        const dataWasSuppliedDirectly = typeof customSavedData === "string"
+    if (availableQuizData) {
+      if (!storedDataIsValidForQuiz(availableQuizData, elements)) {
+        const dataWasSuppliedDirectly = storedData !== null
         if (dataWasSuppliedDirectly) {
-          throw new Error(`Invalid quiz data supplied:\n\n${customSavedData}`)
+          throw new Error(`Invalid quiz data supplied:\n\n${storedData}`)
         } else {
+          // eslint-disable-next-line no-console
+          console.error(`Invalid quiz data read from storage:\n\n${storedData}`)
           // Data was read from storage
           removeStoredQuizData(storageKey)
         }
@@ -601,7 +615,7 @@ export default class Quiz extends Component {
             element instanceof Question
         )
 
-        const { questionMetadataSet } = quizDataParseValue
+        const { questionMetadataSet } = availableQuizData
         questionInstances.forEach((instance, index) =>
           instance.finalize(questionMetadataSet[index])
         )

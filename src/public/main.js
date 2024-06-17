@@ -8,10 +8,10 @@ const sampleProps = {
   elements: SAMPLE_QUIZ_DATA,
   metadata: {
     autoSave: false,
-    // customSavedData:
-    //   '{"questionMetadataSet":[{"selectedOption":"A"},{"selectedOption":"B"},{"selectedOption":"D"}],"elementsCount":4}',
-    customSavedData:
-      '{"questionMetadataSet":[{"selectedOption":"B"}],"elementsCount":2}',
+    storedData: {
+      questionMetadataSet: [{ selectedOption: "B" }],
+      elementsCount: 2
+    },
     header: "Test your knowledge",
     storageKey: "kajhaikaahoijldahadai-wof9q0",
     isGlobal: false
