@@ -33,4 +33,9 @@
  * - Home / End on Item Trigger.
  *   - State: __
  *   - Change: Trigger click on first / last trigger.
+ *
+ * TAB NOTES
+ * - Let tab know when changing panels
+ * - Let tab accept functions to initiate panel changes.
+ * - Change Toggle result to "Jump to result"
  */
