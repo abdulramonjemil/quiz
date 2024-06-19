@@ -7,8 +7,8 @@ const { Quiz } = window
 const sampleProps = {
   elements: SAMPLE_QUIZ_DATA,
   metadata: {
-    // autoSave: true,
-    autoSave: false,
+    autoSave: true,
+    // autoSave: false,
     // storedData: {
     //   questionMetadataSet: [{ selectedOption: "B" }],
     //   elementsCount: 2

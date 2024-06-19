@@ -745,7 +745,6 @@ export default class Quiz extends Component {
           controllingId={presentationControllingId}
           refHolder={presentationRefHolder}
           slides={elementNodes}
-          startingSlideIndex={resultIsPropagated ? elementNodes.length - 1 : 0}
         />
         <ControlPanel
           controllingId={presentationControllingId}
@@ -773,9 +772,10 @@ export default class Quiz extends Component {
     /** @type {ControlPanel} */
     const controlPanel = controlPanelRefHolder.ref
 
+    const appropriateIndex = resultIsPropagated ? elementNodes.length - 1 : 0
     const appropriateSlideQuizData = getQuizDataForSlide(
       elementInstances,
-      resultIsPropagated ? elementNodes.length - 1 : 0
+      appropriateIndex
     )
 
     controlPanel.revalidate(
@@ -784,6 +784,8 @@ export default class Quiz extends Component {
         getSlidePrevNextIndices(appropriateSlideQuizData)
       )
     )
+
+    presentation.revalidate({ activeSlide: appropriateIndex })
 
     progress.revalidate(
       getProgressRevalidationOptions(appropriateSlideQuizData)

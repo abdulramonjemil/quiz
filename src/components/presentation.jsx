@@ -5,6 +5,20 @@ import Styles from "../scss/presentation.module.scss"
 const SHOWN_SLIDE_CLASS = Styles.Slide_shown
 
 /**
+ * @param {slideIndex} number
+ * @param {Slide[]} progressLevels
+ */
+function assertValidSlideIndex(slideIndex, slides) {
+  if (
+    !Number.isInteger(slideIndex) ||
+    slideIndex < 0 ||
+    slideIndex > slides.length - 1
+  ) {
+    throw new Error(`There is no slide at index: ${slideIndex}`)
+  }
+}
+
+/**
  * @typedef PresentationRevalidationOptions
  * @property {number} activeSlide
  */
@@ -30,10 +44,11 @@ class Slide extends Component {
 
 export default class Presentation extends Component {
   $render() {
-    const { controllingId, slides, startingSlideIndex } = this.$props
+    const { controllingId, slides } = this.$props
 
     const slideContents = Array.from(new Set(slides))
     const slideNodes = []
+    /** @type {Slide[]} */
     const slideInstances = []
 
     slideContents.forEach((slideContent) => {
@@ -45,16 +60,7 @@ export default class Presentation extends Component {
       slideInstances.push(slideRefHolder.ref)
     })
 
-    let indexOfSlideToShow = 0
-    if (Number.isInteger(startingSlideIndex)) {
-      if (startingSlideIndex < 0 || startingSlideIndex >= slideNodes.length) {
-        throw new RangeError(
-          `There is no slide at index: ${startingSlideIndex}`
-        )
-      }
-      indexOfSlideToShow = startingSlideIndex
-    }
-
+    const indexOfSlideToShow = 0
     const slideToShow = slideInstances[indexOfSlideToShow]
     slideToShow.setShownState("shown")
 
@@ -77,13 +83,9 @@ export default class Presentation extends Component {
   }
 
   $showSlide(slideIndex) {
-    if (!Number.isInteger(slideIndex) || slideIndex < 0)
-      throw new TypeError("Expected a non-negative integer slide index")
-
     const { $indexOfCurrentSlide, $slideInstances } = this
+    assertValidSlideIndex(slideIndex, $slideInstances)
     if (slideIndex === $indexOfCurrentSlide) return
-    if (slideIndex >= $slideInstances.length)
-      throw new RangeError(`There is no slide at index ${slideIndex}`)
 
     const currentSlide = $slideInstances[$indexOfCurrentSlide]
     const slideToShow = $slideInstances[slideIndex]
