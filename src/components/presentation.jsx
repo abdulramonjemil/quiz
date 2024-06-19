@@ -68,6 +68,7 @@ export default class Presentation extends Component {
       </div>
     )
 
+    /** @type {number} */
     this.$indexOfCurrentSlide = indexOfSlideToShow
     this.$slideContents = [...slideContents]
     this.$slideInstances = slideInstances
@@ -104,10 +105,6 @@ export default class Presentation extends Component {
 
   currentSlideIndex() {
     return this.$indexOfCurrentSlide
-  }
-
-  restart() {
-    this.$showSlide(0)
   }
 
   /** @param {PresentationRevalidationOptions} options */
