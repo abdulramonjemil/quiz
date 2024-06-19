@@ -5,6 +5,7 @@ import Styles from "../scss/progress.module.scss"
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
 const PRECEDING_COMPLETION_LEVEL_CLASS =
   Styles.Progress__Level_precedingCompletion
+const COMPLETION_LEVEL_BUTTON_CONTENT = "✔"
 
 /**
  * @param {levelIndex} number
@@ -21,12 +22,18 @@ function assertValidLevelIndex(levelIndex, progressLevels) {
 }
 
 /** @param {HTMLElement} progressLevel  */
-function getProgressLevelButton(progressLevel) {
+function getLevelButton(progressLevel) {
   const button = progressLevel.querySelector("button")
   if (!(button instanceof HTMLButtonElement)) {
     throw new Error("Cannot find button in progress level")
   }
   return button
+}
+
+/** @param {HTMLElement} progressLevel  */
+function getLevelButtonContent(progressLevel) {
+  const button = getLevelButton(progressLevel)
+  return button.innerText
 }
 
 /**
@@ -64,16 +71,13 @@ export default class Progress extends Component {
       $props: { handleLevelButtonClick, levelsCount }
     } = this
 
-    this.$activeProgressLevelIndex = null
-    this.$progressLevels = []
-
     /** @type {HTMLElement[]} */
     const progressLevels = []
 
     for (let i = 0; i < levelsCount; i += 1) {
       progressLevels.push(
         <ProgressLevel
-          handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
+          handleLevelButtonClick={handleLevelButtonClick.bind(null, i, false)}
           buttonContent={i + 1}
         />
       )
@@ -87,7 +91,10 @@ export default class Progress extends Component {
 
     /** @type {HTMLElement[]} */
     this.$progressLevels = progressLevels
+    /** @type {number} */
     this.$activeProgressLevelIndex = 0
+    /** @type {(levelIndex: number, isCompletionLevel: boolean) => void} */
+    this.$levelButtonClickHandler = handleLevelButtonClick
 
     return progressNode
   }
@@ -115,7 +122,7 @@ export default class Progress extends Component {
     if (levelIndex !== null) assertValidLevelIndex(levelIndex, $progressLevels)
 
     $progressLevels.forEach((progressLevel, index) => {
-      const levelButton = getProgressLevelButton(progressLevel)
+      const levelButton = getLevelButton(progressLevel)
       levelButton.disabled = levelIndex === null ? false : index > levelIndex
     })
   }
@@ -124,25 +131,40 @@ export default class Progress extends Component {
     const listElement = this.$composedNode.querySelector("ul")
     if (!(listElement instanceof HTMLUListElement)) return
 
+    const { $progressLevels, $levelButtonClickHandler } = this
+    if (this.hasCompletionLevel()) return
+
     const levelNode = (
       <ProgressLevel
-        buttonContent="✔"
-        handleLevelButtonClick={() => {}}
+        buttonContent={COMPLETION_LEVEL_BUTTON_CONTENT}
+        handleLevelButtonClick={$levelButtonClickHandler.bind(
+          null,
+          $progressLevels.length,
+          true
+        )}
         isCompletionLevel
       />
     )
 
-    this.$progressLevels[this.$progressLevels.length - 1].classList.add(
-      PRECEDING_COMPLETION_LEVEL_CLASS
-    )
+    const lastProgressLevel = $progressLevels[$progressLevels.length - 1]
+    lastProgressLevel.classList.add(PRECEDING_COMPLETION_LEVEL_CLASS)
 
     listElement.appendChild(levelNode)
-    this.$progressLevels.push(levelNode)
+    $progressLevels.push(levelNode)
     this.$setHigestEnabledLevelIndex(null)
   }
 
   activeLevelIndex() {
     return this.$activeProgressLevelIndex
+  }
+
+  hasCompletionLevel() {
+    const lastProgressLevel =
+      this.$progressLevels[this.$progressLevels.length - 1]
+    return (
+      getLevelButtonContent(lastProgressLevel) ===
+      COMPLETION_LEVEL_BUTTON_CONTENT
+    )
   }
 
   levelsCount() {
@@ -161,7 +183,7 @@ export default class Progress extends Component {
    */
   simulateClick(levelIndex) {
     assertValidLevelIndex(levelIndex, this.$progressLevels)
-    const levelButton = getProgressLevelButton(this.$progressLevels[levelIndex])
+    const levelButton = getLevelButton(this.$progressLevels[levelIndex])
     attemptTabbableFocus(levelButton)
     levelButton.click()
   }
