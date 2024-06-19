@@ -578,14 +578,14 @@ export default class Quiz extends Component {
       const levelsCount = this.$progress.levelsCount()
       if (!$mutableStore.shortcutData.pressedNumber) {
         if (levelsCount < Number(event.key) * 10) {
-          this.$progress.simulateClick(Number(event.key))
+          this.$progress.simulateClick(Number(event.key) - 1)
         } else {
           $mutableStore.shortcutData.pressedNumber = Number(event.key)
         }
       } else {
         $mutableStore.shortcutData.pressedNumberIsUsed = true
         this.$progress.simulateClick(
-          $mutableStore.shortcutData.pressedNumber * 10 + Number(event.key)
+          $mutableStore.shortcutData.pressedNumber * 10 + Number(event.key) - 1
         )
       }
     }
@@ -598,7 +598,7 @@ export default class Quiz extends Component {
     if (Number(event.key) !== pressedNumber) return
 
     if (!pressedNumberIsUsed) {
-      $progress.simulateClick(pressedNumber)
+      $progress.simulateClick(pressedNumber - 1)
     }
 
     $mutableStore.shortcutData.pressedNumber = null

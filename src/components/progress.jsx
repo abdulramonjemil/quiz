@@ -20,6 +20,15 @@ function assertValidLevelIndex(levelIndex, progressLevels) {
   }
 }
 
+/** @param {HTMLElement} progressLevel  */
+function getProgressLevelButton(progressLevel) {
+  const button = progressLevel.querySelector("button")
+  if (!(button instanceof HTMLButtonElement)) {
+    throw new Error("Cannot find button in progress level")
+  }
+  return button
+}
+
 /**
  * @typedef ProgressRevalidationOptions
  * @property {number} activeLevelIndex
@@ -106,10 +115,7 @@ export default class Progress extends Component {
     if (levelIndex !== null) assertValidLevelIndex(levelIndex, $progressLevels)
 
     $progressLevels.forEach((progressLevel, index) => {
-      const levelButton = /** @type {Element} */ (progressLevel).querySelector(
-        "button"
-      )
-
+      const levelButton = getProgressLevelButton(progressLevel)
       levelButton.disabled = levelIndex === null ? false : index > levelIndex
     })
   }
@@ -151,18 +157,12 @@ export default class Progress extends Component {
   }
 
   /**
-   * @param {number} progressLevel - A 1-index based progress level to click
+   * @param {number} levelIndex
    */
-  simulateClick(progressLevel) {
-    const levelButton =
-      this.$progressLevels[progressLevel - 1]?.querySelector("button")
-
-    if (levelButton) {
-      attemptTabbableFocus(levelButton)
-      levelButton.click()
-      return true
-    }
-
-    return false
+  simulateClick(levelIndex) {
+    assertValidLevelIndex(levelIndex, this.$progressLevels)
+    const levelButton = getProgressLevelButton(this.$progressLevels[levelIndex])
+    attemptTabbableFocus(levelButton)
+    levelButton.click()
   }
 }
