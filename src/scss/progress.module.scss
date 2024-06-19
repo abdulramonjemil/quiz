@@ -39,6 +39,14 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       // Placeholder for the ".Progress__Level_active" class
     }
 
+    &_completion {
+      // Placeholder for the ".Progress__Level_completion" class
+    }
+
+    &_precedingCompletion {
+      // Used for the level just before the completion level
+    }
+
     $progress-bridge-full-width: calc(100% - $progress-number-span);
 
     @at-root %progress-bridge {
@@ -66,16 +74,21 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       z-index: 1;
       transition: width $progress-element-transition-duration;
 
-      @at-root .Progress__Level:not(
-            .Progress__Level_active,
-            .Progress__Level_active ~ *
-          )#{&} {
+      @at-root .Progress__Level_precedingCompletion#{&} {
+        background: linear-gradient(
+          to right,
+          $reached-progress-element-color,
+          utils.get-color("light-purple")
+        );
+      }
+
+      @at-root :not(.Progress__Level_active, .Progress__Level_active ~ *)#{&} {
         width: $progress-bridge-full-width;
       }
     }
   }
 
-  &__NumberButton {
+  &__LevelButton {
     background-color: transparent;
     border: $progress-element-thickness dotted $unreached-progress-element-color;
     border-radius: utils.get-constant(border-radius);
@@ -109,6 +122,15 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
 
       border-color: $reached-progress-element-color;
       color: $reached-progress-element-color;
+    }
+
+    .Progress__Level_completion & {
+      border-radius: 50%;
+
+      &:not(:disabled) {
+        border-color: utils.get-color("light-purple");
+        color: utils.get-color("light-purple");
+      }
     }
 
     .Progress__Level:not(.Progress__Level_active ~ *) & {

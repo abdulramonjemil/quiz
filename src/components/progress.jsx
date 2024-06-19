@@ -3,6 +3,8 @@ import { attemptTabbableFocus } from "../lib/focus"
 import Styles from "../scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
+const PRECEDING_COMPLETION_LEVEL_CLASS =
+  Styles.Progress__Level_precedingCompletion
 
 /**
  * @typedef ProgressRevalidationOptions
@@ -10,15 +12,24 @@ const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
  * @property {number | null} highestEnabledLevel
  */
 
-function ProgressLevel({ levelNumber, handleLevelButtonClick }) {
+function ProgressLevel({
+  buttonContent,
+  handleLevelButtonClick,
+  isCompletionLevel = false
+}) {
   return (
-    <li className={Styles.Progress__Level}>
+    <li
+      className={
+        Styles.Progress__Level +
+        (isCompletionLevel ? ` ${Styles.Progress__Level_completion}` : "")
+      }
+    >
       <button
-        className={Styles.Progress__NumberButton}
+        className={Styles.Progress__LevelButton}
         onClick={handleLevelButtonClick}
         type="button"
       >
-        {levelNumber}
+        {buttonContent}
       </button>
     </li>
   )
@@ -30,7 +41,7 @@ export default class Progress extends Component {
       $props: { handleLevelButtonClick, levelsCount, activeLevel }
     } = this
 
-    this.$currentProgressLevelIndex = null
+    this.$activeProgressLevelIndex = null
     this.$progressLevels = []
 
     const progressLevels = []
@@ -39,7 +50,7 @@ export default class Progress extends Component {
       progressLevels.push(
         <ProgressLevel
           handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
-          levelNumber={i}
+          buttonContent={i}
         />
       )
     }
@@ -64,12 +75,12 @@ export default class Progress extends Component {
       }
     }
 
+    /** @type {HTMLElement[]} */
     this.$progressLevels = progressLevels
-    this.$currentProgressLevelIndex = activeLevelIsProvided
-      ? activeLevel - 1
-      : 0
-    this.$setActiveLevel(activeLevel)
+    this.$activeProgressLevelIndex = activeLevelIsProvided ? activeLevel - 1 : 0
 
+    // Required to be called after setting the properties above
+    this.$setActiveLevel(activeLevel)
     return progressNode
   }
 
@@ -97,7 +108,7 @@ export default class Progress extends Component {
     }
 
     $progressLevels[levelIndex].classList.add(ACTIVE_PROGRESS_LEVEL_CLASS)
-    this.$currentProgressLevelIndex = levelIndex
+    this.$activeProgressLevelIndex = levelIndex
   }
 
   /** @param {number | null} levelNumber  */
@@ -114,8 +125,29 @@ export default class Progress extends Component {
     })
   }
 
-  currentLevel() {
-    return this.$currentProgressLevelIndex + 1
+  addCompletionLevel() {
+    const listElement = this.$composedNode.querySelector("ul")
+    if (!(listElement instanceof HTMLUListElement)) return
+
+    const levelNode = (
+      <ProgressLevel
+        buttonContent="✔"
+        handleLevelButtonClick={() => {}}
+        isCompletionLevel
+      />
+    )
+
+    this.$progressLevels[this.$progressLevels.length - 1].classList.add(
+      PRECEDING_COMPLETION_LEVEL_CLASS
+    )
+
+    listElement.appendChild(levelNode)
+    this.$progressLevels.push(levelNode)
+    this.$setHigestEnabledLevel(null)
+  }
+
+  activeLevelIndex() {
+    return this.$activeProgressLevelIndex
   }
 
   levelsCount() {
