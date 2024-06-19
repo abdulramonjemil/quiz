@@ -40,6 +40,7 @@
 .Prev,
 .Next {
   @extend %control-button;
+
   background-color: utils.get-color(soft-dark);
 
   &:not(:disabled):hover {
@@ -48,14 +49,14 @@
 }
 
 .Submit {
-  $submit-button-color: utils.get-color("purple");
-
   @extend %control-button;
+
+  $submit-button-color: utils.get-color("purple");
+  $interaction-color: color.change($submit-button-color, $alpha: 0.8);
+
   background-color: $submit-button-color;
   color: utils.get-color(deep-light);
   grid-area: submit;
-
-  $interaction-color: color.change($submit-button-color, $alpha: 0.8);
 
   &:not(:disabled):hover {
     background-color: $interaction-color;
