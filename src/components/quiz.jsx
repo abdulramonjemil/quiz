@@ -340,11 +340,11 @@ function getProgressRevalidationOptions(slideQuizData) {
   } = slideQuizData
 
   return {
-    activeLevel: slideIsResult ? slideIndex : slideIndex + 1,
-    highestEnabledLevel:
+    activeLevelIndex: slideIsResult ? slideIndex - 1 : slideIndex,
+    highestEnabledLevelIndex:
       quizIsFinalized || indexOfNextQuizQuestion === null
         ? null
-        : indexOfNextQuizQuestion + 1
+        : indexOfNextQuizQuestion
   }
 }
 
@@ -522,12 +522,12 @@ export default class Quiz extends Component {
     $presentation.revalidate({ activeSlide: indexOfSlideToShow })
   }
 
-  /** @param {number} levelNumber */
-  $handleProgressButtonClick(levelNumber) {
+  /** @param {number} levelIndex */
+  $handleProgressButtonClick(levelIndex) {
     const { $elementInstances, $controlPanel, $presentation, $progress } = this
     const levelSlideQuizData = getQuizDataForSlide(
       $elementInstances,
-      levelNumber - 1 // Levels start from 1 not 0
+      levelIndex
     )
 
     $controlPanel.revalidate(
@@ -539,7 +539,7 @@ export default class Quiz extends Component {
 
     $progress.revalidate(getProgressRevalidationOptions(levelSlideQuizData))
 
-    $presentation.revalidate({ activeSlide: levelNumber - 1 })
+    $presentation.revalidate({ activeSlide: levelIndex })
   }
 
   $handleQuestionOptionChange() {
@@ -740,7 +740,6 @@ export default class Quiz extends Component {
           handleLevelButtonClick={this.$handleProgressButtonClick.bind(this)}
           levelsCount={elements.length}
           refHolder={progressRefHolder}
-          activeLevel={resultIsPropagated ? elements.length : 1}
         />
         <Presentation
           controllingId={presentationControllingId}

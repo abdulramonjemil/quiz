@@ -126,32 +126,32 @@ export const SAMPLE_QUIZ_DATA = [
         '#include <stdio.h>\n\nint main() {\n    int arr[5] = {1, 2, 3, 4, 5};\n    for(int i = 0; i < 5; i++) {\n        printf("%d ", arr[i]);\n    }\n    return 0;\n}'
     }
   },
-  // {
-  //   type: "QUESTION",
-  //   props: {
-  //     title: "What is the output of the above code snippet?",
-  //     answer: "B",
-  //     options: ["12345", "1 2 3 4 5", "1,2,3,4,5", "5 4 3 2 1"],
-  //     explanation:
-  //       "The loop prints each element of the array separated by a space, resulting in '1 2 3 4 5'."
-  //   }
-  // },
-  // {
-  //   type: "QUESTION",
-  //   props: {
-  //     title:
-  //       "What is the purpose of the return 0 statement in the main function?",
-  //     answer: "C",
-  //     options: [
-  //       "To print the value 0",
-  //       "To initialize the program",
-  //       "To indicate that the program ended successfully",
-  //       "To create a new process"
-  //     ],
-  //     explanation:
-  //       "The return 0 statement indicates that the program ended successfully."
-  //   }
-  // },
+  {
+    type: "QUESTION",
+    props: {
+      title: "What is the output of the above code snippet?",
+      answer: "B",
+      options: ["12345", "1 2 3 4 5", "1,2,3,4,5", "5 4 3 2 1"],
+      explanation:
+        "The loop prints each element of the array separated by a space, resulting in '1 2 3 4 5'."
+    }
+  },
+  {
+    type: "QUESTION",
+    props: {
+      title:
+        "What is the purpose of the return 0 statement in the main function?",
+      answer: "C",
+      options: [
+        "To print the value 0",
+        "To initialize the program",
+        "To indicate that the program ended successfully",
+        "To create a new process"
+      ],
+      explanation:
+        "The return 0 statement indicates that the program ended successfully."
+    }
+  },
   {
     type: "QUESTION",
     props: {

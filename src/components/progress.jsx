@@ -7,9 +7,23 @@ const PRECEDING_COMPLETION_LEVEL_CLASS =
   Styles.Progress__Level_precedingCompletion
 
 /**
+ * @param {levelIndex} number
+ * @param {HTMLElement[]} progressLevels
+ */
+function assertValidLevelIndex(levelIndex, progressLevels) {
+  if (
+    !Number.isInteger(levelIndex) ||
+    levelIndex < 0 ||
+    levelIndex > progressLevels.length - 1
+  ) {
+    throw new Error(`There is no progress level with index: ${levelIndex}`)
+  }
+}
+
+/**
  * @typedef ProgressRevalidationOptions
- * @property {number} activeLevel
- * @property {number | null} highestEnabledLevel
+ * @property {number} activeLevelIndex
+ * @property {number | null} highestEnabledLevelIndex
  */
 
 function ProgressLevel({
@@ -38,19 +52,20 @@ function ProgressLevel({
 export default class Progress extends Component {
   $render() {
     const {
-      $props: { handleLevelButtonClick, levelsCount, activeLevel }
+      $props: { handleLevelButtonClick, levelsCount }
     } = this
 
     this.$activeProgressLevelIndex = null
     this.$progressLevels = []
 
+    /** @type {HTMLElement[]} */
     const progressLevels = []
 
-    for (let i = 1; i <= levelsCount; i += 1) {
+    for (let i = 0; i < levelsCount; i += 1) {
       progressLevels.push(
         <ProgressLevel
           handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
-          buttonContent={i}
+          buttonContent={i + 1}
         />
       )
     }
@@ -61,43 +76,17 @@ export default class Progress extends Component {
       </div>
     )
 
-    let activeLevelIsProvided = false
-
-    if (activeLevel !== undefined) {
-      if (
-        !Number.isInteger(activeLevel) ||
-        activeLevel <= 0 ||
-        activeLevel > levelsCount
-      ) {
-        throw new TypeError(`Invalid start level: ${activeLevel}`)
-      } else {
-        activeLevelIsProvided = true
-      }
-    }
-
     /** @type {HTMLElement[]} */
     this.$progressLevels = progressLevels
-    this.$activeProgressLevelIndex = activeLevelIsProvided ? activeLevel - 1 : 0
+    this.$activeProgressLevelIndex = 0
 
-    // Required to be called after setting the properties above
-    this.$setActiveLevel(activeLevel)
     return progressNode
   }
 
-  /** @param {number} levelNumber */
-  $setActiveLevel(levelNumber) {
-    if (!Number.isInteger(levelNumber) || levelNumber < 1)
-      throw new TypeError("Expected level number to be a positive integer")
-
+  /** @param {number} levelIndex */
+  $setActiveLevelIndex(levelIndex) {
     const { $progressLevels } = this
-
-    if (levelNumber > $progressLevels.length) {
-      throw new RangeError(
-        `There is no progress level with number: ${levelNumber}`
-      )
-    }
-
-    const levelIndex = levelNumber - 1
+    assertValidLevelIndex(levelIndex, $progressLevels)
 
     const prevActiveLevel = $progressLevels.find((level) =>
       level.classList.contains(ACTIVE_PROGRESS_LEVEL_CLASS)
@@ -111,17 +100,17 @@ export default class Progress extends Component {
     this.$activeProgressLevelIndex = levelIndex
   }
 
-  /** @param {number | null} levelNumber  */
-  $setHigestEnabledLevel(levelNumber) {
+  /** @param {number | null} levelIndex  */
+  $setHigestEnabledLevelIndex(levelIndex) {
     const { $progressLevels } = this
+    if (levelIndex !== null) assertValidLevelIndex(levelIndex, $progressLevels)
 
     $progressLevels.forEach((progressLevel, index) => {
       const levelButton = /** @type {Element} */ (progressLevel).querySelector(
         "button"
       )
 
-      levelButton.disabled =
-        levelNumber === null ? false : index > levelNumber - 1
+      levelButton.disabled = levelIndex === null ? false : index > levelIndex
     })
   }
 
@@ -143,7 +132,7 @@ export default class Progress extends Component {
 
     listElement.appendChild(levelNode)
     this.$progressLevels.push(levelNode)
-    this.$setHigestEnabledLevel(null)
+    this.$setHigestEnabledLevelIndex(null)
   }
 
   activeLevelIndex() {
@@ -156,9 +145,9 @@ export default class Progress extends Component {
 
   /** @param {ProgressRevalidationOptions} options */
   revalidate(options) {
-    const { activeLevel, highestEnabledLevel } = options
-    this.$setActiveLevel(activeLevel)
-    this.$setHigestEnabledLevel(highestEnabledLevel || null)
+    const { activeLevelIndex, highestEnabledLevelIndex } = options
+    this.$setActiveLevelIndex(activeLevelIndex)
+    this.$setHigestEnabledLevelIndex(highestEnabledLevelIndex)
   }
 
   /**
