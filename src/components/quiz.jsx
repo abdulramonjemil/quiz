@@ -332,7 +332,7 @@ function getControlPanelRevalidationOptions(slideQuizData, indices) {
  */
 function getProgressRevalidationOptions(slideQuizData) {
   const {
-    slide: { index: slideIndex, isResult: slideIsResult },
+    slide: { index: slideIndex },
     quiz: {
       indexOfNextQuestion: indexOfNextQuizQuestion,
       isFinalized: quizIsFinalized
@@ -340,7 +340,7 @@ function getProgressRevalidationOptions(slideQuizData) {
   } = slideQuizData
 
   return {
-    activeLevelIndex: slideIsResult ? slideIndex - 1 : slideIndex,
+    activeLevelIndex: slideIndex,
     highestEnabledLevelIndex:
       quizIsFinalized || indexOfNextQuizQuestion === null
         ? null
@@ -452,6 +452,7 @@ export default class Quiz extends Component {
       $mutableStore,
       $metadata,
       $submissionCallback,
+      $progress,
       $presentation
     } = this
 
@@ -468,6 +469,7 @@ export default class Quiz extends Component {
     $mutableStore.indices.lastShownBeforeResult =
       $presentation.currentSlideIndex()
     $presentation.appendSlide(resultNode)
+    $progress.addCompletionLevel()
     $elementInstances.push(resultInstance)
 
     const resultIndex = $elementInstances.length - 1
@@ -668,9 +670,6 @@ export default class Quiz extends Component {
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
-    const resultIsPropagated =
-      elementInstances[elementInstances.length - 1] instanceof Result
-
     const quizNode = (
       <section
         aria-labelledby={quizLabellingId}
@@ -717,7 +716,11 @@ export default class Quiz extends Component {
     /** @type {ControlPanel} */
     const controlPanel = controlPanelRefHolder.ref
 
+    const resultIsPropagated =
+      elementInstances[elementInstances.length - 1] instanceof Result
+
     const appropriateIndex = resultIsPropagated ? elementNodes.length - 1 : 0
+    if (resultIsPropagated) progress.addCompletionLevel()
     revalidateQuiz({
       slideIndex: appropriateIndex,
       elementInstances,
