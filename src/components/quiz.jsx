@@ -384,6 +384,36 @@ function getSlidePrevNextIndices(slideQuizData) {
 }
 
 /**
+ * @param {Object} param0
+ * @param {number} param0.slideIndex
+ * @param {QuizElementInstance[]} param0.elementInstances
+ * @param {ControlPanel} param0.controlPanel
+ * @param {Presentation} param0.presentation
+ * @param {Progress} param0.progress
+ */
+function revalidateQuiz({
+  slideIndex,
+  elementInstances,
+  controlPanel,
+  presentation,
+  progress
+}) {
+  const appropriateSlideQuizData = getQuizDataForSlide(
+    elementInstances,
+    slideIndex
+  )
+
+  presentation.revalidate({ activeSlide: slideIndex })
+  progress.revalidate(getProgressRevalidationOptions(appropriateSlideQuizData))
+  controlPanel.revalidate(
+    getControlPanelRevalidationOptions(
+      appropriateSlideQuizData,
+      getSlidePrevNextIndices(appropriateSlideQuizData)
+    )
+  )
+}
+
+/**
  * @template {QuizProps} Props
  * @extends {Component<Props>}
  */
@@ -404,7 +434,7 @@ export default class Quiz extends Component {
 
   /** @param {"prev" | "next"} button */
   $handleCPanelBtnClick(button) {
-    const { $elementInstances, $controlPanel, $presentation, $progress } = this
+    const { $elementInstances, $presentation } = this
     const currentSlideData = getQuizDataForSlide(
       $elementInstances,
       $presentation.currentSlideIndex()
@@ -413,20 +443,7 @@ export default class Quiz extends Component {
     const { prev, next } = getSlidePrevNextIndices(currentSlideData)
     const appropriateIndex = button === "prev" ? prev : next
     if (typeof appropriateIndex !== "number") return
-
-    const newSlideData = getQuizDataForSlide(
-      $elementInstances,
-      appropriateIndex
-    )
-
-    $progress.revalidate(getProgressRevalidationOptions(newSlideData))
-    $presentation.revalidate({ activeSlide: appropriateIndex })
-    $controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        newSlideData,
-        getSlidePrevNextIndices(newSlideData)
-      )
-    )
+    this.$revalidate(appropriateIndex)
   }
 
   $handleCPanelSubmitCTAClick() {
@@ -435,8 +452,7 @@ export default class Quiz extends Component {
       $mutableStore,
       $metadata,
       $submissionCallback,
-      $presentation,
-      $controlPanel
+      $presentation
     } = this
 
     const questionInstances = $elementInstances.filter(
@@ -454,21 +470,10 @@ export default class Quiz extends Component {
     $presentation.appendSlide(resultNode)
     $elementInstances.push(resultInstance)
 
-    const newSlideData = getQuizDataForSlide(
-      $elementInstances,
-      $elementInstances.length - 1
-    )
+    const resultIndex = $elementInstances.length - 1
+    this.$revalidate(resultIndex)
 
-    $controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        newSlideData,
-        getSlidePrevNextIndices(newSlideData)
-      )
-    )
-
-    $presentation.revalidate({ activeSlide: $elementInstances.length - 1 })
     questionInstances.forEach((questionElement) => questionElement.finalize())
-
     const questionMetadataSet = questionInstances.map((questionElement) =>
       questionElement.exportInteractionMetadata()
     )
@@ -487,15 +492,8 @@ export default class Quiz extends Component {
   }
 
   $handleCPanelToggleCTAClick() {
-    const {
-      $mutableStore,
-      $progress,
-      $elementInstances,
-      $presentation,
-      $controlPanel
-    } = this
+    const { $mutableStore, $elementInstances, $presentation } = this
     const resultIndexIfPresent = $elementInstances.length - 1
-
     const currentSlideIndex = $presentation.currentSlideIndex()
     const currentSlideIsResult = currentSlideIndex === resultIndexIfPresent
     const indexOfSlideToShow = currentSlideIsResult
@@ -506,74 +504,21 @@ export default class Quiz extends Component {
       $mutableStore.indices.lastShownBeforeResult = currentSlideIndex
     }
 
-    const quizDataForSlide = getQuizDataForSlide(
-      $elementInstances,
-      indexOfSlideToShow
-    )
-
-    $progress.revalidate(getProgressRevalidationOptions(quizDataForSlide))
-    $controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        quizDataForSlide,
-        getSlidePrevNextIndices(quizDataForSlide)
-      )
-    )
-
-    $presentation.revalidate({ activeSlide: indexOfSlideToShow })
+    this.$revalidate(indexOfSlideToShow)
   }
 
   /** @param {number} levelIndex */
   $handleProgressButtonClick(levelIndex) {
-    const { $elementInstances, $controlPanel, $presentation, $progress } = this
-    const levelSlideQuizData = getQuizDataForSlide(
-      $elementInstances,
-      levelIndex
-    )
-
-    $controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        levelSlideQuizData,
-        getSlidePrevNextIndices(levelSlideQuizData)
-      )
-    )
-
-    $progress.revalidate(getProgressRevalidationOptions(levelSlideQuizData))
-
-    $presentation.revalidate({ activeSlide: levelIndex })
+    this.$revalidate(levelIndex)
   }
 
   $handleQuestionOptionChange() {
-    const { $presentation, $elementInstances } = this
-    const currentSlideIndex = $presentation.currentSlideIndex()
-    const currentSlideQuizData = getQuizDataForSlide(
-      $elementInstances,
-      currentSlideIndex
-    )
-
-    this.$controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        currentSlideQuizData,
-        getSlidePrevNextIndices(currentSlideQuizData)
-      )
-    )
-
-    this.$progress.revalidate(
-      getProgressRevalidationOptions(currentSlideQuizData)
-    )
+    const currentSlideIndex = this.$presentation.currentSlideIndex()
+    this.$revalidate(currentSlideIndex)
   }
 
   $handleResultExplanationBtnClick() {
-    const { $elementInstances, $controlPanel, $presentation, $progress } = this
-    const quizDataForFirstSlide = getQuizDataForSlide($elementInstances, 0)
-
-    $controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        quizDataForFirstSlide,
-        getSlidePrevNextIndices(quizDataForFirstSlide)
-      )
-    )
-    $progress.revalidate(getProgressRevalidationOptions(quizDataForFirstSlide))
-    $presentation.revalidate({ activeSlide: 0 })
+    this.$revalidate(0)
     attemptElementFocus(this.$composedNode)
   }
 
@@ -773,23 +718,13 @@ export default class Quiz extends Component {
     const controlPanel = controlPanelRefHolder.ref
 
     const appropriateIndex = resultIsPropagated ? elementNodes.length - 1 : 0
-    const appropriateSlideQuizData = getQuizDataForSlide(
+    revalidateQuiz({
+      slideIndex: appropriateIndex,
       elementInstances,
-      appropriateIndex
-    )
-
-    controlPanel.revalidate(
-      getControlPanelRevalidationOptions(
-        appropriateSlideQuizData,
-        getSlidePrevNextIndices(appropriateSlideQuizData)
-      )
-    )
-
-    presentation.revalidate({ activeSlide: appropriateIndex })
-
-    progress.revalidate(
-      getProgressRevalidationOptions(appropriateSlideQuizData)
-    )
+      controlPanel,
+      presentation,
+      progress
+    })
 
     // Start of property setting
     this.$metadata = { autoSave: autoSaveIsEnabled, storageKey }
@@ -809,5 +744,17 @@ export default class Quiz extends Component {
     this.$controlPanel = controlPanel
 
     return quizNode
+  }
+
+  /** @param {number} slideIndex */
+  $revalidate(slideIndex) {
+    const { $elementInstances, $controlPanel, $presentation, $progress } = this
+    revalidateQuiz({
+      slideIndex,
+      elementInstances: $elementInstances,
+      controlPanel: $controlPanel,
+      presentation: $presentation,
+      progress: $progress
+    })
   }
 }
