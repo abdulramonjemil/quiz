@@ -91,7 +91,7 @@ export default class ControlPanel extends Component {
     )
 
     if (shouldRefocus) attemptElementFocus(this.$altFocusableRefHolder.ref)
-    this.$cta.innerText = ctaIsSubmit ? "Submit" : "Toggle Result"
+    this.$cta.innerText = ctaIsSubmit ? "Submit" : "Jump to Result"
 
     this.$prevButton.disabled = !enablePrev
     this.$nextButton.disabled = !enableNext

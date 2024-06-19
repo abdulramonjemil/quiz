@@ -321,7 +321,9 @@ function getControlPanelRevalidationOptions(slideQuizData, indices) {
     next: indices.next !== null,
     cta: {
       isSubmit: !quizIsFinalized,
-      isEnabled: quizIsFinalized || indexOfNextQuizQuestion === null
+      isEnabled:
+        (!quizIsFinalized && indexOfNextQuizQuestion === null) ||
+        (quizIsFinalized && !slideQuizData.slide.isResult)
     }
   }
 }
@@ -353,34 +355,11 @@ function getProgressRevalidationOptions(slideQuizData) {
  * @returns {PrevNextIndices}
  */
 function getSlidePrevNextIndices(slideQuizData) {
-  const {
-    slide: {
-      index: slideIndex,
-      isAnsweredQuestion: slideIsAnsweredQuestion,
-      isFirst: slideIsFirst,
-      isJustBeforeResult: slideIsJustBeforeResult,
-      isLast: slideIsLast,
-      isQuestion: slideIsQuestion
-    },
-    quiz: { isFinalized: quizIsFinalized }
-  } = slideQuizData
-
-  const indices = {}
-
-  if (!slideIsFirst && (!quizIsFinalized || !slideIsLast))
-    indices.prev = slideIndex - 1
-  else indices.prev = null
-
-  if (slideIsJustBeforeResult) {
-    indices.next = null
-  } else if (
-    !slideIsLast &&
-    (quizIsFinalized || !slideIsQuestion || slideIsAnsweredQuestion)
-  ) {
-    indices.next = slideIndex + 1
-  } else indices.next = null
-
-  return indices
+  const { index, isFirst, isLast } = slideQuizData.slide
+  return {
+    prev: isFirst ? null : index - 1,
+    next: isLast ? null : index + 1
+  }
 }
 
 /**
@@ -449,7 +428,6 @@ export default class Quiz extends Component {
   $handleCPanelSubmitCTAClick() {
     const {
       $elementInstances,
-      $mutableStore,
       $metadata,
       $submissionCallback,
       $progress,
@@ -466,8 +444,6 @@ export default class Quiz extends Component {
       this.$handleResultExplanationBtnClick.bind(this)
     )
 
-    $mutableStore.indices.lastShownBeforeResult =
-      $presentation.currentSlideIndex()
     $presentation.appendSlide(resultNode)
     $progress.addCompletionLevel()
     $elementInstances.push(resultInstance)
@@ -493,20 +469,10 @@ export default class Quiz extends Component {
     }
   }
 
-  $handleCPanelToggleCTAClick() {
-    const { $mutableStore, $elementInstances, $presentation } = this
+  $handleCPanelResultJumpCTAClick() {
+    const { $elementInstances } = this
     const resultIndexIfPresent = $elementInstances.length - 1
-    const currentSlideIndex = $presentation.currentSlideIndex()
-    const currentSlideIsResult = currentSlideIndex === resultIndexIfPresent
-    const indexOfSlideToShow = currentSlideIsResult
-      ? $mutableStore.indices.lastShownBeforeResult ?? 0
-      : resultIndexIfPresent
-
-    if (!currentSlideIsResult) {
-      $mutableStore.indices.lastShownBeforeResult = currentSlideIndex
-    }
-
-    this.$revalidate(indexOfSlideToShow)
+    this.$revalidate(resultIndexIfPresent)
   }
 
   /** @param {number} levelIndex */
@@ -528,6 +494,7 @@ export default class Quiz extends Component {
   $handleRootKeyDownCapture(event) {
     const { $presentation, $elementInstances, $mutableStore } = this
 
+    // Shortcut to select question answer
     if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
       const currentSlideIndex = $presentation.currentSlideIndex()
       const currentElement = $elementInstances[currentSlideIndex]
@@ -541,12 +508,14 @@ export default class Quiz extends Component {
       return
     }
 
+    // Shortcut to go to next/prev quiz element
     if (["p", "n"].includes(event.key.toLowerCase())) {
       const options = { p: "prev", n: "next" }
       this.$controlPanel.simulateClick(options[event.key.toLowerCase()])
       return
     }
 
+    // Shortcut to show explanation for answered question
     if (event.key.toLowerCase() === "e") {
       const currentSlideIndex = this.$presentation.currentSlideIndex()
       const { isFinalized: quizIsFinalized } = getQuizDataForSlide(
@@ -562,17 +531,24 @@ export default class Quiz extends Component {
       }
     }
 
-    if (event.key.toLocaleLowerCase() === "t") {
+    // Shortcut to show result
+    if (event.key.toLocaleLowerCase() === "r") {
       const currentSlideIndex = this.$presentation.currentSlideIndex()
       const {
         quiz: { isFinalized: quizIsFinalized }
       } = getQuizDataForSlide($elementInstances, currentSlideIndex)
 
-      if (quizIsFinalized) this.$controlPanel.simulateClick("cta")
+      if (quizIsFinalized) {
+        const resultIndex = $elementInstances.length - 1
+        this.$progress.simulateClick(resultIndex)
+      }
+
       return
     }
 
     /**
+     * - Shortcut to jump to specific quiz element based on number
+     *
      * If the key is a number, we only jump to the slide at the number if
      * there is no other slide that begin with the same number.
      */
@@ -698,10 +674,10 @@ export default class Quiz extends Component {
           handleCTAButtonClick={() => {
             const { $elementInstances } = this
             const resultIndexIfPresent = $elementInstances.length - 1
-            const shouldToggleResult =
+            const shouldJumpToResult =
               $elementInstances[resultIndexIfPresent] instanceof Result
 
-            if (shouldToggleResult) this.$handleCPanelToggleCTAClick()
+            if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
             else this.$handleCPanelSubmitCTAClick()
           }}
           refHolder={controlPanelRefHolder}
@@ -735,7 +711,6 @@ export default class Quiz extends Component {
     this.$submissionCallback = submissionCallback
 
     this.$mutableStore = {
-      indices: { lastShownBeforeResult: /** @type {number | null} */ (null) },
       shortcutData: {
         pressedNumber: /** @type {number | null} */ (null),
         pressedNumberIsUsed: false
