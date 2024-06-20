@@ -272,8 +272,6 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
   const quizIsFinalized = resultInstance.isFinalized()
   const slideIsFirst = slideIndex === 0
   const slideIsLast = slideIndex === elementInstances.length - 1
-  const slideIsJustBeforeResult =
-    quizIsFinalized && slideIndex === elementInstances.length - 2
   const slideIsResult = slide === resultInstance
 
   const slideIsQuestion = slide instanceof Question
@@ -289,7 +287,6 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
       isAnsweredQuestion: slideIsAnsweredQuestion,
       isFirst: slideIsFirst,
       isLast: slideIsLast,
-      isJustBeforeResult: slideIsJustBeforeResult,
       isQuestion: slideIsQuestion,
       isResult: slideIsResult,
       ref: slide
