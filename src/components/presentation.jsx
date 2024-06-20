@@ -95,16 +95,6 @@ export default class Presentation extends Component {
     this.$indexOfCurrentSlide = slideIndex
   }
 
-  appendSlide(slideContent) {
-    const slideRefHolder = createInstanceRefHolder()
-    const slideNode = (
-      <Slide content={slideContent} refHolder={slideRefHolder} />
-    )
-
-    this.$composedNode.appendChild(slideNode)
-    this.$slideInstances.push(slideRefHolder.ref)
-  }
-
   currentSlideIndex() {
     return this.$indexOfCurrentSlide
   }
