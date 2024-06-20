@@ -1,3 +1,6 @@
+import { AriaKeys } from "../lib/accessibility"
+import { attemptElementFocus } from "../lib/focus"
+import { findFirstMatchingItem } from "../lib/value"
 import { UIComponent } from "./component"
 
 /**
@@ -63,7 +66,17 @@ export class Tabs extends UIComponent {
     const { tabItems } = this.$config.elements
     tabItems.forEach(({ refs: { trigger } }, index) => {
       trigger.addEventListener("click", () => {
-        this.$handleTabItemTriggerClick(index)
+        this.$handleTabTriggerClick(index)
+      })
+
+      trigger.addEventListener("keydown", (event) => {
+        if (
+          event.key === AriaKeys.ArrowLeft ||
+          event.key === AriaKeys.ArrowRight
+        ) {
+          const type = event.key === AriaKeys.ArrowLeft ? "left" : "right"
+          this.$handleTabTriggerLeftRightKeyDown(type, event)
+        }
       })
     })
   }
@@ -80,7 +93,7 @@ export class Tabs extends UIComponent {
   }
 
   /** @param {number} index */
-  $handleTabItemTriggerClick(index) {
+  $handleTabTriggerClick(index) {
     const { activeTabIndex } = this.$getState()
     if (activeTabIndex === index) return
 
@@ -88,6 +101,30 @@ export class Tabs extends UIComponent {
     const newTabName = this.$config.elements.tabItems[index].name
     this.$setState({ activeTabIndex: index })
     this.$config.onTabChange?.(newTabName, oldTabName, "event")
+  }
+
+  /**
+   * @param {"left" | "right"} type
+   * @param {KeyboardEvent} event
+   */
+  $handleTabTriggerLeftRightKeyDown(type, event) {
+    const { activeTabIndex } = this.$getState()
+    const { tabItems } = this.$config.elements
+    const array = type === "right" ? [...tabItems] : [...tabItems].reverse()
+    const startIndex =
+      type === "right" ? activeTabIndex + 1 : tabItems.length - activeTabIndex
+
+    const focused = findFirstMatchingItem({
+      array,
+      startIndex,
+      predicate: (item) => attemptElementFocus(item.refs.trigger),
+      wrap: true
+    })?.refs.trigger
+
+    if (focused) {
+      event.preventDefault()
+      focused.click()
+    }
   }
 
   getManagedElementAttributeSets() {
