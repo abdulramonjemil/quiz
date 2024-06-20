@@ -77,7 +77,7 @@ export default class Progress extends Component {
     for (let i = 0; i < levelsCount; i += 1) {
       progressLevels.push(
         <ProgressLevel
-          handleLevelButtonClick={handleLevelButtonClick.bind(null, i, false)}
+          handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
           buttonContent={i + 1}
         />
       )
@@ -139,8 +139,7 @@ export default class Progress extends Component {
         buttonContent={COMPLETION_LEVEL_BUTTON_CONTENT}
         handleLevelButtonClick={$levelButtonClickHandler.bind(
           null,
-          $progressLevels.length,
-          true
+          $progressLevels.length
         )}
         isCompletionLevel
       />
