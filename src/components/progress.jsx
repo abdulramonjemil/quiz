@@ -1,4 +1,4 @@
-import Component from "../core/component"
+import Component, { createElementRefHolder } from "../core/component"
 import { attemptTabbableFocus } from "../lib/focus"
 import Styles from "../scss/progress.module.scss"
 
@@ -92,12 +92,17 @@ export default class Progress extends Component {
       )
     }
 
+    const listRootRefHolder = createElementRefHolder()
     const progressNode = (
       <div className={Styles.Progress} aria-hidden="true">
-        <ul className={Styles.Progress__List}>{[...progressLevels]}</ul>
+        <ul className={Styles.Progress__List} refHolder={listRootRefHolder}>
+          {[...progressLevels]}
+        </ul>
       </div>
     )
 
+    /** @type {HTMLElement} */
+    this.$listRoot = listRootRefHolder.ref
     /** @type {HTMLElement[]} */
     this.$progressLevels = progressLevels
     /** @type {number} */
@@ -140,8 +145,11 @@ export default class Progress extends Component {
     return this.$activeProgressLevelIndex
   }
 
-  buttons() {
-    return this.$progressLevels.map((level) => getLevelButton(level))
+  elements() {
+    return {
+      listRoot: /** @type {HTMLElement} */ (this.$listRoot),
+      buttons: this.$progressLevels.map((level) => getLevelButton(level))
+    }
   }
 
   hasCompletionLevel() {
