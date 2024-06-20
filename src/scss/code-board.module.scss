@@ -1,6 +1,6 @@
 @use "sass:math";
 @use "partials/utils";
-@use "partials/slide";
+@use "partials/element";
 @import "https://cdn.jsdelivr.net/gh/PrismJS/prism-themes/themes/prism-material-oceanic.css";
 
 $code-board-background: utils.get-color(dark-grey);
@@ -9,7 +9,11 @@ $code-board-horizontal-padding: 12px;
 $code-board-vertical-padding: 10px;
 
 .CodeBoard {
-  @include slide.config;
+  @include element.height-config;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   &__Title {
     flex: 0 0 max-content;

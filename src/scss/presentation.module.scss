@@ -1,11 +1,11 @@
-@use "partials/slide";
+@use "partials/element";
 
 .Presentation {
   width: 100%;
 }
 
 .Slide {
-  container: slide.$container-name / inline-size;
+  container: element.$container-name / inline-size;
   display: none;
   margin-top: 20px;
 
@@ -14,6 +14,6 @@
   }
 
   &__Content {
-    @include slide.height-config;
+    @include element.height-config;
   }
 }

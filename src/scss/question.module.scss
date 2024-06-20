@@ -1,6 +1,6 @@
 @use "sass:color";
 @use "sass:math";
-@use "partials/slide";
+@use "partials/element";
 @use "partials/utils";
 
 $gap-between-question-elements: utils.get-constant(element-spacing);
@@ -8,10 +8,13 @@ $min-option-width: 50px;
 $option-letter-span: 30px;
 
 .QuestionContainer {
+  @include element.height-config;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
   position: relative;
-
-  @include slide.config;
 }
 
 .Question {
@@ -20,7 +23,7 @@ $option-letter-span: 30px;
   overflow-y: auto;
   width: 100%;
 
-  @include slide.scrollbar;
+  @include element.scrollbar;
 
   &__Title {
     display: block;

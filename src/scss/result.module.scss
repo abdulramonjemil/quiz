@@ -2,7 +2,7 @@
 @use "sass:math";
 @use "sass:string";
 @use "partials/number";
-@use "partials/slide";
+@use "partials/element";
 @use "partials/utils";
 
 $result-green-color: rgb(143 188 188);
@@ -41,11 +41,13 @@ $max-indicator-bar-dashoffset-value: math.div(
 }
 
 .ResultContainer {
-  align-items: center;
-  container-type: inline-size;
-  position: relative;
+  @include element.height-config;
 
-  @include slide.config;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
 }
 
 .Result {
@@ -58,7 +60,7 @@ $max-indicator-bar-dashoffset-value: math.div(
   overflow-y: auto;
   padding: 20px 40px;
 
-  @include slide.scrollbar;
+  @include element.scrollbar;
 
   @container (width <= 720px) {
     gap: 20px;

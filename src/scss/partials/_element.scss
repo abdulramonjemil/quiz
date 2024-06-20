@@ -20,14 +20,6 @@ $scrollbar-width: 8px;
   }
 }
 
-@mixin config {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-
-  @include height-config;
-}
-
 @mixin scrollbar {
   @media only screen and (min-width: 500px) {
     scrollbar-color: $scrollbar-thumb-color $scrollbar-track-color;
