@@ -100,7 +100,7 @@ export default class Presentation extends Component {
   }
 
   /** @param {PresentationRevalidationOptions} options */
-  async revalidate(options) {
+  revalidate(options) {
     const { activeSlide: newActiveSlideIndex } = options
     this.$showSlide(newActiveSlideIndex)
   }
