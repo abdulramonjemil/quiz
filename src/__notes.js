@@ -11,6 +11,7 @@
  *   - id
  *   - role
  *   - aria-controls={{content.id}}
+ *   - aria-label (optional)
  * - Panel trigger / managed
  *   - aria-selected
  *   - tabindex
@@ -19,9 +20,9 @@
  *   - id
  *   - role
  *   - aria-labelledby={{trigger.id}}
+ *   - tabindex
  * - Panel content / managed
  *   - hidden
- *   - tabindex
  *
  * TAB EVENTS / CHANGES
  * - Space / Enter / Click on Item Trigger.
