@@ -3,8 +3,6 @@ import { attemptTabbableFocus } from "../lib/focus"
 import Styles from "../scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
-const PRECEDING_COMPLETION_LEVEL_CLASS =
-  Styles.Progress__Level_precedingCompletion
 const COMPLETION_LEVEL_BUTTON_CONTENT = "✔"
 
 /**
@@ -45,12 +43,16 @@ function getLevelButtonContent(progressLevel) {
 function ProgressLevel({
   buttonContent,
   handleLevelButtonClick,
-  isCompletionLevel = false
+  precedesCompletionLevel,
+  isCompletionLevel
 }) {
   return (
     <li
       className={
         Styles.Progress__Level +
+        (precedesCompletionLevel
+          ? ` ${Styles.Progress__Level_precedingCompletion}`
+          : "") +
         (isCompletionLevel ? ` ${Styles.Progress__Level_completion}` : "")
       }
     >
@@ -68,17 +70,24 @@ function ProgressLevel({
 export default class Progress extends Component {
   $render() {
     const {
-      $props: { handleLevelButtonClick, levelsCount }
+      $props: { handleLevelButtonClick, levelsCount, lastAsCompletionLevel }
     } = this
 
     /** @type {HTMLElement[]} */
     const progressLevels = []
 
     for (let i = 0; i < levelsCount; i += 1) {
+      const isCompletionLevel = lastAsCompletionLevel && i === levelsCount - 1
+      const isSecondToLastLevel = i === levelsCount - 2
+
       progressLevels.push(
         <ProgressLevel
           handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
-          buttonContent={i + 1}
+          buttonContent={
+            isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
+          }
+          precedesCompletionLevel={lastAsCompletionLevel && isSecondToLastLevel}
+          isCompletionLevel={isCompletionLevel}
         />
       )
     }
@@ -125,32 +134,6 @@ export default class Progress extends Component {
       const levelButton = getLevelButton(progressLevel)
       levelButton.disabled = levelIndex === null ? false : index > levelIndex
     })
-  }
-
-  addCompletionLevel() {
-    const listElement = this.$composedNode.querySelector("ul")
-    if (!(listElement instanceof HTMLUListElement)) return
-
-    const { $progressLevels, $levelButtonClickHandler } = this
-    if (this.hasCompletionLevel()) return
-
-    const levelNode = (
-      <ProgressLevel
-        buttonContent={COMPLETION_LEVEL_BUTTON_CONTENT}
-        handleLevelButtonClick={$levelButtonClickHandler.bind(
-          null,
-          $progressLevels.length
-        )}
-        isCompletionLevel
-      />
-    )
-
-    const lastProgressLevel = $progressLevels[$progressLevels.length - 1]
-    lastProgressLevel.classList.add(PRECEDING_COMPLETION_LEVEL_CLASS)
-
-    listElement.appendChild(levelNode)
-    $progressLevels.push(levelNode)
-    this.$setHigestEnabledLevelIndex(null)
   }
 
   activeLevelIndex() {

@@ -2,6 +2,13 @@ import Component, { createElementRefHolder } from "../core/component"
 import Styles from "../scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
+/**
+ * @typedef {{
+ *   handleExplanationBtnClick: () => void,
+ *   questionsCount: number
+ * }} ResultProps
+ */
+
 const DEFAULT_RESULT_PERCENTAGE_VALUE = 0
 const {
   CIRCUMFERENCE_OF_INDICATOR_BAR,
@@ -154,30 +161,56 @@ function ResultBoard({
 
 export default class Result extends Component {
   $render() {
-    const { answersGotten, handleExplanationBtnClick, questionsCount } =
-      this.$props
-    const scoredPercentage = Math.floor((answersGotten / questionsCount) * 100)
-    const indicatorRenderFnRefHolder = {}
+    const { handleExplanationBtnClick, questionsCount } =
+      /** @type {ResultProps} */ (this.$props)
+    const placeholderRefHolder = createElementRefHolder()
+
+    /** @type {(answersGotten: number) => void} */
+    const finalizeResultFn = (answersGotten) => {
+      const indicatorRenderFnRefHolder = {}
+      const placeholder = /** @type {Element} */ (placeholderRefHolder.ref)
+      const scoredPercentage = Math.floor(
+        (answersGotten / questionsCount) * 100
+      )
+
+      const actualResultNode = (
+        <div className={Styles.Result}>
+          <ResultIndicator
+            scoredPercentage={scoredPercentage}
+            indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
+          />
+          <ResultBoard
+            answersGotten={answersGotten}
+            handleExplanationBtnClick={handleExplanationBtnClick}
+            questionsCount={questionsCount}
+          />
+        </div>
+      )
+
+      placeholder.replaceWith(actualResultNode)
+      indicatorRenderFnRefHolder.ref.call()
+    }
 
     const resultNode = (
       <div className={Styles.ResultContainer}>
         <ScrollShadow maxSizes={{ bottom: 25 }}>
-          <div className={Styles.Result}>
-            <ResultIndicator
-              scoredPercentage={scoredPercentage}
-              indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
-            />
-            <ResultBoard
-              answersGotten={answersGotten}
-              handleExplanationBtnClick={handleExplanationBtnClick}
-              questionsCount={questionsCount}
-            />
-          </div>
+          <div refHolder={placeholderRefHolder} />
         </ScrollShadow>
       </div>
     )
 
-    indicatorRenderFnRefHolder.ref.call()
+    this.$isFinalized = false
+    this.$finalizeResultFn = finalizeResultFn
     return resultNode
+  }
+
+  /** @param {number} answersGotten */
+  finalize(answersGotten) {
+    this.$finalizeResultFn.call(null, answersGotten)
+    this.$isFinalized = true
+  }
+
+  isFinalized() {
+    return this.$isFinalized
   }
 }

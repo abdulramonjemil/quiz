@@ -17,11 +17,13 @@ import { uniqueId } from "../lib/id"
 import { webStorageIsAvailable } from "../lib/storage"
 import { tryJSONParse } from "../lib/parse"
 import { attemptElementFocus } from "../lib/focus"
+import { assertIsInstance } from "../lib/validity"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
  * @typedef {import("./question").QuestionMetadata} QuestionMetadata
  * @typedef {import("./progress").ProgressRevalidationOptions} ProgressRevalidationOptions
+ * @typedef {import("./result").ResultProps} ResultProps
  */
 
 /**
@@ -52,8 +54,16 @@ import { attemptElementFocus } from "../lib/focus"
  */
 
 /**
+ * @typedef {{
+ *   type: "RESULT",
+ *   handleExplanationBtnClick: ResultProps["handleExplanationBtnClick"]
+ * }} QuizResultElement
+ */
+
+/**
  * @typedef {ReturnType<typeof getQuizDataForSlide>} SlideQuizData
- * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizElement
+ * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizPropElement
+ * @typedef {QuizQuestionElement | QuizCodeBoardElement | QuizResultElement} QuizElement
  * @typedef {Question | Result | null} QuizElementInstance
  *
  * @typedef {{
@@ -64,7 +74,7 @@ import { attemptElementFocus } from "../lib/focus"
 
 /**
  * @typedef QuizProps
- * @property {QuizElement[]} elements
+ * @property {QuizPropElement[]} elements
  * @property {(ExportedQuizData) => void} submissionCallback
  * @property {{
  *   autoSave?: boolean | undefined,
@@ -84,10 +94,6 @@ const DEFAULT_QUIZ_METADATA = {
 }
 
 const QUIZ_DATA_STORE = "localStorage"
-const QUIZ_ELEMENT_TYPES = {
-  CODE_BOARD: "CODE_BOARD",
-  QUESTION: "QUESTION"
-}
 
 /** @param {QuizProps["metadata"]} metadata  */
 function normalizeQuizMetadataConfig(metadata) {
@@ -112,62 +118,61 @@ function normalizeQuizMetadataConfig(metadata) {
 }
 
 /**
- * @param {QuizProps["elements"]} elements
+ * @param {QuizPropElement[]} elements
  */
-function assertValidQuizElementConfig(elements) {
-  const { QUESTION: QUESTION_QUIZ_ELEMENT_TYPE } = QUIZ_ELEMENT_TYPES
+function assertValidQuizPropsElementConfig(elements) {
   const elementsCount = elements.length
-
   if (elementsCount < 2)
     throw new TypeError("There must be at least two quiz elements")
 
   const lastQuizElement = elements[elementsCount - 1]
-  if (lastQuizElement.type !== QUESTION_QUIZ_ELEMENT_TYPE)
+  if (lastQuizElement.type !== "QUESTION")
     throw new TypeError("The last element in a quiz must be a question")
 }
 
 /**
- * @param {QuizProps["elements"]} elements
+ * @param {QuizElement[]} elements
  * @param {() => void} handleQuestionOptionChange
  */
 function buildQuizElements(elements, handleQuestionOptionChange) {
   /** @type {HTMLElement[]} */
   const elementNodes = []
-  /** @type {(Question | null)[]} */
+  /** @type {QuizElementInstance[]} */
   const elementInstances = []
 
-  const {
-    QUESTION: QUESTION_QUIZ_ELEMENT_TYPE,
-    CODE_BOARD: CODE_BOARD_QUIZ_ELEMENT_TYPE
-  } = QUIZ_ELEMENT_TYPES
-
   elements.forEach((element) => {
-    const { type, props } = element
-    if (
-      type !== QUESTION_QUIZ_ELEMENT_TYPE &&
-      type !== CODE_BOARD_QUIZ_ELEMENT_TYPE
-    ) {
-      throw new TypeError(`Unsupported quiz element type: '${type}'`)
-    }
-
     /** @type {HTMLElement} */
     let slideNode
-    /** @type {Question | null} */
+    /** @type {QuizElementInstance} */
     let slideInstance
 
-    if (type === CODE_BOARD_QUIZ_ELEMENT_TYPE) {
-      slideNode = <CodeBoard {...props} />
+    if (element.type === "CODE_BOARD") {
+      slideNode = <CodeBoard {...element.props} />
       slideInstance = null
-    } else if (type === QUESTION_QUIZ_ELEMENT_TYPE) {
+    } else if (element.type === "QUESTION") {
       const questionInstanceRefHolder = createInstanceRefHolder()
       slideNode = (
         <Question
-          {...props}
+          {...element.props}
           handleOptionChange={handleQuestionOptionChange}
           refHolder={questionInstanceRefHolder}
         />
       )
       slideInstance = questionInstanceRefHolder.ref
+    } else if (element.type === "RESULT") {
+      const resultInstanceRefHolder = createInstanceRefHolder()
+      const questionsCount = elements.filter(
+        (elem) => elem.type === "QUESTION"
+      ).length
+
+      slideNode = (
+        <Result
+          questionsCount={questionsCount}
+          handleExplanationBtnClick={element.handleExplanationBtnClick}
+          refHolder={resultInstanceRefHolder}
+        />
+      )
+      slideInstance = resultInstanceRefHolder.ref
     }
 
     elementNodes.push(slideNode)
@@ -214,7 +219,7 @@ function getStoredQuizData(storageKey) {
 
 /**
  * @param {ExportedQuizData} data
- * @param {QuizProps["elements"]} quizElements
+ * @param {QuizProps} quizElements
  * @returns {data is ExportedQuizData}
  */
 function storedDataIsValidForQuiz(data, quizElements) {
@@ -238,31 +243,20 @@ function storeQuizData(data, storageKey) {
   window.localStorage.setItem(storageKey, JSON.stringify(data))
 }
 
-/**
- * @param {Question[]} questionInstances
- * @param {() => void} handleExplanationBtnClick
- */
-function buildQuizResult(questionInstances, handleExplanationBtnClick) {
+/** @param {QuizElementInstance[]} elementInstances */
+function getQuizResultData(elementInstances) {
+  const questionInstances = elementInstances.filter(
+    /** @returns {element is Question} */ (element) =>
+      element instanceof Question
+  )
+
   const gottenAnswersCount = questionInstances.reduce(
     (previousValue, instance) =>
       instance.correctAnswerIsPicked() ? previousValue + 1 : previousValue,
     0
   )
 
-  const resultRefHolder = createInstanceRefHolder()
-  const resultNode = (
-    <Result
-      answersGotten={gottenAnswersCount}
-      handleExplanationBtnClick={handleExplanationBtnClick}
-      questionsCount={questionInstances.length}
-      refHolder={resultRefHolder}
-    />
-  )
-
-  return {
-    resultNode,
-    resultInstance: /** @type {Result} */ (resultRefHolder.ref)
-  }
+  return { gottenAnswersCount }
 }
 
 /**
@@ -271,13 +265,16 @@ function buildQuizResult(questionInstances, handleExplanationBtnClick) {
  */
 function getQuizDataForSlide(elementInstances, slideIndex) {
   const slide = elementInstances[slideIndex]
-  const quizIsFinalized =
-    elementInstances[elementInstances.length - 1] instanceof Result
+  const resultIndex = elementInstances.length - 1
+  const resultInstance = elementInstances[resultIndex]
+  assertIsInstance(resultInstance, Result)
+
+  const quizIsFinalized = resultInstance.isFinalized()
   const slideIsFirst = slideIndex === 0
   const slideIsLast = slideIndex === elementInstances.length - 1
   const slideIsJustBeforeResult =
     quizIsFinalized && slideIndex === elementInstances.length - 2
-  const slideIsResult = quizIsFinalized && slideIsLast
+  const slideIsResult = slide === resultInstance
 
   const slideIsQuestion = slide instanceof Question
   const slideIsAnsweredQuestion = slideIsQuestion && slide.isAnswered()
@@ -300,7 +297,8 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
     quiz: {
       indexOfNextQuestion:
         indexOfNextQuizQuestion < 0 ? null : indexOfNextQuizQuestion,
-      isFinalized: quizIsFinalized
+      isFinalized: quizIsFinalized,
+      resultIndex
     }
   }
 }
@@ -337,16 +335,16 @@ function getProgressRevalidationOptions(slideQuizData) {
     slide: { index: slideIndex },
     quiz: {
       indexOfNextQuestion: indexOfNextQuizQuestion,
-      isFinalized: quizIsFinalized
+      isFinalized: quizIsFinalized,
+      resultIndex
     }
   } = slideQuizData
 
   return {
     activeLevelIndex: slideIndex,
-    highestEnabledLevelIndex:
-      quizIsFinalized || indexOfNextQuizQuestion === null
-        ? null
-        : indexOfNextQuizQuestion
+    highestEnabledLevelIndex: quizIsFinalized
+      ? null
+      : indexOfNextQuizQuestion ?? resultIndex - 1
   }
 }
 
@@ -356,9 +354,12 @@ function getProgressRevalidationOptions(slideQuizData) {
  */
 function getSlidePrevNextIndices(slideQuizData) {
   const { index, isFirst, isLast } = slideQuizData.slide
+  const { isFinalized, resultIndex } = slideQuizData.quiz
+  const precedesUnrenderedResult = !isFinalized && index === resultIndex - 1
+
   return {
     prev: isFirst ? null : index - 1,
-    next: isLast ? null : index + 1
+    next: isLast || precedesUnrenderedResult ? null : index + 1
   }
 }
 
@@ -426,32 +427,23 @@ export default class Quiz extends Component {
   }
 
   $handleCPanelSubmitCTAClick() {
-    const {
-      $elementInstances,
-      $metadata,
-      $submissionCallback,
-      $progress,
-      $presentation
-    } = this
+    const { $elementInstances, $metadata, $submissionCallback } = this
+
+    const resultIndex = $elementInstances.length - 1
+    const resultInstance = $elementInstances[$elementInstances.length - 1]
+    assertIsInstance(resultInstance, Result)
+
+    const { gottenAnswersCount } = getQuizResultData($elementInstances)
+    resultInstance.finalize(gottenAnswersCount)
 
     const questionInstances = $elementInstances.filter(
       /** @returns {element is Question} */ (element) =>
         element instanceof Question
     )
 
-    const { resultNode, resultInstance } = buildQuizResult(
-      questionInstances,
-      this.$handleResultExplanationBtnClick.bind(this)
-    )
-
-    $presentation.appendSlide(resultNode)
-    $progress.addCompletionLevel()
-    $elementInstances.push(resultInstance)
-
-    const resultIndex = $elementInstances.length - 1
+    questionInstances.forEach((questionElement) => questionElement.finalize())
     this.$revalidate(resultIndex)
 
-    questionInstances.forEach((questionElement) => questionElement.finalize())
     const questionMetadataSet = questionInstances.map((questionElement) =>
       questionElement.exportInteractionMetadata()
     )
@@ -595,17 +587,25 @@ export default class Quiz extends Component {
       storageKey
     } = normalizeQuizMetadataConfig(this.$props.metadata)
 
-    assertValidQuizElementConfig(elements)
+    assertValidQuizPropsElementConfig(elements)
 
-    const { elementNodes, elementInstances: builtInstances } =
-      buildQuizElements(elements, this.$handleQuestionOptionChange.bind(this))
+    /** @type {QuizResultElement} */
+    const resultElement = {
+      type: "RESULT",
+      handleExplanationBtnClick:
+        this.$handleResultExplanationBtnClick.bind(this)
+    }
 
-    const elementInstances = /** @type {QuizElementInstance[]} */ (
-      builtInstances
+    const { elementNodes, elementInstances } = buildQuizElements(
+      [...elements, resultElement],
+      this.$handleQuestionOptionChange.bind(this)
     )
 
     const availableQuizData =
       storedData ?? (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
+    const resultIndex = elementInstances.length - 1
+    const resultInstance = elementInstances[resultIndex]
+    assertIsInstance(resultInstance, Result)
 
     if (availableQuizData) {
       if (!storedDataIsValidForQuiz(availableQuizData, elements)) {
@@ -629,13 +629,8 @@ export default class Quiz extends Component {
           instance.finalize(questionMetadataSet[index])
         )
 
-        const { resultNode, resultInstance } = buildQuizResult(
-          questionInstances,
-          this.$handleResultExplanationBtnClick.bind(this)
-        )
-
-        elementNodes.push(resultNode)
-        elementInstances.push(resultInstance)
+        const { gottenAnswersCount } = getQuizResultData(elementInstances)
+        resultInstance.finalize(gottenAnswersCount)
       }
     }
 
@@ -658,7 +653,8 @@ export default class Quiz extends Component {
         <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
           handleLevelButtonClick={this.$handleProgressButtonClick.bind(this)}
-          levelsCount={elements.length}
+          levelsCount={elementInstances.length}
+          lastAsCompletionLevel
           refHolder={progressRefHolder}
         />
         <Presentation
@@ -672,11 +668,7 @@ export default class Quiz extends Component {
           handlePrevButtonClick={this.$handleCPanelBtnClick.bind(this, "prev")}
           handleNextButtonClick={this.$handleCPanelBtnClick.bind(this, "next")}
           handleCTAButtonClick={() => {
-            const { $elementInstances } = this
-            const resultIndexIfPresent = $elementInstances.length - 1
-            const shouldJumpToResult =
-              $elementInstances[resultIndexIfPresent] instanceof Result
-
+            const shouldJumpToResult = resultInstance.isFinalized()
             if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
             else this.$handleCPanelSubmitCTAClick()
           }}
@@ -692,11 +684,8 @@ export default class Quiz extends Component {
     /** @type {ControlPanel} */
     const controlPanel = controlPanelRefHolder.ref
 
-    const resultIsPropagated =
-      elementInstances[elementInstances.length - 1] instanceof Result
+    const appropriateIndex = resultInstance.isFinalized() ? resultIndex : 0
 
-    const appropriateIndex = resultIsPropagated ? elementNodes.length - 1 : 0
-    if (resultIsPropagated) progress.addCompletionLevel()
     revalidateQuiz({
       slideIndex: appropriateIndex,
       elementInstances,
