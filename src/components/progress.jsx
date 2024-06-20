@@ -1,5 +1,5 @@
 import Component, { createElementRefHolder } from "../core/component"
-import { attemptTabbableFocus } from "../lib/focus"
+import { attemptElementFocus } from "../lib/focus"
 import Styles from "../scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
@@ -42,7 +42,6 @@ function getLevelButtonContent(progressLevel) {
 
 function ProgressLevel({
   buttonContent,
-  handleLevelButtonClick,
   precedesCompletionLevel,
   isCompletionLevel
 }) {
@@ -56,11 +55,7 @@ function ProgressLevel({
         (isCompletionLevel ? ` ${Styles.Progress__Level_completion}` : "")
       }
     >
-      <button
-        className={Styles.Progress__LevelButton}
-        onClick={handleLevelButtonClick}
-        type="button"
-      >
+      <button className={Styles.Progress__LevelButton} type="button">
         {buttonContent}
       </button>
     </li>
@@ -70,7 +65,7 @@ function ProgressLevel({
 export default class Progress extends Component {
   $render() {
     const {
-      $props: { handleLevelButtonClick, levelsCount, lastAsCompletionLevel }
+      $props: { levelsCount, lastAsCompletionLevel }
     } = this
 
     /** @type {HTMLElement[]} */
@@ -82,7 +77,6 @@ export default class Progress extends Component {
 
       progressLevels.push(
         <ProgressLevel
-          handleLevelButtonClick={handleLevelButtonClick.bind(null, i)}
           buttonContent={
             isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
           }
@@ -107,8 +101,6 @@ export default class Progress extends Component {
     this.$progressLevels = progressLevels
     /** @type {number} */
     this.$activeProgressLevelIndex = 0
-    /** @type {(levelIndex: number, isCompletionLevel: boolean) => void} */
-    this.$levelButtonClickHandler = handleLevelButtonClick
 
     return progressNode
   }
@@ -178,7 +170,7 @@ export default class Progress extends Component {
   simulateClick(levelIndex) {
     assertValidLevelIndex(levelIndex, this.$progressLevels)
     const levelButton = getLevelButton(this.$progressLevels[levelIndex])
-    attemptTabbableFocus(levelButton)
+    attemptElementFocus(levelButton)
     levelButton.click()
   }
 }

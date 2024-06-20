@@ -1,5 +1,5 @@
 import Component, { createElementRefHolder } from "../core/component"
-import { attemptElementFocus, attemptTabbableFocus } from "../lib/focus"
+import { attemptElementFocus } from "../lib/focus"
 import Styles from "../scss/control-panel.module.scss"
 
 /**
@@ -101,13 +101,13 @@ export default class ControlPanel extends Component {
   /** @param {"next" | "prev" | "cta"} button */
   simulateClick(button) {
     if (button === "prev") {
-      attemptTabbableFocus(this.$prevButton)
+      attemptElementFocus(this.$prevButton)
       this.$prevButton.click()
     } else if (button === "next") {
-      attemptTabbableFocus(this.$nextButton)
+      attemptElementFocus(this.$nextButton)
       this.$nextButton.click()
     } else if (button === "cta") {
-      attemptTabbableFocus(this.$cta)
+      attemptElementFocus(this.$cta)
       this.$cta.click()
     } else throw new Error(`Unknown control panel button: '${button}'`)
   }

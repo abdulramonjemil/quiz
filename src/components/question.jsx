@@ -1,6 +1,6 @@
 import Component, { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
-import { attemptElementFocus, attemptTabbableFocus } from "../lib/focus"
+import { attemptElementFocus } from "../lib/focus"
 import { uniqueId } from "../lib/id"
 import Styles from "../scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
@@ -247,7 +247,7 @@ export default class Question extends Component {
       const toggleButton = this.$explanationElement.querySelector("button")
       if (!(toggleButton instanceof HTMLElement)) return
 
-      attemptTabbableFocus(toggleButton)
+      attemptElementFocus(toggleButton)
       toggleButton.click()
     } else {
       const { $answerInputs } = this

@@ -18,12 +18,14 @@ import { webStorageIsAvailable } from "../lib/storage"
 import { tryJSONParse } from "../lib/parse"
 import { attemptElementFocus } from "../lib/focus"
 import { assertIsInstance } from "../lib/validity"
+import { Tabs } from "../ui/tabs"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
  * @typedef {import("./question").QuestionMetadata} QuestionMetadata
  * @typedef {import("./progress").ProgressRevalidationOptions} ProgressRevalidationOptions
  * @typedef {import("./result").ResultProps} ResultProps
+ * @typedef {import("../ui/tabs").TabChangeHandler} TabChangeHandler
  */
 
 /**
@@ -351,13 +353,97 @@ function getProgressRevalidationOptions(slideQuizData) {
  */
 function getSlidePrevNextIndices(slideQuizData) {
   const { index, isFirst, isLast } = slideQuizData.slide
-  const { isFinalized, resultIndex } = slideQuizData.quiz
+  const { isFinalized, resultIndex, indexOfNextQuestion } = slideQuizData.quiz
   const precedesUnrenderedResult = !isFinalized && index === resultIndex - 1
 
   return {
     prev: isFirst ? null : index - 1,
-    next: isLast || precedesUnrenderedResult ? null : index + 1
+    next:
+      isLast ||
+      precedesUnrenderedResult ||
+      (indexOfNextQuestion && indexOfNextQuestion <= index)
+        ? null
+        : index + 1
   }
+}
+
+/** @param {string} tabName */
+function tabNameToQuizElementIndex(tabName) {
+  return Number(tabName)
+}
+
+/** @param {number} index */
+function quizElementIndexToTabName(index) {
+  return String(index)
+}
+
+/**
+ * @param {Object} param0
+ * @param {string} param0.tablistLabel
+ * @param {QuizElement[]} param0.elements
+ * @param {Presentation} param0.presentation
+ * @param {Progress} param0.progress
+ * @param {TabChangeHandler} param0.tabChangeHandler
+ * @param {number} param0.defaultTabIndex
+ */
+function setupQuizTabs({
+  tablistLabel,
+  elements,
+  presentation,
+  progress,
+  tabChangeHandler,
+  defaultTabIndex
+}) {
+  const progressElements = progress.elements()
+  const presentationSlides = presentation.slideNodes()
+
+  const qElementToIndexMap = new Map(
+    elements
+      .filter((element) => element.type === "QUESTION")
+      .map((element, index) => [element, index])
+  )
+
+  const codeToIndexMap = new Map(
+    elements
+      .filter((element) => element.type === "CODE_BOARD")
+      .map((element, index) => [element, index])
+  )
+
+  return new Tabs({
+    onTabChange: tabChangeHandler,
+    defaultTabName: quizElementIndexToTabName(defaultTabIndex),
+    elements: {
+      tablist: {
+        ref: progressElements.listRoot,
+        ariaLabel: tablistLabel
+      },
+      tabItems: elements.map((element, index) => {
+        const elementTabName = quizElementIndexToTabName(index)
+        const triggerId = uniqueId()
+        const contentId = uniqueId()
+
+        let triggerAriaLabel = ""
+        if (element.type === "QUESTION") {
+          triggerAriaLabel = `Question ${qElementToIndexMap.get(element) + 1}`
+        } else if (element.type === "CODE_BOARD") {
+          triggerAriaLabel = `Code Sample ${codeToIndexMap.get(element)}`
+        } else if (element.type === "RESULT") {
+          triggerAriaLabel = "Result"
+        }
+
+        return {
+          name: elementTabName,
+          triggerAriaLabel,
+          triggerId,
+          contentId,
+          refs: {
+            trigger: progressElements.buttons[index],
+            content: presentationSlides[index]
+          }
+        }
+      })
+    }
+  })
 }
 
 /**
@@ -366,6 +452,7 @@ function getSlidePrevNextIndices(slideQuizData) {
  * @param {QuizElementInstance[]} param0.elementInstances
  * @param {ControlPanel} param0.controlPanel
  * @param {Presentation} param0.presentation
+ * @param {Tabs} param0.tabs
  * @param {Progress} param0.progress
  */
 function revalidateQuiz({
@@ -373,6 +460,7 @@ function revalidateQuiz({
   elementInstances,
   controlPanel,
   presentation,
+  tabs,
   progress
 }) {
   const appropriateSlideQuizData = getQuizDataForSlide(
@@ -380,6 +468,7 @@ function revalidateQuiz({
     slideIndex
   )
 
+  tabs.setActiveTab(quizElementIndexToTabName(slideIndex))
   presentation.revalidate({ activeSlide: slideIndex })
   progress.revalidate(getProgressRevalidationOptions(appropriateSlideQuizData))
   controlPanel.revalidate(
@@ -572,6 +661,12 @@ export default class Quiz extends Component {
     $mutableStore.shortcutData.pressedNumberIsUsed = false
   }
 
+  /** @type {TabChangeHandler} */
+  $handleTabChange(newTabname, _, source) {
+    if (source !== "event") return
+    this.$revalidate(tabNameToQuizElementIndex(newTabname))
+  }
+
   $render() {
     const { elements, submissionCallback } = /** @type {QuizProps} */ (
       this.$props
@@ -593,8 +688,9 @@ export default class Quiz extends Component {
         this.$handleResultExplanationBtnClick.bind(this)
     }
 
+    const fullQuizElements = [...elements, resultElement]
     const { elementNodes, elementInstances } = buildQuizElements(
-      [...elements, resultElement],
+      fullQuizElements,
       this.$handleQuestionOptionChange.bind(this)
     )
 
@@ -683,11 +779,21 @@ export default class Quiz extends Component {
 
     const appropriateIndex = resultInstance.isFinalized() ? resultIndex : 0
 
+    const tabs = setupQuizTabs({
+      tablistLabel: header,
+      elements: fullQuizElements,
+      progress,
+      presentation,
+      defaultTabIndex: appropriateIndex,
+      tabChangeHandler: this.$handleTabChange.bind(this)
+    })
+
     revalidateQuiz({
       slideIndex: appropriateIndex,
       elementInstances,
       controlPanel,
       presentation,
+      tabs,
       progress
     })
 
@@ -703,6 +809,7 @@ export default class Quiz extends Component {
       }
     }
 
+    this.$tabs = tabs
     this.$progress = progress
     this.$presentation = presentation
     this.$controlPanel = controlPanel
@@ -712,10 +819,18 @@ export default class Quiz extends Component {
 
   /** @param {number} slideIndex */
   $revalidate(slideIndex) {
-    const { $elementInstances, $controlPanel, $presentation, $progress } = this
+    const {
+      $elementInstances,
+      $controlPanel,
+      $presentation,
+      $progress,
+      $tabs
+    } = this
+
     revalidateQuiz({
       slideIndex,
       elementInstances: $elementInstances,
+      tabs: $tabs,
       controlPanel: $controlPanel,
       presentation: $presentation,
       progress: $progress

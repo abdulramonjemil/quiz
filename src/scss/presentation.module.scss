@@ -1,4 +1,5 @@
 @use "partials/element";
+@use "partials/utils";
 
 .Presentation {
   width: 100%;
@@ -8,6 +9,10 @@
   container: element.$container-name / inline-size;
   display: none;
   margin-top: 20px;
+
+  &:focus-visible {
+    outline: 2px solid utils.get-color(deep-light);
+  }
 
   &_shown {
     display: block;
