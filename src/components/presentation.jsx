@@ -33,6 +33,10 @@ class Slide extends Component {
     )
   }
 
+  node() {
+    return /** @type {HTMLElement} */ (this.$composedNode)
+  }
+
   /** @param {"shown" | "hidden"} state */
   setShownState(state) {
     const { classList } = this.$composedNode
@@ -105,8 +109,8 @@ export default class Presentation extends Component {
     this.$showSlide(newActiveSlideIndex)
   }
 
-  slideContents() {
-    return [...this.$slideContents]
+  slideNodes() {
+    return this.$slideInstances.map((instance) => instance.node())
   }
 
   slidesCount() {

@@ -140,6 +140,10 @@ export default class Progress extends Component {
     return this.$activeProgressLevelIndex
   }
 
+  buttons() {
+    return this.$progressLevels.map((level) => getLevelButton(level))
+  }
+
   hasCompletionLevel() {
     const lastProgressLevel =
       this.$progressLevels[this.$progressLevels.length - 1]
