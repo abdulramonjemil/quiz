@@ -95,5 +95,8 @@ export const circularlyFindForward = (array, predicate, startIndex = 0) =>
  * @param {(item: ArrayItem) => boolean} predicate
  * @param {number} startIndex
  */
-export const circularlyFindBackward = (array, predicate, startIndex = 0) =>
-  find({ array, predicate, startIndex, wrap: true, reverse: true })
+export const circularlyFindBackward = (
+  array,
+  predicate,
+  startIndex = array.length - 1
+) => find({ array, predicate, startIndex, wrap: true, reverse: true })
