@@ -711,7 +711,10 @@ export default class Quiz extends Component {
           throw new Error(`Invalid quiz data supplied:\n\n${storedData}`)
         } else {
           // eslint-disable-next-line no-console
-          console.error(`Invalid quiz data read from storage:\n\n${storedData}`)
+          console.error(
+            `Invalid quiz data read from storage:\n\n${storedData}. ` +
+              "This could be because there are multiple quizzes using the same storage key."
+          )
           // Data was read from storage
           removeStoredQuizData(storageKey)
         }
