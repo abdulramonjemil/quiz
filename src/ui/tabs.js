@@ -153,7 +153,8 @@ export class Tabs extends UIComponent {
     return {
       tablist: {
         role: "tablist",
-        "aria-label": tablist.ariaLabel
+        "aria-label": tablist.ariaLabel,
+        "aria-orientation": "horizontal"
       },
       tabItems: tabItems.map((item) => ({
         trigger: {
