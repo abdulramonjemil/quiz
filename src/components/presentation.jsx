@@ -48,7 +48,7 @@ class Slide extends Component {
 
 export default class Presentation extends Component {
   $render() {
-    const { controllingId, slides } = this.$props
+    const { id, slides } = this.$props
 
     const slideContents = Array.from(new Set(slides))
     const slideNodes = []
@@ -69,11 +69,7 @@ export default class Presentation extends Component {
     slideToShow.setShownState("shown")
 
     const presentationNode = (
-      <div
-        aria-live="polite"
-        className={Styles.Presentation}
-        id={controllingId}
-      >
+      <div aria-live="polite" className={Styles.Presentation} id={id}>
         {slideNodes}
       </div>
     )

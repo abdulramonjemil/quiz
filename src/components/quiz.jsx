@@ -758,12 +758,12 @@ export default class Quiz extends Component {
           refHolder={progressRefHolder}
         />
         <Presentation
-          controllingId={presentationControllingId}
+          id={presentationControllingId}
           refHolder={presentationRefHolder}
           slides={elementNodes}
         />
         <ControlPanel
-          controllingId={presentationControllingId}
+          controlledElementId={presentationControllingId}
           altFocusableRefHolder={quizRootRefHolder}
           handlePrevButtonClick={this.$handleCPanelBtnClick.bind(this, "prev")}
           handleNextButtonClick={this.$handleCPanelBtnClick.bind(this, "next")}

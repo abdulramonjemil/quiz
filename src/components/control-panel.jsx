@@ -18,7 +18,7 @@ export default class ControlPanel extends Component {
     const {
       // This is focused when the next or prev buttons are disabled
       altFocusableRefHolder,
-      controllingId,
+      controlledElementId,
       handlePrevButtonClick,
       handleNextButtonClick,
       handleCTAButtonClick
@@ -37,7 +37,7 @@ export default class ControlPanel extends Component {
       <div className={Styles.ControlPanelContainer}>
         <div className={Styles.ControlPanel}>
           <button
-            aria-controls={controllingId}
+            aria-controls={controlledElementId}
             className={Styles.Prev}
             onClick={handlePrevButtonClick}
             refHolder={prevButtonRefHolder}
@@ -46,7 +46,7 @@ export default class ControlPanel extends Component {
             Prev
           </button>
           <button
-            aria-controls={controllingId}
+            aria-controls={controlledElementId}
             className={Styles.Next}
             onClick={handleNextButtonClick}
             refHolder={nextButtonRefHolder}
@@ -55,7 +55,7 @@ export default class ControlPanel extends Component {
             Next
           </button>
           <button
-            aria-controls={controllingId}
+            aria-controls={controlledElementId}
             className={Styles.Submit}
             onClick={handleCTAButtonClick}
             refHolder={submitButtonRefHolder}
