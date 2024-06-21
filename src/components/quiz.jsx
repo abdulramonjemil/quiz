@@ -425,7 +425,7 @@ function setupQuizTabs({
         if (element.type === "QUESTION") {
           triggerAriaLabel = `Question ${qElementToIndexMap.get(element) + 1}`
         } else if (element.type === "CODE_BOARD") {
-          triggerAriaLabel = `Code Sample ${codeToIndexMap.get(element)}`
+          triggerAriaLabel = `Code Sample ${codeToIndexMap.get(element) + 1}`
         } else if (element.type === "RESULT") {
           triggerAriaLabel = "Result"
         }
