@@ -23,38 +23,33 @@ import { Tabs } from "../ui/tabs"
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
  * @typedef {import("./question").QuestionMetadata} QuestionMetadata
  * @typedef {import("./progress").ProgressRevalidationOptions} ProgressRevalidationOptions
+ * @typedef {import("./question").QuestionProps} QuestionProps
+ * @typedef {import("./code-board").CodeBoardProps} CodeBoardProps
  * @typedef {import("./result").ResultProps} ResultProps
  * @typedef {import("../ui/tabs").TabChangeHandler} TabChangeHandler
  */
 
 /**
- * @typedef ExportedQuizData
- * @property {QuestionMetadata[]} questionMetadataSet
- * @property {number} elementsCount
- */
-
-/**
- * @typedef QuizQuestionElement
- * @property {"QUESTION"} type
- * @property {{
- *   title: string,
- *   answer: "A" | "B" | "C" | "D",
- *   options: [string, string, ...string[]] & { length: 2 | 3 | 4 },
- *   explanation?: string | undefined
- * }} props
- */
-
-/**
- * @typedef QuizCodeBoardElement
- * @property {"CODE_BOARD"} type
- * @property {{
- *   title: string,
- *   language: string,
- *   snippet: string
- * }} props
- */
-
-/**
+ * @typedef {{
+ *   questionMetadataSet: QuestionMetadata[];
+ *   elementsCount: number;
+ * }} ExportedQuizData
+ *
+ * @typedef {{
+ *   type: "QUESTION",
+ *   title: QuestionProps["title"]
+ *   answer: QuestionProps["answer"]
+ *   options: QuestionProps["options"]
+ *   explanation: QuestionProps["explanation"]
+ * }} QuizQuestionElement
+ *
+ * @typedef {{
+ *   type: "CODE_BOARD",
+ *   title: CodeBoardProps["title"],
+ *   language: CodeBoardProps["language"],
+ *   snippet: CodeBoardProps["snippet"]
+ * }} QuizCodeBoardElement
+ *
  * @typedef {{
  *   type: "RESULT",
  *   handleExplanationBtnClick: ResultProps["handleExplanationBtnClick"]
@@ -148,13 +143,22 @@ function buildQuizElements(elements, handleQuestionOptionChange) {
     let slideInstance
 
     if (element.type === "CODE_BOARD") {
-      slideNode = <CodeBoard {...element.props} />
+      slideNode = (
+        <CodeBoard
+          snippet={element.snippet}
+          language={element.language}
+          title={element.title}
+        />
+      )
       slideInstance = null
     } else if (element.type === "QUESTION") {
       const questionInstanceRefHolder = createInstanceRefHolder()
       slideNode = (
         <Question
-          {...element.props}
+          title={element.title}
+          options={element.options}
+          answer={element.answer}
+          explanation={element.explanation}
           handleOptionChange={handleQuestionOptionChange}
           refHolder={questionInstanceRefHolder}
         />
