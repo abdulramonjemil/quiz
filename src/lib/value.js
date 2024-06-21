@@ -15,7 +15,7 @@ export function tryJSONParse(value) {
  * @template {new () => any} Constructor
  * @param {Value} value
  * @param {Constructor} constructor
- * @returns {asserts value is InstanceType<Constructor}
+ * @returns {asserts value is InstanceType<Constructor>}
  */
 export function assertIsInstance(value, constructor) {
   if (!(value instanceof constructor)) {
