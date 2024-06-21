@@ -116,7 +116,15 @@ export const findFirst = (array, predicate, startIndex = 0) =>
  *
  * @param {ArrayItem[]} array
  * @param {(item: ArrayItem) => boolean} predicate
- * @param {number} startIndex
+ * @param {number} highestIndex
  */
-export const findLast = (array, predicate, startIndex = array.length - 1) =>
-  find({ array, predicate, startIndex, wrap: false, backward: true })
+export const findLast = (array, predicate, highestIndex = array.length - 1) => {
+  const result = find({
+    array,
+    predicate,
+    startIndex: highestIndex,
+    wrap: false,
+    backward: true
+  })
+  return result
+}
