@@ -60,10 +60,10 @@ export class UIComponent {
    */
   constructor(config, state) {
     /**
-     * @private
+     * @protected
      * @type {State}
      */
-    this.$$state = state
+    this.$state = state
 
     /**
      * @protected
@@ -92,20 +92,6 @@ export class UIComponent {
   // eslint-disable-next-line class-methods-use-this
   $doStaticMarkupRender() {
     throwAbsentMethodError(this.constructor, "$doStaticMarkupRender")
-  }
-
-  /** @protected */
-  $getState() {
-    return /** @type {Readonly<State>} */ (this.$$state)
-  }
-
-  /**
-   * @protected
-   * @param {State} state
-   */
-  $setState(state) {
-    this.$$state = state
-    this.render()
   }
 
   /** @type {() => UIComponentElementsAttributeSet} */

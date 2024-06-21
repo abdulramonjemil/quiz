@@ -94,12 +94,15 @@ export class Tabs extends UIComponent {
 
   /** @param {number} index */
   $handleTabTriggerClick(index) {
-    const { activeTabIndex } = this.$getState()
+    const { activeTabIndex } = this.$state
     if (activeTabIndex === index) return
 
     const oldTabName = this.$config.elements.tabItems[activeTabIndex].name
     const newTabName = this.$config.elements.tabItems[index].name
-    this.$setState({ activeTabIndex: index })
+
+    this.$state = /** @satisfies {TabsState} */ { activeTabIndex: index }
+    this.render()
+
     this.$config.onTabChange?.(newTabName, oldTabName, "event")
   }
 
@@ -108,7 +111,7 @@ export class Tabs extends UIComponent {
    * @param {KeyboardEvent} event
    */
   $handleTabTriggerLeftRightKeyDown(type, event) {
-    const { activeTabIndex } = this.$getState()
+    const { activeTabIndex } = this.$state
     const { tabItems } = this.$config.elements
 
     /** @param {(typeof tabItems)[number]} item */
@@ -126,7 +129,7 @@ export class Tabs extends UIComponent {
 
   getManagedElementAttributeSets() {
     const { elements } = this.$config
-    const { activeTabIndex } = this.$getState()
+    const { activeTabIndex } = this.$state
 
     return {
       tabItems: elements.tabItems.map((item, index) => {
@@ -190,10 +193,14 @@ export class Tabs extends UIComponent {
       throwInvalidTabNameError(tabName)
     }
 
-    const { activeTabIndex } = this.$getState()
+    const { activeTabIndex } = this.$state
     const oldTabName = this.$config.elements.tabItems[activeTabIndex].name
 
-    this.$setState({ activeTabIndex: intendedItemIndex })
+    this.$state = /** @satisfies {TabsState} */ {
+      activeTabIndex: intendedItemIndex
+    }
+    this.render()
+
     this.$config.onTabChange?.(tabName, oldTabName, "api")
   }
 }
