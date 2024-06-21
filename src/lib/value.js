@@ -57,12 +57,12 @@ export function assertOverwrittenParentMethods(
  * @param {ArrayItem[]} param0.array
  * @param {number} param0.startIndex
  * @param {(item: ArrayItem) => boolean} param0.predicate
- * @param {boolean} param0.reverse
+ * @param {boolean} param0.backward
  * @param {boolean} param0.wrap
  */
-export function find({ array, startIndex, wrap, reverse, predicate }) {
-  const arr = reverse ? [...array].reverse() : array
-  const start = reverse ? array.length - startIndex - 1 : startIndex
+export function find({ array, startIndex, wrap, backward, predicate }) {
+  const arr = backward ? [...array].reverse() : array
+  const start = backward ? array.length - startIndex - 1 : startIndex
 
   // Iterate from startIndex to the end of the array
   for (let i = start; i < arr.length; i += 1) {
@@ -86,7 +86,7 @@ export function find({ array, startIndex, wrap, reverse, predicate }) {
  * @param {number} startIndex
  */
 export const circularlyFindForward = (array, predicate, startIndex = 0) =>
-  find({ array, predicate, startIndex, wrap: true, reverse: false })
+  find({ array, predicate, startIndex, wrap: true, backward: false })
 
 /**
  * @template {any} ArrayItem
@@ -99,4 +99,4 @@ export const circularlyFindBackward = (
   array,
   predicate,
   startIndex = array.length - 1
-) => find({ array, predicate, startIndex, wrap: true, reverse: true })
+) => find({ array, predicate, startIndex, wrap: true, backward: true })
