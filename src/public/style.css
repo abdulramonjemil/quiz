@@ -12,3 +12,7 @@ pre[class*="language-"],
 code[class*="language-"] {
   font-family: "Fira Code", monospace;
 }
+
+.separator {
+  height: 50px;
+}

@@ -61,6 +61,7 @@ import { Tabs } from "../ui/tabs"
  * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizPropElement
  * @typedef {QuizQuestionElement | QuizCodeBoardElement | QuizResultElement} QuizElement
  * @typedef {Question | Result | null} QuizElementInstance
+ * @typedef {typeof Quiz} QuizClass
  *
  * @typedef {{
  *   prev: number | null;
