@@ -192,7 +192,7 @@ function buildQuizElements(elements, handleQuestionOptionChange) {
  * @param {unknown} data
  * @returns {data is ExportedQuizData}
  */
-function isValidQuizData(data) {
+function isValidExportedQuizData(data) {
   if (typeof data !== "object") return false
   const { questionMetadataSet, elementsCount } =
     /** @type {ExportedQuizData} */ (data)
@@ -220,7 +220,7 @@ function getStoredQuizData(storageKey) {
   }
 
   const { value } = parseResult
-  return isValidQuizData(value) ? value : null
+  return isValidExportedQuizData(value) ? value : null
 }
 
 /**
