@@ -1,4 +1,17 @@
 /**
+ * @param {string} value
+ * @returns {{ success: true, value: unknown } | { success: false }}
+ */
+export function tryJSONParse(value) {
+  try {
+    const parseResult = JSON.parse(value)
+    return { success: true, value: parseResult }
+  } catch {
+    return { success: false }
+  }
+}
+
+/**
  * @template {new () => any} Constructor
  * @param {Value} value
  * @param {Constructor} constructor
@@ -13,35 +26,74 @@ export function assertIsInstance(value, constructor) {
 }
 
 /**
+ * @param {new (...args: any[]) => object} classRef
+ * @param {string} methodName
+ */
+export function throwAbsentMethodError(classRef, methodName) {
+  throw new Error(`Expected '${classRef.name}' to implement '${methodName}()'`)
+}
+
+/**
+ * @param {new (...args: any[]) => object} parentClass
+ * @param {new (...args: any[]) => object} childClass
+ * @param {string[]} methods
+ */
+export function assertOverwrittenParentMethods(
+  parentClass,
+  childClass,
+  methods
+) {
+  methods.forEach((method) => {
+    if (childClass.prototype[method] === parentClass.prototype[method]) {
+      throwAbsentMethodError(childClass, method)
+    }
+  })
+}
+
+/**
  * @template {any} ArrayItem
  *
  * @param {Object} param0
  * @param {ArrayItem[]} param0.array
  * @param {number} param0.startIndex
  * @param {(item: ArrayItem) => boolean} param0.predicate
+ * @param {boolean} param0.reverse
  * @param {boolean} param0.wrap
  */
-export function findFirstMatchingItem({
-  array,
-  startIndex,
-  predicate,
-  wrap = false
-}) {
+export function find({ array, startIndex, wrap, reverse, predicate }) {
+  const arr = reverse ? [...array].reverse() : array
+  const start = reverse ? array.length - startIndex - 1 : startIndex
+
   // Iterate from startIndex to the end of the array
-  for (let i = startIndex; i < array.length; i += 1) {
-    if (predicate(array[i]) === true) {
-      return array[i]
-    }
+  for (let i = start; i < arr.length; i += 1) {
+    if (predicate(arr[i]) === true) return arr[i]
   }
 
   if (wrap) {
-    // Iterate from the beginning of the array to the startIndex
-    for (let i = 0; i < startIndex; i += 1) {
-      if (predicate(array[i]) === true) {
-        return array[i]
-      }
+    for (let i = 0; i < start; i += 1) {
+      if (predicate(arr[i]) === true) return arr[i]
     }
   }
 
   return null
 }
+
+/**
+ * @template {any} ArrayItem
+ *
+ * @param {ArrayItem[]} array
+ * @param {(item: ArrayItem) => boolean} predicate
+ * @param {number} startIndex
+ */
+export const circularlyFindForward = (array, predicate, startIndex = 0) =>
+  find({ array, predicate, startIndex, wrap: true, reverse: false })
+
+/**
+ * @template {any} ArrayItem
+ *
+ * @param {ArrayItem[]} array
+ * @param {(item: ArrayItem) => boolean} predicate
+ * @param {number} startIndex
+ */
+export const circularlyFindBackward = (array, predicate, startIndex = 0) =>
+  find({ array, predicate, startIndex, wrap: true, reverse: true })

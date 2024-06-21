@@ -15,9 +15,8 @@ import ControlPanel from "./control-panel"
 
 import { uniqueId } from "../lib/id"
 import { webStorageIsAvailable } from "../lib/storage"
-import { tryJSONParse } from "../lib/parse"
-import { attemptElementFocus } from "../lib/focus"
-import { assertIsInstance } from "../lib/value"
+import { attemptElementFocus } from "../lib/dom"
+import { assertIsInstance, tryJSONParse } from "../lib/value"
 import { Tabs } from "../ui/tabs"
 
 /**

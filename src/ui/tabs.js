@@ -1,6 +1,6 @@
 import { AriaKeys } from "../lib/accessibility"
-import { attemptElementFocus } from "../lib/focus"
-import { findFirstMatchingItem } from "../lib/value"
+import { attemptElementFocus } from "../lib/dom"
+import { circularlyFindBackward, circularlyFindForward } from "../lib/value"
 import { UIComponent } from "./component"
 
 /**
@@ -110,20 +110,17 @@ export class Tabs extends UIComponent {
   $handleTabTriggerLeftRightKeyDown(type, event) {
     const { activeTabIndex } = this.$getState()
     const { tabItems } = this.$config.elements
-    const array = type === "right" ? [...tabItems] : [...tabItems].reverse()
-    const startIndex =
-      type === "right" ? activeTabIndex + 1 : tabItems.length - activeTabIndex
 
-    const focused = findFirstMatchingItem({
-      array,
-      startIndex,
-      predicate: (item) => attemptElementFocus(item.refs.trigger),
-      wrap: true
-    })?.refs.trigger
+    /** @param {(typeof tabItems)[number]} item */
+    const acceptsFocus = (item) => attemptElementFocus(item.refs.trigger)
+    const focused =
+      type === "left"
+        ? circularlyFindBackward(tabItems, acceptsFocus, activeTabIndex - 1)
+        : circularlyFindForward(tabItems, acceptsFocus, activeTabIndex + 1)
 
     if (focused) {
       event.preventDefault()
-      focused.click()
+      focused.refs.trigger.click()
     }
   }
 

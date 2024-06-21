@@ -2,7 +2,7 @@ import { setElementHTMLAttribute } from "../lib/dom"
 import {
   assertOverwrittenParentMethods,
   throwAbsentMethodError
-} from "../lib/oop"
+} from "../lib/value"
 
 /**
  * @typedef {HTMLElement |

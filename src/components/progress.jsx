@@ -1,5 +1,5 @@
 import Component, { createElementRefHolder } from "../core/component"
-import { attemptElementFocus } from "../lib/focus"
+import { attemptElementFocus } from "../lib/dom"
 import Styles from "../scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
