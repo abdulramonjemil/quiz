@@ -13,11 +13,19 @@ const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
 const ENABLED_EXPLANATION_CLASS = Styles.Explanation_enabled
 const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
 
-/** @typedef {"A" | "B" | "C" | "D"} AnswerOption */
-
 /**
- * @typedef QuestionMetadata
- * @property {AnswerOption} selectedOption
+ * @typedef {"A" | "B" | "C" | "D"} AnswerOption
+ * @typedef {{
+ *   selectedOption: AnswerOption;
+ * }} QuestionMetadata
+ *
+ * @typedef {{
+ *   title: string,
+ *   answer: "A" | "B" | "C" | "D",
+ *   options: [string, string, ...string[]] & { length: 2 | 3 | 4 },
+ *   explanation?: string | undefined,
+ *   handleOptionChange: () => void
+ * }} QuestionProps
  */
 
 function Option({ handleOptionChange, letter, name, text }) {
@@ -106,7 +114,7 @@ export default class Question extends Component {
 
   $render() {
     const { answer, explanation, handleOptionChange, options, title } =
-      this.$props
+      /** @type {QuestionProps} */ (this.$props)
     const answerOptions = []
     const groupingName = uniqueId()
 
