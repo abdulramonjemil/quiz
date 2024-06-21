@@ -100,3 +100,23 @@ export const circularlyFindBackward = (
   predicate,
   startIndex = array.length - 1
 ) => find({ array, predicate, startIndex, wrap: true, backward: true })
+
+/**
+ * @template {any} ArrayItem
+ *
+ * @param {ArrayItem[]} array
+ * @param {(item: ArrayItem) => boolean} predicate
+ * @param {number} startIndex
+ */
+export const findFirst = (array, predicate, startIndex = 0) =>
+  find({ array, predicate, startIndex, wrap: false, backward: false })
+
+/**
+ * @template {any} ArrayItem
+ *
+ * @param {ArrayItem[]} array
+ * @param {(item: ArrayItem) => boolean} predicate
+ * @param {number} startIndex
+ */
+export const findLast = (array, predicate, startIndex = array.length - 1) =>
+  find({ array, predicate, startIndex, wrap: false, backward: true })

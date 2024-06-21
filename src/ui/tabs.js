@@ -1,6 +1,11 @@
 import { AriaKeys } from "../lib/accessibility"
 import { attemptElementFocus } from "../lib/dom"
-import { circularlyFindBackward, circularlyFindForward } from "../lib/value"
+import {
+  circularlyFindBackward,
+  circularlyFindForward,
+  findFirst,
+  findLast
+} from "../lib/value"
 import { UIComponent } from "./component"
 
 /**
@@ -75,7 +80,12 @@ export class Tabs extends UIComponent {
           event.key === AriaKeys.ArrowRight
         ) {
           const type = event.key === AriaKeys.ArrowLeft ? "left" : "right"
-          this.$handleTabTriggerLeftRightKeyDown(type, event)
+          this.$handleTabTriggerLeftRightKeyDown(event, type)
+        }
+
+        if (event.key === AriaKeys.Home || event.key === AriaKeys.End) {
+          const type = event.key === AriaKeys.Home ? "home" : "end"
+          this.$handleTabTriggerHomeEndKeyDown(event, type)
         }
       })
     })
@@ -107,10 +117,30 @@ export class Tabs extends UIComponent {
   }
 
   /**
-   * @param {"left" | "right"} type
    * @param {KeyboardEvent} event
+   * @param {"home" | "end"} type
    */
-  $handleTabTriggerLeftRightKeyDown(type, event) {
+  $handleTabTriggerHomeEndKeyDown(event, type) {
+    const { tabItems } = this.$config.elements
+    /** @param {(typeof tabItems)[number]} item */
+    const acceptsFocus = (item) => attemptElementFocus(item.refs.trigger)
+
+    const focused =
+      type === "home"
+        ? findFirst(tabItems, acceptsFocus)
+        : findLast(tabItems, acceptsFocus)
+
+    if (focused) {
+      event.preventDefault()
+      focused.refs.trigger.click()
+    }
+  }
+
+  /**
+   * @param {KeyboardEvent} event
+   * @param {"left" | "right"} type
+   */
+  $handleTabTriggerLeftRightKeyDown(event, type) {
     const { activeTabIndex } = this.$state
     const { tabItems } = this.$config.elements
 
