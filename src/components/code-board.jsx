@@ -6,6 +6,14 @@ import { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
 import Styles from "../scss/code-board.module.scss"
 
+/**
+ * @typedef {{
+ *   title: string;
+ *   language: string;
+ *   snippet: string;
+ * }} CodeBoardProps
+ */
+
 const PRISMJS_COMPONENTS_CDN_URL =
   "https://cdn.jsdelivr.net/npm/prismjs@1.x/components/"
 
@@ -13,6 +21,7 @@ window.Prism = window.Prism || {}
 Prism.plugins.autoloader.languages_path = PRISMJS_COMPONENTS_CDN_URL
 Prism.manual = true
 
+/** @param {CodeBoardProps} param0 */
 export default function CodeBoard({ snippet, language, title }) {
   const codeRefHolder = createElementRefHolder()
   const codeBoardNode = (
