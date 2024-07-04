@@ -85,6 +85,10 @@ function Explanation({ content, rootRefHolder }) {
   )
 }
 
+/**
+ * @template {QuestionProps} Props
+ * @extends {Component<Props>}
+ */
 export default class Question extends Component {
   static $styleAnswerInputOption(answerInput, type) {
     const answerInputLabel = answerInput.closest("label")
@@ -114,7 +118,7 @@ export default class Question extends Component {
 
   $render() {
     const { answer, explanation, handleOptionChange, options, title } =
-      /** @type {QuestionProps} */ (this.$props)
+      this.$props
     const answerOptions = []
     const groupingName = uniqueId()
 
