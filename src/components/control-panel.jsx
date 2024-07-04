@@ -86,8 +86,8 @@ export default class ControlPanel extends Component {
       [this.$nextButton, enableNext],
       [this.$cta, enableCTA]
     ].some(
-      ([button, buttonIsEnabled]) =>
-        button.contains(document.activeElement) && !buttonIsEnabled
+      ([button, buttonWillRemainEnabled]) =>
+        button.contains(document.activeElement) && !buttonWillRemainEnabled
     )
 
     if (shouldRefocus) attemptElementFocus(this.$altFocusableRefHolder.ref)
