@@ -3,7 +3,7 @@ import { attemptElementFocus } from "../lib/dom"
 import Styles from "../scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
-const COMPLETION_LEVEL_BUTTON_CONTENT = "✔"
+const COMPLETION_LEVEL_BUTTON_CONTENT = "✓"
 
 /**
  * @param {levelIndex} number
@@ -78,7 +78,13 @@ export default class Progress extends Component {
       progressLevels.push(
         <ProgressLevel
           buttonContent={
-            isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
+            isCompletionLevel ? (
+              <span style="color: inherit; font-weight: 700;">
+                {COMPLETION_LEVEL_BUTTON_CONTENT}
+              </span>
+            ) : (
+              i + 1
+            )
           }
           precedesCompletionLevel={lastAsCompletionLevel && isSecondToLastLevel}
           isCompletionLevel={isCompletionLevel}
