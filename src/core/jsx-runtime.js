@@ -178,7 +178,7 @@ function resolveJSXElement(type, { children, ...otherProps }, key) {
 }
 
 function resolveFragment(_, children) {
-  return children
+  return resolveToNode(children)
 }
 
 export {
