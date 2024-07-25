@@ -1,7 +1,6 @@
 @use "partials/utils";
 
 %reset-element {
-  color: utils.get-color(deep-light);
   font-family: inherit;
 
   border: none;
@@ -19,6 +18,8 @@
   border-color: utils.get-color(deep-light);
   border-style: solid;
   border-width: 2px 0;
+  color: utils.get-color(deep-light);
+
   font-size: 14px;
   padding: 25px 16px;
   max-width: 1000px;

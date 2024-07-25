@@ -42,6 +42,7 @@
   @extend %control-button;
 
   background-color: utils.get-color(soft-dark);
+  color: utils.get-color(deep-light);
 
   &:not(:disabled):hover {
     background-color: color.change(utils.get-color(soft-dark), $alpha: 0.8);
