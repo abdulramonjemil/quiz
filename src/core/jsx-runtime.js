@@ -1,5 +1,8 @@
-import { resolveToNode } from "../lib/dom"
-import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
+import Component, {
+  isElementRefHolder,
+  isInstanceRefHolder,
+  resolveToNode
+} from "./component"
 
 const PROP_FOR_REF_HOLDER = "refHolder"
 const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
