@@ -119,8 +119,8 @@ function normalizeQuizMetadataConfig(metadata) {
  */
 function assertValidQuizPropsElementConfig(elements) {
   const elementsCount = elements.length
-  if (elementsCount < 2)
-    throw new TypeError("There must be at least two quiz elements")
+  if (elementsCount < 1 || elementsCount > 5)
+    throw new TypeError("There can only be 1 to 5 quiz elements")
 
   const lastQuizElement = elements[elementsCount - 1]
   if (lastQuizElement.type !== "QUESTION")

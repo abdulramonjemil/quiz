@@ -1,5 +1,5 @@
 // eslint-disable-next-line import/extensions
-import { SAMPLE_QUIZ_DATA_1, SAMPLE_QUIZ_DATA_2 } from "./sample.js"
+import { SAMPLE_QUIZ_DATA } from "./sample.js"
 
 /**
  * @typedef {import("../components/quiz").QuizClass} QuizClass
@@ -15,7 +15,7 @@ const secondQuizContainer = document.getElementById("quiz-2")
 Quiz.create({
   container: firstQuizContainer,
   props: {
-    elements: SAMPLE_QUIZ_DATA_1,
+    elements: SAMPLE_QUIZ_DATA.slice(0, 5),
     metadata: {
       autoSave: true,
       // autoSave: false,
@@ -36,7 +36,7 @@ Quiz.create({
 Quiz.create({
   container: secondQuizContainer,
   props: {
-    elements: SAMPLE_QUIZ_DATA_2,
+    elements: SAMPLE_QUIZ_DATA.slice(6, 7),
     metadata: {
       autoSave: true,
       // autoSave: false,

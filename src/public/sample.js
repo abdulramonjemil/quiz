@@ -1,5 +1,5 @@
 /** @type {import("../components/quiz").QuizProps["elements"]} */
-export const SAMPLE_QUIZ_DATA_1 = [
+export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "What method can you use to add an item to the end of an array?",
@@ -46,11 +46,7 @@ export const SAMPLE_QUIZ_DATA_1 = [
     title: "Do you think I hate food?",
     answer: "C",
     options: ["Yes", "~~I love it since you used `webpack`", "Whatever"]
-  }
-]
-
-/** @type {import("../components/quiz").QuizProps["elements"]} */
-export const SAMPLE_QUIZ_DATA_2 = [
+  },
   {
     type: "CODE_BOARD",
     title: "Example of a simple C program",
