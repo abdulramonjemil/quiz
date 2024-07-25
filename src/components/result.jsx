@@ -174,17 +174,19 @@ export default class Result extends Component {
       )
 
       const actualResultNode = (
-        <div className={Styles.Result}>
-          <ResultIndicator
-            scoredPercentage={scoredPercentage}
-            indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
-          />
-          <ResultBoard
-            answersGotten={answersGotten}
-            handleExplanationBtnClick={handleExplanationBtnClick}
-            questionsCount={questionsCount}
-          />
-        </div>
+        <ScrollShadow maxSizes={{ bottom: 25 }}>
+          <div className={Styles.Result}>
+            <ResultIndicator
+              scoredPercentage={scoredPercentage}
+              indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
+            />
+            <ResultBoard
+              answersGotten={answersGotten}
+              handleExplanationBtnClick={handleExplanationBtnClick}
+              questionsCount={questionsCount}
+            />
+          </div>
+        </ScrollShadow>
       )
 
       placeholder.replaceWith(actualResultNode)
@@ -193,9 +195,7 @@ export default class Result extends Component {
 
     const resultNode = (
       <div className={Styles.ResultContainer}>
-        <ScrollShadow maxSizes={{ bottom: 25 }}>
-          <div refHolder={placeholderRefHolder} />
-        </ScrollShadow>
+        <div refHolder={placeholderRefHolder} />
       </div>
     )
 
