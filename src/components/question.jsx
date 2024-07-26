@@ -23,7 +23,7 @@ const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
  * @typedef {{
  *   title: string,
  *   answer: "A" | "B" | "C" | "D",
- *   options: [string, string, ...string[]] & { length: 2 | 3 | 4 },
+ *   options: string[],
  *   explanation?: string | undefined,
  *   handleOptionChange: () => void
  * }} QuestionProps
