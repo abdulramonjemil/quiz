@@ -252,11 +252,12 @@ export default class Question extends Component {
 
   /** @param {{ type: "option", value: AnswerOption } | { type: "toggle" }} options  */
   simulateClick(options) {
+    let focused = false
     if (options.type === "toggle") {
       const toggleButton = this.$explanationElement.querySelector("button")
-      if (!(toggleButton instanceof HTMLElement)) return
+      if (!(toggleButton instanceof HTMLElement)) return false
 
-      attemptElementFocus(toggleButton)
+      focused = attemptElementFocus(toggleButton)
       toggleButton.click()
     } else {
       const { $answerInputs } = this
@@ -266,9 +267,11 @@ export default class Question extends Component {
 
       const inputAtIndex = $answerInputs[answerIndex]
       if (answerIndex >= 0 && inputAtIndex instanceof HTMLElement) {
-        attemptElementFocus(inputAtIndex)
+        focused = attemptElementFocus(inputAtIndex)
         inputAtIndex.click()
       }
     }
+
+    return focused
   }
 }

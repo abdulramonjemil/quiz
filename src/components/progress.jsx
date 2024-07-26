@@ -176,7 +176,8 @@ export default class Progress extends Component {
   simulateClick(levelIndex) {
     assertValidLevelIndex(levelIndex, this.$progressLevels)
     const levelButton = getLevelButton(this.$progressLevels[levelIndex])
-    attemptElementFocus(levelButton)
+    const focused = attemptElementFocus(levelButton)
     levelButton.click()
+    return focused
   }
 }

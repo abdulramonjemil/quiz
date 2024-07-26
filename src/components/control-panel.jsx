@@ -100,15 +100,18 @@ export default class ControlPanel extends Component {
 
   /** @param {"next" | "prev" | "cta"} button */
   simulateClick(button) {
+    let focused = false
     if (button === "prev") {
-      attemptElementFocus(this.$prevButton)
+      focused = attemptElementFocus(this.$prevButton)
       this.$prevButton.click()
     } else if (button === "next") {
-      attemptElementFocus(this.$nextButton)
+      focused = attemptElementFocus(this.$nextButton)
       this.$nextButton.click()
     } else if (button === "cta") {
-      attemptElementFocus(this.$cta)
+      focused = attemptElementFocus(this.$cta)
       this.$cta.click()
     } else throw new Error(`Unknown control panel button: '${button}'`)
+
+    return focused
   }
 }
