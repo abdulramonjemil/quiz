@@ -67,10 +67,21 @@ export default class ControlPanel extends Component {
       </div>
     )
 
+    /** @type {HTMLButtonElement} */
     this.$prevButton = prevButtonRefHolder.ref
+    /** @type {HTMLButtonElement} */
     this.$nextButton = nextButtonRefHolder.ref
+    /** @type {HTMLButtonElement} */
     this.$cta = submitButtonRefHolder.ref
     return controlPanelNode
+  }
+
+  /** @param {"next" | "prev" | "cta"} button */
+  buttonIsEnabled(button) {
+    if (button === "prev") return !this.$prevButton.disabled
+    if (button === "next") return !this.$nextButton.disabled
+    if (button === "cta") return !this.$cta.disabled
+    throw new Error(`Unknown control panel button: '${button}'`)
   }
 
   /** @param {ControlPanelRevalidationOptions} options */

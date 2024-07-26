@@ -528,11 +528,13 @@ const createQuizShortcutHandlers = (() => {
 
     // Shortcut to go to next/prev quiz element
     if (["p", "n"].includes(event.key.toLowerCase())) {
-      const options = { p: "prev", n: "next" }
-      const focused = controlPanel.simulateClick(
-        options[event.key.toLowerCase()]
-      )
-      if (focused) attemptElementFocus(tabs.activeTab().content)
+      const button = { p: "prev", n: "next" }[event.key.toLowerCase()]
+      controlPanel.simulateClick(button)
+
+      if (!controlPanel.buttonIsEnabled(button)) {
+        attemptElementFocus(tabs.activeTab().content)
+      }
+
       return
     }
 
@@ -555,8 +557,7 @@ const createQuizShortcutHandlers = (() => {
       const slideData = getQuizDataForSlide(elementInstances, currentSlideIndex)
 
       if (slideData.quiz.isFinalized) {
-        const focused = progress.simulateClick(slideData.quiz.resultIndex)
-        if (focused) attemptElementFocus(tabs.activeTab().content)
+        progress.simulateClick(slideData.quiz.resultIndex)
       }
 
       return
@@ -573,17 +574,15 @@ const createQuizShortcutHandlers = (() => {
       const levelsCount = progress.levelsCount()
       if (!mutableData.pressedNumber) {
         if (levelsCount < Number(event.key) * 10) {
-          const focused = progress.simulateClick(Number(event.key) - 1)
-          if (focused) attemptElementFocus(tabs.activeTab().content)
+          progress.simulateClick(Number(event.key) - 1)
         } else {
           mutableData.pressedNumber = Number(event.key)
         }
       } else {
         mutableData.pressedNumberIsUsed = true
-        const focused = progress.simulateClick(
+        progress.simulateClick(
           mutableData.pressedNumber * 10 + Number(event.key) - 1
         )
-        if (focused) attemptElementFocus(tabs.activeTab().content)
       }
     }
   }
@@ -600,14 +599,13 @@ const createQuizShortcutHandlers = (() => {
    * @type {QuizShortcutKeyboardEventHandler}
    */
   const shortcutKeyUpHandler = (getter, mutableShortcutData, event) => {
-    const { progress, tabs } = getter.call(null)
+    const { progress } = getter.call(null)
     const mutableData = mutableShortcutData
     const { pressedNumber, pressedNumberIsUsed } = mutableData
     if (Number(event.key) !== pressedNumber) return
 
     if (!pressedNumberIsUsed) {
-      const focused = progress.simulateClick(pressedNumber - 1)
-      if (focused) attemptElementFocus(tabs.activeTab().content)
+      progress.simulateClick(pressedNumber - 1)
     }
 
     mutableData.pressedNumber = null
