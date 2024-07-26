@@ -483,6 +483,155 @@ function revalidateQuiz({
   )
 }
 
+const createQuizShortcutHandlers = (() => {
+  /**
+   * @typedef {{
+   *   pressedNumber: number | null,
+   *   pressedNumberIsUsed: boolean
+   * }} ShortcutData
+   *
+   * @typedef {{
+   *   controlPanelRefHolder: { ref: ControlPanel },
+   *   presentationRefHolder: { ref: Presentation },
+   *   progressRefHolder: { ref: Progress },
+   *   elementInstances: QuizElementInstance[],
+   *   shortcutData: ShortcutData
+   * }} ShortcutHandlerQuizData
+   */
+
+  /** @param {ShortcutHandlerQuizData} data */
+  const normalizeData = (data) => ({
+    ...data,
+    controlPanel: data.controlPanelRefHolder.ref,
+    presentation: data.presentationRefHolder.ref,
+    progress: data.progressRefHolder.ref
+  })
+
+  /**
+   * @param {ShortcutHandlerQuizData} data
+   * @param {KeyboardEvent} event
+   */
+  const shortcutKeyDownHandler = (data, event) => {
+    const {
+      controlPanel,
+      presentation,
+      progress,
+      elementInstances,
+      shortcutData
+    } = normalizeData(data)
+
+    // Shortcut to select question answer
+    if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
+      const currentSlideIndex = presentation.currentSlideIndex()
+      const currentElement = elementInstances[currentSlideIndex]
+
+      if (currentElement instanceof Question) {
+        currentElement.simulateClick({
+          type: "option",
+          value: event.key.toLowerCase()
+        })
+      }
+      return
+    }
+
+    // Shortcut to go to next/prev quiz element
+    if (["p", "n"].includes(event.key.toLowerCase())) {
+      const options = { p: "prev", n: "next" }
+      controlPanel.simulateClick(options[event.key.toLowerCase()])
+      return
+    }
+
+    // Shortcut to show explanation for answered question
+    if (event.key.toLowerCase() === "e") {
+      const currentSlideIndex = presentation.currentSlideIndex()
+      const { isFinalized: quizIsFinalized } = getQuizDataForSlide(
+        elementInstances,
+        currentSlideIndex
+      ).quiz
+
+      const currentElementInstance = elementInstances[currentSlideIndex]
+      const elementIsQuestion = currentElementInstance instanceof Question
+
+      if (quizIsFinalized && elementIsQuestion) {
+        currentElementInstance.simulateClick({ type: "toggle" })
+      }
+    }
+
+    // Shortcut to show result
+    if (event.key.toLocaleLowerCase() === "r") {
+      const currentSlideIndex = presentation.currentSlideIndex()
+      const {
+        quiz: { isFinalized: quizIsFinalized }
+      } = getQuizDataForSlide(elementInstances, currentSlideIndex)
+
+      if (quizIsFinalized) {
+        const resultIndex = elementInstances.length - 1
+        progress.simulateClick(resultIndex)
+      }
+
+      return
+    }
+
+    /**
+     * - Shortcut to jump to specific quiz element based on number
+     *
+     * If the key is a number, we only jump to the slide at the number if
+     * there is no other slide that begin with the same number.
+     */
+    if (/\d/.test(event.key)) {
+      const levelsCount = progress.levelsCount()
+      if (!shortcutData.pressedNumber) {
+        if (levelsCount < Number(event.key) * 10) {
+          progress.simulateClick(Number(event.key) - 1)
+        } else {
+          shortcutData.pressedNumber = Number(event.key)
+        }
+      } else {
+        shortcutData.pressedNumberIsUsed = true
+        progress.simulateClick(
+          shortcutData.pressedNumber * 10 + Number(event.key) - 1
+        )
+      }
+    }
+  }
+
+  /**
+   * @param {ShortcutHandlerQuizData} data
+   * @param {KeyboardEvent} event
+   */
+  const shortcutKeyUpHandler = (data, event) => {
+    const { shortcutData, progress } = normalizeData(data)
+    const { pressedNumber, pressedNumberIsUsed } = shortcutData
+    if (Number(event.key) !== pressedNumber) return
+
+    if (!pressedNumberIsUsed) {
+      progress.simulateClick(pressedNumber - 1)
+    }
+
+    shortcutData.pressedNumber = null
+    shortcutData.pressedNumberIsUsed = false
+  }
+
+  /**
+   * @param {Omit<ShortcutHandlerQuizData, "shortcutData">} params
+   */
+  return (params) => {
+    /** @type {ShortcutData} */
+    const shortcutData = {
+      pressedNumber: null,
+      pressedNumberIsUsed: false
+    }
+
+    /** @type {ShortcutHandlerQuizData} */
+    const handlerQuizData = { ...params, shortcutData }
+
+    return {
+      keydown: shortcutKeyDownHandler.bind(null, handlerQuizData),
+      keyup: shortcutKeyUpHandler.bind(null, handlerQuizData)
+    }
+  }
+})()
+
 /**
  * @template {QuizProps} Props
  * @extends {Component<Props>}
@@ -572,99 +721,6 @@ export default class Quiz extends Component {
     attemptElementFocus(this.$composedNode)
   }
 
-  /** @param {KeyboardEvent} event */
-  $handleRootKeyDownCapture(event) {
-    const { $presentation, $elementInstances, $mutableStore } = this
-
-    // Shortcut to select question answer
-    if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
-      const currentSlideIndex = $presentation.currentSlideIndex()
-      const currentElement = $elementInstances[currentSlideIndex]
-
-      if (currentElement instanceof Question) {
-        currentElement.simulateClick({
-          type: "option",
-          value: event.key.toLowerCase()
-        })
-      }
-      return
-    }
-
-    // Shortcut to go to next/prev quiz element
-    if (["p", "n"].includes(event.key.toLowerCase())) {
-      const options = { p: "prev", n: "next" }
-      this.$controlPanel.simulateClick(options[event.key.toLowerCase()])
-      return
-    }
-
-    // Shortcut to show explanation for answered question
-    if (event.key.toLowerCase() === "e") {
-      const currentSlideIndex = this.$presentation.currentSlideIndex()
-      const { isFinalized: quizIsFinalized } = getQuizDataForSlide(
-        $elementInstances,
-        currentSlideIndex
-      ).quiz
-
-      const currentElementInstance = this.$elementInstances[currentSlideIndex]
-      const elementIsQuestion = currentElementInstance instanceof Question
-
-      if (quizIsFinalized && elementIsQuestion) {
-        currentElementInstance.simulateClick({ type: "toggle" })
-      }
-    }
-
-    // Shortcut to show result
-    if (event.key.toLocaleLowerCase() === "r") {
-      const currentSlideIndex = this.$presentation.currentSlideIndex()
-      const {
-        quiz: { isFinalized: quizIsFinalized }
-      } = getQuizDataForSlide($elementInstances, currentSlideIndex)
-
-      if (quizIsFinalized) {
-        const resultIndex = $elementInstances.length - 1
-        this.$progress.simulateClick(resultIndex)
-      }
-
-      return
-    }
-
-    /**
-     * - Shortcut to jump to specific quiz element based on number
-     *
-     * If the key is a number, we only jump to the slide at the number if
-     * there is no other slide that begin with the same number.
-     */
-    if (/\d/.test(event.key)) {
-      const levelsCount = this.$progress.levelsCount()
-      if (!$mutableStore.shortcutData.pressedNumber) {
-        if (levelsCount < Number(event.key) * 10) {
-          this.$progress.simulateClick(Number(event.key) - 1)
-        } else {
-          $mutableStore.shortcutData.pressedNumber = Number(event.key)
-        }
-      } else {
-        $mutableStore.shortcutData.pressedNumberIsUsed = true
-        this.$progress.simulateClick(
-          $mutableStore.shortcutData.pressedNumber * 10 + Number(event.key) - 1
-        )
-      }
-    }
-  }
-
-  /** @param {KeyboardEvent} event */
-  $handleRootKeyUpCapture(event) {
-    const { $progress, $mutableStore } = this
-    const { pressedNumber, pressedNumberIsUsed } = $mutableStore.shortcutData
-    if (Number(event.key) !== pressedNumber) return
-
-    if (!pressedNumberIsUsed) {
-      $progress.simulateClick(pressedNumber - 1)
-    }
-
-    $mutableStore.shortcutData.pressedNumber = null
-    $mutableStore.shortcutData.pressedNumberIsUsed = false
-  }
-
   /** @type {TabChangeHandler} */
   $handleTabChange(newTabname, _, source) {
     if (source !== "event") return
@@ -741,14 +797,21 @@ export default class Quiz extends Component {
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
 
+    const shortHandlers = createQuizShortcutHandlers({
+      elementInstances,
+      controlPanelRefHolder,
+      presentationRefHolder,
+      progressRefHolder
+    })
+
     const quizNode = (
       <section
         aria-labelledby={quizLabellingId}
         className={Styles.Quiz}
         refHolder={quizRootRefHolder}
         tabIndex={-1}
-        onKeyDownCapture={this.$handleRootKeyDownCapture.bind(this)}
-        onKeyUpCapture={this.$handleRootKeyUpCapture.bind(this)}
+        onKeyDownCapture={shortHandlers.keydown}
+        onKeyUpCapture={shortHandlers.keyup}
       >
         <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
@@ -808,13 +871,6 @@ export default class Quiz extends Component {
     this.$metadata = { autoSave: autoSaveIsEnabled, storageKey }
     this.$elementInstances = elementInstances
     this.$submissionCallback = submissionCallback
-
-    this.$mutableStore = {
-      shortcutData: {
-        pressedNumber: /** @type {number | null} */ (null),
-        pressedNumberIsUsed: false
-      }
-    }
 
     this.$tabs = tabs
     this.$progress = progress
