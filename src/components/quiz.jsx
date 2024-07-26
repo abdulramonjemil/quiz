@@ -365,7 +365,7 @@ function getSlidePrevNextIndices(slideQuizData) {
     next:
       isLast ||
       precedesUnrenderedResult ||
-      (indexOfNextQuestion && indexOfNextQuestion <= index)
+      (indexOfNextQuestion !== null && indexOfNextQuestion <= index)
         ? null
         : index + 1
   }
@@ -529,9 +529,9 @@ const createQuizShortcutHandlers = (() => {
     // Shortcut to go to next/prev quiz element
     if (["p", "n"].includes(event.key.toLowerCase())) {
       const button = { p: "prev", n: "next" }[event.key.toLowerCase()]
-      controlPanel.simulateClick(button)
+      const focused = controlPanel.simulateClick(button)
 
-      if (!controlPanel.buttonIsEnabled(button)) {
+      if (focused && !controlPanel.buttonIsEnabled(button)) {
         attemptElementFocus(tabs.activeTab().content)
       }
 
