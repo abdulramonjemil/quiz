@@ -48,7 +48,7 @@ export class UIComponent {
    *
    * @type {(element: HTMLElement, attributes: UIElementAttributeSet) => void}
    */
-  static setElementProperties(element, attributes) {
+  static setElementAttributes(element, attributes) {
     Object.entries(attributes).forEach(([attributeName, attributeValue]) => {
       setElementHTMLAttribute(element, attributeName, attributeValue)
     })

@@ -94,11 +94,11 @@ export class Tabs extends UIComponent {
   $doStaticMarkupRender() {
     const { elements } = this.$config
     const attributes = this.getStaticElementAttributeSets()
-    UIComponent.setElementProperties(elements.tablist.ref, attributes.tablist)
+    UIComponent.setElementAttributes(elements.tablist.ref, attributes.tablist)
     elements.tabItems.forEach(({ refs }, index) => {
       const attrs = attributes.tabItems[index]
-      UIComponent.setElementProperties(refs.trigger, attrs.trigger)
-      UIComponent.setElementProperties(refs.content, attrs.content)
+      UIComponent.setElementAttributes(refs.trigger, attrs.trigger)
+      UIComponent.setElementAttributes(refs.content, attrs.content)
     })
   }
 
@@ -207,8 +207,8 @@ export class Tabs extends UIComponent {
     const attributes = this.getManagedElementAttributeSets().tabItems
     this.$config.elements.tabItems.forEach(({ refs }, index) => {
       const attrs = attributes[index]
-      UIComponent.setElementProperties(refs.trigger, attrs.trigger)
-      UIComponent.setElementProperties(refs.content, attrs.content)
+      UIComponent.setElementAttributes(refs.trigger, attrs.trigger)
+      UIComponent.setElementAttributes(refs.content, attrs.content)
     })
   }
 
