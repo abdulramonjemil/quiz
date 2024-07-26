@@ -157,6 +157,17 @@ export class Tabs extends UIComponent {
     }
   }
 
+  activeTab() {
+    const { activeTabIndex } = this.$state
+    const item = this.$config.elements.tabItems[activeTabIndex]
+
+    return {
+      name: item.name,
+      trigger: item.refs.trigger,
+      content: item.refs.content
+    }
+  }
+
   getManagedElementAttributeSets() {
     const { elements } = this.$config
     const { activeTabIndex } = this.$state
