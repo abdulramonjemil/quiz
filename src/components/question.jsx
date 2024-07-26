@@ -60,11 +60,6 @@ function QuestionBox({ title, answerOptions }) {
   )
 }
 
-function handleExplanationTogglerClick(rootRefHolder) {
-  const explanationRoot = rootRefHolder.ref
-  explanationRoot.classList.toggle(SHOWN_EXPLANATION_CLASS)
-}
-
 function Explanation({ content, rootRefHolder }) {
   if (typeof content !== "string" || content === "") {
     return <div refHolder={rootRefHolder} />
@@ -74,7 +69,9 @@ function Explanation({ content, rootRefHolder }) {
     <div className={Styles.Explanation} refHolder={rootRefHolder}>
       <button
         className={Styles.Explanation__Toggler}
-        onClick={handleExplanationTogglerClick.bind(null, rootRefHolder)}
+        onClick={() => {
+          rootRefHolder.ref.classList.toggle(SHOWN_EXPLANATION_CLASS)
+        }}
         type="button"
       >
         Toggle Explanations
