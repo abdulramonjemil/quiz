@@ -72,7 +72,7 @@ import { Tabs } from "../ui/tabs"
  * @property {(ExportedQuizData) => void} submissionCallback
  * @property {{
  *   autoSave?: boolean | undefined,
- *   storedData?: ExportedQuizData | null | undefined,
+ *   resultData?: ExportedQuizData | null | undefined,
  *   header?: string | undefined,
  *   isGlobal?: boolean | undefined,
  *   storageKey?: string | undefined
@@ -101,7 +101,7 @@ function normalizeQuizMetadataConfig(metadata) {
   const globalizationValue = metadata?.isGlobal ?? IS_GLOBAL
   return {
     autoSave: metadata?.autoSave ?? AUTO_SAVE,
-    storedData: metadata?.storedData ?? STORED_DATA,
+    resultData: metadata?.resultData ?? STORED_DATA,
     header: metadata?.header ?? HEADER,
     storageKey:
       // eslint-disable-next-line prefer-template
@@ -225,7 +225,7 @@ function getStoredQuizData(storageKey) {
  * @param {QuizProps} quizElements
  * @returns {data is ExportedQuizData}
  */
-function storedDataIsValidForQuiz(data, quizElements) {
+function resultDataIsValidForQuiz(data, quizElements) {
   const { questionMetadataSet, elementsCount } = data
   const questionElements = quizElements.filter(
     (element) => element.type === "QUESTION"
@@ -725,7 +725,7 @@ export default class Quiz extends Component {
 
     const {
       autoSave: autoSaveIsEnabled,
-      storedData,
+      resultData,
       header,
       storageKey
     } = normalizeQuizMetadataConfig(this.$props.metadata)
@@ -745,21 +745,21 @@ export default class Quiz extends Component {
       this.$handleQuestionOptionChange.bind(this)
     )
 
-    const availableQuizData =
-      storedData ?? (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
+    const availableResultData =
+      resultData ?? (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
     const resultIndex = elementInstances.length - 1
     const resultInstance = elementInstances[resultIndex]
     assertIsInstance(resultInstance, Result)
 
-    if (availableQuizData) {
-      if (!storedDataIsValidForQuiz(availableQuizData, elements)) {
-        const dataWasSuppliedDirectly = storedData !== null
+    if (availableResultData) {
+      if (!resultDataIsValidForQuiz(availableResultData, elements)) {
+        const dataWasSuppliedDirectly = resultData !== null
         if (dataWasSuppliedDirectly) {
-          throw new Error(`Invalid quiz data supplied:\n\n${storedData}`)
+          throw new Error(`Invalid quiz data supplied:\n\n${resultData}`)
         } else {
           // eslint-disable-next-line no-console
           console.error(
-            `Invalid quiz data read from storage:\n\n${storedData}. ` +
+            `Invalid quiz data read from storage:\n\n${resultData}. ` +
               "This could be because there are multiple quizzes using the same storage key."
           )
           // Data was read from storage
@@ -771,7 +771,7 @@ export default class Quiz extends Component {
             element instanceof Question
         )
 
-        const { questionMetadataSet } = availableQuizData
+        const { questionMetadataSet } = availableResultData
         questionInstances.forEach((instance, index) =>
           instance.finalize(questionMetadataSet[index])
         )

@@ -17,9 +17,8 @@ Quiz.create({
   props: {
     elements: SAMPLE_QUIZ_DATA.slice(0, 5),
     metadata: {
-      autoSave: true,
-      // autoSave: false,
-      // storedData: {
+      autoSave: false,
+      // resultData: {
       //   questionMetadataSet: [{ selectedOption: "B" }],
       //   elementsCount: 2
       // },
@@ -27,8 +26,9 @@ Quiz.create({
       storageKey: "sample-quiz-1",
       isGlobal: false
     },
-    submissionCallback: (...all) => {
-      console.log(all)
+    submissionCallback: (data) => {
+      // eslint-disable-next-line no-console
+      console.log(data)
     }
   }
 })
@@ -40,7 +40,7 @@ Quiz.create({
     metadata: {
       autoSave: true,
       // autoSave: false,
-      // storedData: {
+      // resultData: {
       //   questionMetadataSet: [{ selectedOption: "B" }],
       //   elementsCount: 2
       // },
@@ -49,6 +49,7 @@ Quiz.create({
       isGlobal: false
     },
     submissionCallback: (...all) => {
+      // eslint-disable-next-line no-console
       console.log(all)
     }
   }
