@@ -1,10 +1,3 @@
-/** @param {Node[]} nodeList */
-export function nodelistToFragment(nodeList) {
-  const fragment = new DocumentFragment()
-  fragment.append(...nodeList)
-  return fragment
-}
-
 export function escapeHTMLContent(unsafeText) {
   const div = document.createElement("div")
   div.innerText = String(unsafeText)
@@ -20,7 +13,9 @@ export function htmlStringToFragment(htmlString) {
 
   const div = document.createElement("div")
   div.innerHTML = htmlString
-  return nodelistToFragment(Array.from(div.childNodes))
+  const fragment = new DocumentFragment()
+  fragment.append(...div.childNodes)
+  return fragment
 }
 
 /**

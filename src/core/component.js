@@ -1,5 +1,3 @@
-import { nodelistToFragment } from "../lib/dom"
-
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
 const REF = Symbol("REF")
@@ -9,7 +7,9 @@ export function resolveToNode(value) {
   if (typeof value === "boolean" || value === null || value === undefined)
     return document.createTextNode("")
   if (Array.isArray(value)) {
-    return nodelistToFragment(value.map((val) => resolveToNode(val)))
+    const fragment = new DocumentFragment()
+    fragment.append(...value.map((val) => resolveToNode(val)))
+    return fragment
   }
   return document.createTextNode(String(value))
 }
