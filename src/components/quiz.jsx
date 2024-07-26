@@ -1,7 +1,4 @@
-import Component, {
-  createElementRefHolder,
-  createInstanceRefHolder
-} from "../core/component"
+import Component, { createInstanceRefHolder } from "../core/component"
 import Styles from "../scss/quiz.module.scss"
 
 /* Must be imported after importing styles above to allow overrides */
@@ -786,7 +783,7 @@ export default class Quiz extends Component {
 
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
-    const quizRootRefHolder = createElementRefHolder()
+
     const progressRefHolder = createInstanceRefHolder()
     const presentationRefHolder = createInstanceRefHolder()
     const controlPanelRefHolder = createInstanceRefHolder()
@@ -807,7 +804,6 @@ export default class Quiz extends Component {
       <section
         aria-labelledby={quizLabellingId}
         className={Styles.Quiz}
-        refHolder={quizRootRefHolder}
         tabIndex={-1}
         onKeyDownCapture={shortHandlers.keydown}
         onKeyUpCapture={shortHandlers.keyup}
@@ -826,7 +822,10 @@ export default class Quiz extends Component {
         />
         <ControlPanel
           controlledElementId={presentationControllingId}
-          altFocusableRefHolder={quizRootRefHolder}
+          getAlternateFocusable={() => {
+            assertIsInstance(tabs, Tabs)
+            return tabs.activeTab().content
+          }}
           handlePrevButtonClick={this.$handleCPanelBtnClick.bind(this, "prev")}
           handleNextButtonClick={this.$handleCPanelBtnClick.bind(this, "next")}
           handleCTAButtonClick={() => {

@@ -16,15 +16,15 @@ import Styles from "../scss/control-panel.module.scss"
 export default class ControlPanel extends Component {
   $render() {
     const {
-      // This is focused when the next or prev buttons are disabled
-      altFocusableRefHolder,
+      // This is used to get an element to focus when one of the control panel
+      // buttons is disabled
+      getAlternateFocusable,
       controlledElementId,
       handlePrevButtonClick,
       handleNextButtonClick,
       handleCTAButtonClick
     } = this.$props
 
-    this.$altFocusableRefHolder = altFocusableRefHolder
     this.$prevButton = null
     this.$nextButton = null
     this.$cta = null
@@ -67,6 +67,8 @@ export default class ControlPanel extends Component {
       </div>
     )
 
+    /** @type {(button: "prev" | "next" | "cta") => HTMLElement} */
+    this.$alternateFocusableGetter = getAlternateFocusable
     /** @type {HTMLButtonElement} */
     this.$prevButton = prevButtonRefHolder.ref
     /** @type {HTMLButtonElement} */
@@ -92,16 +94,18 @@ export default class ControlPanel extends Component {
       cta: { isSubmit: ctaIsSubmit, isEnabled: enableCTA }
     } = options
 
-    const shouldRefocus = [
-      [this.$prevButton, enablePrev],
-      [this.$nextButton, enableNext],
-      [this.$cta, enableCTA]
-    ].some(
-      ([button, buttonWillRemainEnabled]) =>
-        button.contains(document.activeElement) && !buttonWillRemainEnabled
-    )
+    const data = /** @type {const} */ ([
+      ["prev", this.$prevButton, enablePrev],
+      ["next", this.$nextButton, enableNext],
+      ["cta", this.$cta, enableCTA]
+    ]).find(([, button, buttonWillRemainEnabled]) => {
+      const buttonIsActive = button.contains(document.activeElement)
+      return buttonIsActive && !buttonWillRemainEnabled
+    })
 
-    if (shouldRefocus) attemptElementFocus(this.$altFocusableRefHolder.ref)
+    if (data) {
+      attemptElementFocus(this.$alternateFocusableGetter.call(null, data[0]))
+    }
     this.$cta.innerText = ctaIsSubmit ? "Submit" : "Jump to Result"
 
     this.$prevButton.disabled = !enablePrev
