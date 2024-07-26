@@ -9,3 +9,6 @@
 
 # vscode counter extension
 /.VSCodeCounter
+
+# notes
+/__notes.js
