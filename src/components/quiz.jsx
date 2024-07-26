@@ -522,11 +522,12 @@ const createQuizShortcutHandlers = (() => {
 
     // Shortcut to select question answer
     if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
-      const currentSlideIndex = presentation.currentSlideIndex()
-      const currentElement = elementInstances[currentSlideIndex]
+      const slideIndex = presentation.currentSlideIndex()
+      const slideData = getQuizDataForSlide(elementInstances, slideIndex)
 
-      if (currentElement instanceof Question) {
-        currentElement.simulateClick({
+      if (slideData.slide.isQuestion) {
+        assertIsInstance(slideData.slide.ref, Question)
+        slideData.slide.ref.simulateClick({
           type: "option",
           value: event.key.toLowerCase()
         })
@@ -544,29 +545,21 @@ const createQuizShortcutHandlers = (() => {
     // Shortcut to show explanation for answered question
     if (event.key.toLowerCase() === "e") {
       const currentSlideIndex = presentation.currentSlideIndex()
-      const { isFinalized: quizIsFinalized } = getQuizDataForSlide(
-        elementInstances,
-        currentSlideIndex
-      ).quiz
+      const slideData = getQuizDataForSlide(elementInstances, currentSlideIndex)
 
-      const currentElementInstance = elementInstances[currentSlideIndex]
-      const elementIsQuestion = currentElementInstance instanceof Question
-
-      if (quizIsFinalized && elementIsQuestion) {
-        currentElementInstance.simulateClick({ type: "toggle" })
+      if (slideData.quiz.isFinalized && slideData.slide.isQuestion) {
+        assertIsInstance(slideData.slide.ref, Question)
+        slideData.slide.ref.simulateClick({ type: "toggle" })
       }
     }
 
     // Shortcut to show result
     if (event.key.toLocaleLowerCase() === "r") {
       const currentSlideIndex = presentation.currentSlideIndex()
-      const {
-        quiz: { isFinalized: quizIsFinalized }
-      } = getQuizDataForSlide(elementInstances, currentSlideIndex)
+      const slideData = getQuizDataForSlide(elementInstances, currentSlideIndex)
 
-      if (quizIsFinalized) {
-        const resultIndex = elementInstances.length - 1
-        progress.simulateClick(resultIndex)
+      if (slideData.quiz.isFinalized) {
+        progress.simulateClick(slideData.quiz.resultIndex)
       }
 
       return
