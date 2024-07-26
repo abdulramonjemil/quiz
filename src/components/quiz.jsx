@@ -666,7 +666,8 @@ export default class Quiz extends Component {
   }
 
   $handleCPanelSubmitCTAClick() {
-    const { $elementInstances, $metadata, $submissionCallback } = this
+    const { $elementInstances, $metadata } = this
+    const { submissionCallback } = this.$props
 
     const resultIndex = $elementInstances.length - 1
     const resultInstance = $elementInstances[$elementInstances.length - 1]
@@ -695,8 +696,8 @@ export default class Quiz extends Component {
     }
 
     if ($metadata.autoSave) storeQuizData(quizData, $metadata.storageKey)
-    if (typeof $submissionCallback === "function") {
-      $submissionCallback.call(this, quizData)
+    if (typeof submissionCallback === "function") {
+      submissionCallback.call(this, quizData)
     }
   }
 
@@ -728,9 +729,7 @@ export default class Quiz extends Component {
   }
 
   $render() {
-    const { elements, submissionCallback } = /** @type {QuizProps} */ (
-      this.$props
-    )
+    const { elements } = /** @type {QuizProps} */ (this.$props)
 
     const {
       autoSave: autoSaveIsEnabled,
@@ -870,7 +869,6 @@ export default class Quiz extends Component {
     // Start of property setting
     this.$metadata = { autoSave: autoSaveIsEnabled, storageKey }
     this.$elementInstances = elementInstances
-    this.$submissionCallback = submissionCallback
 
     this.$tabs = tabs
     this.$progress = progress
