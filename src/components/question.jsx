@@ -2,6 +2,7 @@ import Component, { createElementRefHolder } from "../core/component"
 import { phraseToNode } from "../core/content-parser"
 import { attemptElementFocus } from "../lib/dom"
 import { uniqueId } from "../lib/id"
+import { assertIsInstance } from "../lib/value"
 import Styles from "../scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
@@ -100,6 +101,20 @@ function styleAnswerInputOption(answerInput, type) {
   }
 }
 
+/** @param {HTMLElement} element */
+function getExplanationButton(element) {
+  const button = element.querySelector("button")
+  assertIsInstance(button, HTMLButtonElement)
+  return button
+}
+
+/** @param {HTMLElement} element */
+function getExplanationState(element) {
+  return element.classList.contains(ENABLED_EXPLANATION_CLASS)
+    ? "enabled"
+    : "disabled"
+}
+
 /**
  * @param {HTMLElement} element
  * @param {"enabled" | "disabled"} state
@@ -110,6 +125,13 @@ function setExplanationState(element, state) {
   } else if (state === "disabled") {
     element.classList.remove(ENABLED_EXPLANATION_CLASS)
   }
+}
+
+/**
+ * @param {HTMLFieldSetElement} fieldSetElement
+ */
+function getQuestionState(fieldSetElement) {
+  return fieldSetElement.disabled ? "disabled" : "enabled"
 }
 
 /**
@@ -271,9 +293,10 @@ export default class Question extends Component {
   }
 
   isFinalized() {
+    const { $fieldSet, $explanationElement } = this
     return (
-      this.$fieldSet.disabled === true &&
-      this.$explanationElement.classList.contains(ENABLED_EXPLANATION_CLASS)
+      getQuestionState($fieldSet) === "disabled" &&
+      getExplanationState($explanationElement) === "enabled"
     )
   }
 
@@ -286,7 +309,7 @@ export default class Question extends Component {
   simulateClick(options) {
     let focused = false
     if (options.type === "toggle") {
-      const toggleButton = this.$explanationElement.querySelector("button")
+      const toggleButton = getExplanationButton(this.$explanationElement)
       if (!(toggleButton instanceof HTMLElement)) return false
 
       focused = attemptElementFocus(toggleButton)
