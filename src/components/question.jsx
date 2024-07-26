@@ -83,36 +83,50 @@ function Explanation({ content, rootRefHolder }) {
 }
 
 /**
+ * @param {HTMLElement} answerInput
+ * @param {"correct" | "incorrect" | "reset"} type
+ */
+function styleAnswerInputOption(answerInput, type) {
+  const answerInputLabel = answerInput.closest("label")
+  if (type === "correct") {
+    answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
+    answerInputLabel.classList.add(CORRECT_OPTION_CLASS)
+  } else if (type === "incorrect") {
+    answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
+    answerInputLabel.classList.add(INCORRECT_OPTION_CLASS)
+  } else if (type === "reset") {
+    answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
+    answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
+  }
+}
+
+/**
+ * @param {HTMLElement} element
+ * @param {"enabled" | "disabled"} state
+ */
+function setExplanationState(element, state) {
+  if (state === "enabled") {
+    element.classList.add(ENABLED_EXPLANATION_CLASS)
+  } else if (state === "disabled") {
+    element.classList.remove(ENABLED_EXPLANATION_CLASS)
+  }
+}
+
+/**
+ * @param {HTMLFieldSetElement} fieldSetElement
+ * @param {"enabled" | "disabled"} state
+ */
+function setQuestionState(fieldSetElement, state) {
+  const fieldSet = fieldSetElement
+  if (state === "enabled") fieldSet.disabled = false
+  else if (state === "disabled") fieldSet.disabled = true
+}
+
+/**
  * @template {QuestionProps} Props
  * @extends {Component<Props>}
  */
 export default class Question extends Component {
-  static $styleAnswerInputOption(answerInput, type) {
-    const answerInputLabel = answerInput.closest("label")
-    if (type === "correct") {
-      answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
-      answerInputLabel.classList.add(CORRECT_OPTION_CLASS)
-    } else if (type === "incorrect") {
-      answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
-      answerInputLabel.classList.add(INCORRECT_OPTION_CLASS)
-    } else if (type === "reset") {
-      answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
-      answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
-    }
-  }
-
-  $setExplanationState(state) {
-    if (state === "enabled")
-      this.$explanationElement.classList.add(ENABLED_EXPLANATION_CLASS)
-    else if (state === "disabled")
-      this.$explanationElement.classList.remove(ENABLED_EXPLANATION_CLASS)
-  }
-
-  $setAnswerSelectionState(state) {
-    if (state === "enabled") this.$fieldSet.disabled = false
-    else if (state === "disabled") this.$fieldSet.disabled = true
-  }
-
   $render() {
     const { answer, explanation, handleOptionChange, options, title } =
       this.$props
@@ -161,14 +175,19 @@ export default class Question extends Component {
       </div>
     )
 
+    /** @type {HTMLElement} */
     this.$explanationElement = explanationRefHolder.ref
+    /** @type {HTMLFieldSetElement} */
     this.$fieldSet = fieldSetRefHolder.ref
+    /** @type {HTMLInputElement[]} */
     this.$answerInputs = Array.from(
-      fieldSetRefHolder.ref.getElementsByTagName("input")
+      this.$fieldSet.getElementsByTagName("input")
     )
+    /** @type {HTMLInputElement} */
     this.$correctAnswerInput = this.$answerInputs.find(
       (input) => input.value === answer
     )
+
     return questionNode
   }
 
@@ -179,16 +198,22 @@ export default class Question extends Component {
   }
 
   doReset() {
-    const { $answerInputs, $correctAnswerInput } = this
+    const {
+      $answerInputs,
+      $explanationElement,
+      $correctAnswerInput,
+      $fieldSet
+    } = this
+
     const selectedAnswerInput = $answerInputs.find((input) => input.checked)
     if (selectedAnswerInput !== undefined) {
       selectedAnswerInput.checked = false
-      Question.$styleAnswerInputOption(selectedAnswerInput, "reset")
+      styleAnswerInputOption(selectedAnswerInput, "reset")
     }
 
-    Question.$styleAnswerInputOption($correctAnswerInput, "reset")
-    this.$setExplanationState("disabled")
-    this.$setAnswerSelectionState("enabled")
+    styleAnswerInputOption($correctAnswerInput, "reset")
+    setExplanationState($explanationElement, "disabled")
+    setQuestionState($fieldSet, "enabled")
   }
 
   /** @returns {QuestionMetadata} */
@@ -202,40 +227,47 @@ export default class Question extends Component {
 
   /** @param {QuestionMetadata=} metadata */
   finalize(metadata) {
-    const { $answerInputs, $correctAnswerInput } = this
-    let selectedAnswerInput = null
+    const {
+      $answerInputs,
+      $explanationElement,
+      $correctAnswerInput,
+      $fieldSet
+    } = this
 
+    let selectedAnswerInput = null
     if (metadata === undefined) {
       selectedAnswerInput = $answerInputs.find((input) => input.checked)
-      if (selectedAnswerInput === undefined)
+      if (selectedAnswerInput === undefined) {
         throw new Error("No answer is selected")
+      }
     } else {
-      if (typeof metadata !== "object")
+      if (typeof metadata !== "object") {
         throw new TypeError("metadata must be an object if present")
+      }
 
       const { selectedOption } = metadata
-
       const indexOfSelectedOptionLetter =
         LETTERS_FOR_ANSWER_CHOICES.indexOf(selectedOption)
       const inputWithLetterIsAbsent =
         indexOfSelectedOptionLetter > $answerInputs.length - 1
 
-      if (indexOfSelectedOptionLetter < 0 || inputWithLetterIsAbsent)
+      if (indexOfSelectedOptionLetter < 0 || inputWithLetterIsAbsent) {
         throw new Error("Invalid question metadata")
+      }
 
       selectedAnswerInput = $answerInputs.find(
         (input) => input.value === selectedOption
       )
-
       selectedAnswerInput.checked = true
     }
 
-    if (selectedAnswerInput !== $correctAnswerInput)
-      Question.$styleAnswerInputOption(selectedAnswerInput, "incorrect")
-    Question.$styleAnswerInputOption($correctAnswerInput, "correct")
+    styleAnswerInputOption($correctAnswerInput, "correct")
+    if (selectedAnswerInput !== $correctAnswerInput) {
+      styleAnswerInputOption(selectedAnswerInput, "incorrect")
+    }
 
-    this.$setExplanationState("enabled")
-    this.$setAnswerSelectionState("disabled")
+    setExplanationState($explanationElement, "enabled")
+    setQuestionState($fieldSet, "disabled")
   }
 
   isFinalized() {
