@@ -789,7 +789,7 @@ export default class Quiz extends Component {
     const controlPanelRefHolder = createInstanceRefHolder()
     let tabs = /** @type {Tabs | null} */ (null)
 
-    const shortHandlers = createQuizShortcutHandlers(() => {
+    const shortcutHandlers = createQuizShortcutHandlers(() => {
       assertIsInstance(tabs, Tabs)
       return {
         elementInstances,
@@ -805,8 +805,8 @@ export default class Quiz extends Component {
         aria-labelledby={quizLabellingId}
         className={Styles.Quiz}
         tabIndex={-1}
-        onKeyDownCapture={shortHandlers.keydown}
-        onKeyUpCapture={shortHandlers.keyup}
+        onKeyDownCapture={shortcutHandlers.keydown}
+        onKeyUpCapture={shortcutHandlers.keyup}
       >
         <Header labellingId={quizLabellingId}>{header}</Header>
         <Progress
