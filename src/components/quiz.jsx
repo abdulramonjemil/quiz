@@ -63,6 +63,17 @@ import ControlPanel from "./control-panel"
  * )} FinalizedQuizInquiryElement
  *
  *
+ * @typedef {{
+ *   codeboardsCount: number,
+ *   questionsCount: number,
+ *   correctAnswers: number,
+ *   incorrectAnswers: number,
+ *   percentScored: number,
+ *   elementsCount: number,
+ *   elements: (FinalizedQuizInquiryElement)[]
+ * }} QuizSubmissionCallbackData
+ *
+ *
  * @typedef {({
  *   type: "CODE_BOARD",
  *   language: string
@@ -80,7 +91,7 @@ import ControlPanel from "./control-panel"
  *
  * @typedef {{
  *   elements: QuizPropElement[],
- *   submissionCallback: (data: ExportedQuizData) => void,
+ *   submissionCallback: (data: QuizSubmissionCallbackData) => void,
  *   metadata?: {
  *     autoSave?: boolean | undefined,
  *     resultData?: ExportedQuizData | null | undefined,
@@ -789,13 +800,6 @@ export default class Quiz extends Component {
       return data
     })
 
-    /** @type {ExportedQuizData} */
-    const quizData = {
-      answerSelectionDataset,
-      // Subtract 1 to exclude the added result element
-      elementsCount: $elementInstances.length - 1
-    }
-
     let questionIndex = -1
     const finalizedElements = this.$props.elements.map((element) => {
       if (element.type === "CODE_BOARD") return element
@@ -810,8 +814,26 @@ export default class Quiz extends Component {
     if ($metadata.autoSave) {
       storeQuizData(finalizedElements, $metadata.storageKey)
     }
+
     if (typeof submissionCallback === "function") {
-      submissionCallback.call(this, quizData)
+      const f = finalizedElements
+      const codeboardsCount = f.filter((e) => e.type === "CODE_BOARD").length
+      const questionsCount = f.filter((e) => e.type === "QUESTION").length
+      const percentScored = Number(
+        ((gottenAnswersCount / questionsCount) * 100).toFixed(2)
+      )
+
+      /** @type {QuizSubmissionCallbackData} */
+      const submissionData = {
+        codeboardsCount,
+        questionsCount,
+        correctAnswers: gottenAnswersCount,
+        incorrectAnswers: questionsCount - gottenAnswersCount,
+        percentScored,
+        elementsCount: finalizedElements.length,
+        elements: finalizedElements
+      }
+      submissionCallback.call(this, submissionData)
     }
   }
 
