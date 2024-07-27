@@ -11,6 +11,12 @@ export function tryJSONParse(value) {
   }
 }
 
+/** @type {<T>(value: T, desc: string) => asserts value is Exclude<T, undefined | null>} */
+export const assertIsDefined = (value, desc) => {
+  if (value === undefined || value === null)
+    throw new Error(`Expected '${desc}' to be defined, got '${String(value)}'`)
+}
+
 /**
  * @template {new () => any} Constructor
  * @param {Value} value

@@ -35,7 +35,7 @@ import ControlPanel from "./control-panel"
  * @typedef {{
  *   type: "QUESTION",
  *   title: QuestionProps["title"]
- *   answer: QuestionProps["answer"]
+ *   answerIndex: QuestionProps["answerIndex"]
  *   options: QuestionProps["options"]
  *   explanation: QuestionProps["explanation"]
  * }} QuizQuestionElement
@@ -112,8 +112,9 @@ function assertValidQuizPropsElementConfig(elements) {
     throw new TypeError("There can only be 1 to 5 quiz elements")
 
   const lastQuizElement = elements[elementsCount - 1]
-  if (lastQuizElement.type !== "QUESTION")
+  if (lastQuizElement.type !== "QUESTION") {
     throw new TypeError("The last element in a quiz must be a question")
+  }
 }
 
 /**
@@ -154,7 +155,7 @@ function buildQuizSlideElements({
         <Question
           title={element.title}
           options={element.options}
-          answer={element.answer}
+          answerIndex={element.answerIndex}
           explanation={element.explanation}
           handleOptionChange={handleQuestionOptionChange}
           refHolder={questionInstanceRefHolder}
@@ -513,10 +514,10 @@ const createQuizShortcutHandlers = (() => {
 
       if (slideData.slide.isQuestion) {
         assertIsInstance(slideData.slide.ref, Question)
-        slideData.slide.ref.simulateClick({
-          type: "option",
-          value: event.key.toLowerCase()
-        })
+        const index = ["a", "b", "c", "d"].findIndex(
+          (letter) => letter === event.key.toLowerCase()
+        )
+        slideData.slide.ref.simulateClick({ type: "option", index })
       }
       return
     }

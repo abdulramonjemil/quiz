@@ -16,21 +16,24 @@ const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
 
 /**
  * @typedef {"A" | "B" | "C" | "D"} AnswerOption
+ * @typedef {0 | 1 | 2 | 3} OptionIndex
  * @typedef {{
  *   selectedOption: AnswerOption;
  * }} QuestionMetadata
  *
  * @typedef {{
  *   title: string,
- *   answer: "A" | "B" | "C" | "D",
+ *   answerIndex: OptionIndex
  *   options: string[],
  *   explanation?: string | undefined,
- *   handleOptionChange: () => void
+ *   handleOptionChange: (index: OptionIndex) => void
  * }} QuestionProps
  */
 
-function Option({ handleOptionChange, letter, name, text }) {
+function Option({ handleOptionChange, index, name, text }) {
   const optionLabellingId = uniqueId()
+  const letter = LETTERS_FOR_ANSWER_CHOICES[index]
+
   return (
     <label className={Styles.Option} htmlFor={optionLabellingId}>
       <input
@@ -87,7 +90,7 @@ function Explanation({ content, rootRefHolder }) {
  * @param {HTMLElement} answerInput
  * @param {"correct" | "incorrect" | "reset"} type
  */
-function styleAnswerInputOption(answerInput, type) {
+function styleOptionInput(answerInput, type) {
   const answerInputLabel = answerInput.closest("label")
   if (type === "correct") {
     answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
@@ -150,13 +153,11 @@ function setQuestionState(fieldSetElement, state) {
  */
 export default class Question extends Component {
   $render() {
-    const { answer, explanation, handleOptionChange, options, title } =
+    const { answerIndex, explanation, handleOptionChange, options, title } =
       this.$props
-    const answerOptions = []
-    const groupingName = uniqueId()
 
-    this.$answerInputs = null
-    this.$correctAnswerInput = null
+    this.$optionInputs = null
+    this.$answerInput = null
     this.$explanationElement = null
     this.$fieldSet = null
 
@@ -164,16 +165,15 @@ export default class Question extends Component {
     const explanationRefHolder = createElementRefHolder()
     const questionNodeRefHolder = createElementRefHolder()
 
-    for (let i = 0; i < options.length; i += 1) {
-      answerOptions.push(
-        <Option
-          handleOptionChange={handleOptionChange}
-          letter={LETTERS_FOR_ANSWER_CHOICES[i]}
-          name={groupingName}
-          text={options[i]}
-        />
-      )
-    }
+    const groupingName = uniqueId()
+    const answerOptions = options.map((option, index) => (
+      <Option
+        handleOptionChange={handleOptionChange.bind(null, index)}
+        index={index}
+        name={groupingName}
+        text={option}
+      />
+    ))
 
     const questionNode = (
       <div className={Styles.QuestionContainer}>
@@ -202,46 +202,39 @@ export default class Question extends Component {
     /** @type {HTMLFieldSetElement} */
     this.$fieldSet = fieldSetRefHolder.ref
     /** @type {HTMLInputElement[]} */
-    this.$answerInputs = Array.from(
+    this.$optionInputs = Array.from(
       this.$fieldSet.getElementsByTagName("input")
     )
     /** @type {HTMLInputElement} */
-    this.$correctAnswerInput = this.$answerInputs.find(
-      (input) => input.value === answer
-    )
+    this.$answerInput = this.$optionInputs[answerIndex]
 
     return questionNode
   }
 
   correctAnswerIsPicked() {
-    const { $answerInputs, $correctAnswerInput } = this
-    const selectedAnswerInput = $answerInputs.find((input) => input.checked)
-    return selectedAnswerInput === $correctAnswerInput
+    const { $optionInputs, $answerInput } = this
+    const selectedAnswerInput = $optionInputs.find((input) => input.checked)
+    return selectedAnswerInput === $answerInput
   }
 
   doReset() {
-    const {
-      $answerInputs,
-      $explanationElement,
-      $correctAnswerInput,
-      $fieldSet
-    } = this
+    const { $optionInputs, $explanationElement, $answerInput, $fieldSet } = this
 
-    const selectedAnswerInput = $answerInputs.find((input) => input.checked)
+    const selectedAnswerInput = $optionInputs.find((input) => input.checked)
     if (selectedAnswerInput !== undefined) {
       selectedAnswerInput.checked = false
-      styleAnswerInputOption(selectedAnswerInput, "reset")
+      styleOptionInput(selectedAnswerInput, "reset")
     }
 
-    styleAnswerInputOption($correctAnswerInput, "reset")
+    styleOptionInput($answerInput, "reset")
     setExplanationState($explanationElement, "disabled")
     setQuestionState($fieldSet, "enabled")
   }
 
   /** @returns {QuestionMetadata} */
   exportInteractionMetadata() {
-    const { $answerInputs } = this
-    const selectedAnswerInput = $answerInputs.find((input) => input.checked)
+    const { $optionInputs } = this
+    const selectedAnswerInput = $optionInputs.find((input) => input.checked)
     return {
       selectedOption: selectedAnswerInput.value
     }
@@ -249,16 +242,11 @@ export default class Question extends Component {
 
   /** @param {QuestionMetadata=} metadata */
   finalize(metadata) {
-    const {
-      $answerInputs,
-      $explanationElement,
-      $correctAnswerInput,
-      $fieldSet
-    } = this
+    const { $optionInputs, $explanationElement, $answerInput, $fieldSet } = this
 
     let selectedAnswerInput = null
     if (metadata === undefined) {
-      selectedAnswerInput = $answerInputs.find((input) => input.checked)
+      selectedAnswerInput = $optionInputs.find((input) => input.checked)
       if (selectedAnswerInput === undefined) {
         throw new Error("No answer is selected")
       }
@@ -271,21 +259,21 @@ export default class Question extends Component {
       const indexOfSelectedOptionLetter =
         LETTERS_FOR_ANSWER_CHOICES.indexOf(selectedOption)
       const inputWithLetterIsAbsent =
-        indexOfSelectedOptionLetter > $answerInputs.length - 1
+        indexOfSelectedOptionLetter > $optionInputs.length - 1
 
       if (indexOfSelectedOptionLetter < 0 || inputWithLetterIsAbsent) {
         throw new Error("Invalid question metadata")
       }
 
-      selectedAnswerInput = $answerInputs.find(
+      selectedAnswerInput = $optionInputs.find(
         (input) => input.value === selectedOption
       )
       selectedAnswerInput.checked = true
     }
 
-    styleAnswerInputOption($correctAnswerInput, "correct")
-    if (selectedAnswerInput !== $correctAnswerInput) {
-      styleAnswerInputOption(selectedAnswerInput, "incorrect")
+    styleOptionInput($answerInput, "correct")
+    if (selectedAnswerInput !== $answerInput) {
+      styleOptionInput(selectedAnswerInput, "incorrect")
     }
 
     setExplanationState($explanationElement, "enabled")
@@ -301,11 +289,11 @@ export default class Question extends Component {
   }
 
   isAnswered() {
-    const { $answerInputs } = this
-    return $answerInputs.some((input) => input.checked)
+    const { $optionInputs } = this
+    return $optionInputs.some((input) => input.checked)
   }
 
-  /** @param {{ type: "option", value: AnswerOption } | { type: "toggle" }} options  */
+  /** @param {{ type: "option", index: OptionIndex } | { type: "toggle" }} options  */
   simulateClick(options) {
     let focused = false
     if (options.type === "toggle") {
@@ -315,15 +303,10 @@ export default class Question extends Component {
       focused = attemptElementFocus(toggleButton)
       toggleButton.click()
     } else {
-      const { $answerInputs } = this
-      const answerIndex = LETTERS_FOR_ANSWER_CHOICES.findIndex(
-        (letter) => letter.toLowerCase() === options.value.toLowerCase()
-      )
-
-      const inputAtIndex = $answerInputs[answerIndex]
-      if (answerIndex >= 0 && inputAtIndex instanceof HTMLElement) {
-        focused = attemptElementFocus(inputAtIndex)
-        inputAtIndex.click()
+      const input = this.$optionInputs[options.index]
+      if (options.index >= 0 && input instanceof HTMLElement) {
+        focused = attemptElementFocus(input)
+        input.click()
       }
     }
 

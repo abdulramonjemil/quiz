@@ -3,7 +3,7 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "What method can you use to add an item to the end of an array?",
-    answer: "B",
+    answerIndex: 1,
     options: ["unshift()", "push()", "pop()", "shift()"],
     explanation:
       "The push() method can be used to add one or more items to the end of an array, as demonstrated in the lesson content."
@@ -18,7 +18,7 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "What do you think of my Hashnode Quiz widget?",
-    answer: "D",
+    answerIndex: 3,
     options: [
       "It's not a big thing",
       "I won't really care about it",
@@ -31,7 +31,7 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "Do you think I hate food?",
-    answer: "D",
+    answerIndex: 3,
     options: [
       "Yes",
       "<>I know for a fact that you don't <b>hate</b>food",
@@ -44,7 +44,7 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "Do you think I hate food?",
-    answer: "C",
+    answerIndex: 2,
     options: ["Yes", "~~I love it since you used `webpack`", "Whatever"]
   },
   {
@@ -57,14 +57,14 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "What is the output of the above C program?",
-    answer: "A",
+    answerIndex: 0,
     options: ["Hello, World!", "Hello World", "hello, world!", "hello world"],
     explanation: "The program prints 'Hello, World!' followed by a newline."
   },
   {
     type: "QUESTION",
     title: "Which function is used to print text in C?",
-    answer: "B",
+    answerIndex: 1,
     options: ["scanf()", "printf()", "print()", "output()"],
     explanation: "The printf() function is used to print text in C."
   },
@@ -78,14 +78,14 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "What will be the output of the sum function if a = 3 and b = 4?",
-    answer: "C",
+    answerIndex: 2,
     options: ["3", "4", "7", "12"],
     explanation: "The sum function returns the addition of a and b, which is 7."
   },
   {
     type: "QUESTION",
     title: "Which header file is necessary to include for using printf() in C?",
-    answer: "A",
+    answerIndex: 0,
     options: ["stdio.h", "stdlib.h", "string.h", "math.h"],
     explanation:
       "The stdio.h header file is necessary to include for using printf() in C."
@@ -100,7 +100,7 @@ export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
     title: "What is the output of the above code snippet?",
-    answer: "B",
+    answerIndex: 1,
     options: ["12345", "1 2 3 4 5", "1,2,3,4,5", "5 4 3 2 1"],
     explanation:
       "The loop prints each element of the array separated by a space, resulting in '1 2 3 4 5'."
@@ -109,7 +109,7 @@ export const SAMPLE_QUIZ_DATA = [
     type: "QUESTION",
     title:
       "What is the purpose of the return 0 statement in the main function?",
-    answer: "C",
+    answerIndex: 2,
     options: [
       "To print the value 0",
       "To initialize the program",
@@ -123,7 +123,7 @@ export const SAMPLE_QUIZ_DATA = [
     type: "QUESTION",
     title:
       "Which of the following is a correct way to declare an integer variable in C?",
-    answer: "A",
+    answerIndex: 0,
     options: ["int a;", "integer a;", "a = int;", "int: a"],
     explanation:
       "The correct way to declare an integer variable in C is 'int a;'."
