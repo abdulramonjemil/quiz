@@ -763,9 +763,13 @@ export default class Quiz extends Component {
         )
 
         const { questionMetadataSet } = availableResultData
-        questionInstances.forEach((instance, index) =>
-          instance.finalize(questionMetadataSet[index])
-        )
+        questionInstances.forEach((instance, index) => {
+          const { selectedOption } = questionMetadataSet[index]
+          const optionIndex = ["a", "b", "c", "d"].findIndex(
+            (letter) => letter === selectedOption.toLowerCase()
+          )
+          instance.finalize(optionIndex)
+        })
 
         const { gottenAnswersCount } = getQuizResultData(elementInstances)
         resultInstance.finalize(gottenAnswersCount)

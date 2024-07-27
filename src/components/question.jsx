@@ -240,34 +240,20 @@ export default class Question extends Component {
     }
   }
 
-  /** @param {QuestionMetadata=} metadata */
-  finalize(metadata) {
+  /** @param {number | null | undefined} selectedOptionIndex */
+  finalize(selectedOptionIndex) {
     const { $optionInputs, $explanationElement, $answerInput, $fieldSet } = this
-
+    /** @type {HTMLInputElement | undefined | null} */
     let selectedAnswerInput = null
-    if (metadata === undefined) {
+
+    if (typeof selectedOptionIndex !== "number") {
       selectedAnswerInput = $optionInputs.find((input) => input.checked)
-      if (selectedAnswerInput === undefined) {
-        throw new Error("No answer is selected")
-      }
+      if (!selectedAnswerInput) throw new Error("No answer is selected")
     } else {
-      if (typeof metadata !== "object") {
-        throw new TypeError("metadata must be an object if present")
+      selectedAnswerInput = $optionInputs[selectedOptionIndex]
+      if (!selectedAnswerInput) {
+        throw new Error("Invalid selected option index")
       }
-
-      const { selectedOption } = metadata
-      const indexOfSelectedOptionLetter =
-        LETTERS_FOR_ANSWER_CHOICES.indexOf(selectedOption)
-      const inputWithLetterIsAbsent =
-        indexOfSelectedOptionLetter > $optionInputs.length - 1
-
-      if (indexOfSelectedOptionLetter < 0 || inputWithLetterIsAbsent) {
-        throw new Error("Invalid question metadata")
-      }
-
-      selectedAnswerInput = $optionInputs.find(
-        (input) => input.value === selectedOption
-      )
       selectedAnswerInput.checked = true
     }
 
