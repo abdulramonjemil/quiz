@@ -230,8 +230,14 @@ export default class Question extends Component {
     setQuestionState($fieldSet, "enabled")
   }
 
-  /** @returns {QuestionMetadata} */
+  /**
+   * Returns the answer selection data if the question is answered, and `null`
+   * otherwise.
+   *
+   * @returns {QuestionMetadata | null}
+   */
   getAnswerSelectionData() {
+    if (!this.isAnswered()) return null
     const { $optionInputs } = this
     const selectionIndex = $optionInputs.findIndex((input) => input.checked)
     return { selectedOptionIndex: selectionIndex }

@@ -1,7 +1,7 @@
 import { uniqueId } from "@/lib/id"
 import { webStorageIsAvailable } from "@/lib/storage"
 import { attemptElementFocus } from "@/lib/dom"
-import { assertIsInstance, tryJSONParse } from "@/lib/value"
+import { assertIsDefined, assertIsInstance, tryJSONParse } from "@/lib/value"
 import { Tabs } from "@/ui/tabs"
 
 import Component, { createInstanceRefHolder } from "@/core/component"
@@ -673,9 +673,11 @@ export default class Quiz extends Component {
     questionInstances.forEach((questionElement) => questionElement.finalize())
     this.$revalidate(resultIndex)
 
-    const questionMetadataSet = questionInstances.map((questionElement) =>
-      questionElement.getAnswerSelectionData()
-    )
+    const questionMetadataSet = questionInstances.map((questionElement) => {
+      const data = questionElement.getAnswerSelectionData()
+      assertIsDefined(data, "answer selection data")
+      return data
+    })
 
     /** @type {ExportedQuizData} */
     const quizData = {
