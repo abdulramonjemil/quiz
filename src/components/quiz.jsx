@@ -1,7 +1,7 @@
 import { uniqueId } from "@/lib/id"
 import { webStorageIsAvailable } from "@/lib/storage"
 import { attemptElementFocus } from "@/lib/dom"
-import { assertIsDefined, assertIsInstance, tryJSONParse } from "@/lib/value"
+import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import { Tabs } from "@/ui/tabs"
 
 import Component, { createInstanceRefHolder } from "@/core/component"
@@ -20,6 +20,7 @@ import ControlPanel from "./control-panel"
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
  * @typedef {import("./question").AnswerSelectionData} QuestionAnswerSelectionData
  * @typedef {import("./progress").ProgressRevalidationOptions} ProgressRevalidationOptions
+ * @typedef {import("./question").OptionIndex} QuestionOptionIndex
  * @typedef {import("./question").QuestionProps} QuestionProps
  * @typedef {import("./code-board").CodeBoardProps} CodeBoardProps
  * @typedef {import("./result").ResultProps} ResultProps
@@ -50,6 +51,31 @@ import ControlPanel from "./control-panel"
  * @typedef {{ type: "RESULT" }} QuizResultElement
  * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizPropElement
  * @typedef {QuizQuestionElement | QuizCodeBoardElement | QuizResultElement} QuizSlideElement
+ *
+ *
+ * @typedef {QuizQuestionElement & {
+ *   selectedOptionIndex: QuestionOptionIndex
+ * }} FinalizedQuizQuestionElement
+ *
+ * @typedef {(
+ *   | FinalizedQuizQuestionElement
+ *   | QuizCodeBoardElement
+ * )} FinalizedQuizInquiryElement
+ *
+ *
+ * @typedef {({
+ *   type: "CODE_BOARD",
+ *   language: string
+ * } | {
+ *   type: "QUESTION",
+ *   optionsCount: number,
+ *   answerIndex: QuestionOptionIndex,
+ *   selectedOptionIndex: QuestionOptionIndex
+ * })} DecodedStoredQuizElement
+ *
+ * @typedef {{
+ *   elements: DecodedStoredQuizElement[]
+ * }} DecodedStoredQuizData
  *
  *
  * @typedef {{
@@ -185,26 +211,80 @@ function buildQuizSlideElements({
   return { elementNodes, elementInstances }
 }
 
-/**
- * @param {unknown} data
- * @returns {data is ExportedQuizData}
- */
-function isValidExportedQuizData(data) {
-  if (typeof data !== "object") return false
-  const { answerSelectionDataset, elementsCount } =
-    /** @type {ExportedQuizData} */ (data)
-  const isValidSet =
-    Array.isArray(answerSelectionDataset) &&
-    answerSelectionDataset.every(
-      (d) => typeof d.selectedOptionIndex === "number"
-    )
-  return isValidSet && typeof elementsCount === "number"
-}
-
 /** @param {string} storageKey */
 function removeStoredQuizData(storageKey) {
   if (!webStorageIsAvailable(QUIZ_DATA_STORE)) return
   window.localStorage.removeItem(storageKey)
+}
+
+/**
+ * Represents minimal quiz data as a string.
+ * C:php =>
+ *   - Codeboard element
+ *   - In PHP (language)
+ * Q:4:2:3 =>
+ *   - Question element
+ *   - 4 options
+ *   - 2 is index of answer
+ *   - 3 is index of selected answer
+ *
+ * @param {FinalizedQuizInquiryElement[]} data
+ */
+function createStorableQuizData(data) {
+  const representations = data.map((element) => {
+    if (element.type === "QUESTION") {
+      const { answerIndex, options, selectedOptionIndex } = element
+      return `Q:${options.length}:${answerIndex}:${selectedOptionIndex}`
+    }
+    return `C:${element.language}`
+  })
+  return representations.join("--")
+}
+
+/**
+ * Converts stored string to usable object
+ *
+ * @param {string} storedData
+ * @return {DecodedStoredQuizData}
+ */
+function decodeStoredQuizData(storedData) {
+  const split = storedData.split("--")
+
+  const decoded = split.map((data) => {
+    if (/^C:.{1,12}$/.test(data)) {
+      const [, language] = data.split(":")
+      return /** @type {DecodedStoredQuizElement} */ ({
+        type: "CODE_BOARD",
+        language
+      })
+    }
+
+    if (/^Q:[2-4]:[0-3]:[0-3]$/.test(data)) {
+      const numbers = /** @type {number[]} */ (data.split(":").slice(1))
+      const [optionsCount, answerIndex, selectedOptionIndex] =
+        numbers.map(Number)
+
+      const invalidAnswerIndex = answerIndex > optionsCount - 1
+      const invalidSelectedOptionIndex = selectedOptionIndex > optionsCount - 1
+      if (invalidAnswerIndex || invalidSelectedOptionIndex) return null
+
+      return /** @type {DecodedStoredQuizElement} */ ({
+        type: "QUESTION",
+        optionsCount,
+        answerIndex,
+        selectedOptionIndex
+      })
+    }
+    return null
+  })
+
+  const filtered = decoded.filter(
+    /** @returns {value is DecodedStoredQuizElement} */
+    (value) => value !== null
+  )
+
+  if (filtered.length !== decoded.length) return null
+  return { elements: filtered }
 }
 
 /** @param {string} storageKey */
@@ -215,18 +295,18 @@ function getStoredQuizData(storageKey) {
 
   if (!data) return null
 
-  const parseResult = tryJSONParse(data)
-  if (!parseResult.success || !isValidExportedQuizData(parseResult.value)) {
+  const decodingResult = decodeStoredQuizData(data)
+  if (!decodingResult) {
     removeStoredQuizData(storageKey)
     return null
   }
 
-  return parseResult.value
+  return decodingResult
 }
 
 /**
  * @param {ExportedQuizData} data
- * @param {QuizProps} quizElements
+ * @param {QuizPropElement[]} quizElements
  */
 function resultDataIsValidForQuiz(data, quizElements) {
   const { answerSelectionDataset, elementsCount } = data
@@ -236,17 +316,45 @@ function resultDataIsValidForQuiz(data, quizElements) {
 
   return (
     answerSelectionDataset.length === questionElements.length &&
-    elementsCount === quizElements.length
+    elementsCount === quizElements.length &&
+    answerSelectionDataset.every(
+      (d, index) =>
+        d.selectedOptionIndex < questionElements[index].options.length
+    )
   )
 }
 
 /**
- * @param {ExportedQuizData} data
+ * @param {DecodedStoredQuizData} data
+ * @param {QuizPropElement[]} elements
+ */
+function storedDataIsValidForQuiz(data, elements) {
+  const decodedElements = data.elements
+  if (decodedElements.length !== elements.length) return false
+  return decodedElements.every((decodedElement, index) => {
+    const suppliedElement = elements[index]
+    let elementsMatch = false
+    if (decodedElement.type === "CODE_BOARD") {
+      elementsMatch =
+        suppliedElement.type === "CODE_BOARD" &&
+        decodedElement.language === suppliedElement.language
+    } else if (decodedElement.type === "QUESTION") {
+      elementsMatch =
+        suppliedElement.type === "QUESTION" &&
+        decodedElement.optionsCount === suppliedElement.options.length &&
+        decodedElement.answerIndex === suppliedElement.answerIndex
+    }
+    return elementsMatch
+  })
+}
+
+/**
+ * @param {FinalizedQuizInquiryElement[]} data
  * @param {string} storageKey
  */
 function storeQuizData(data, storageKey) {
   if (!webStorageIsAvailable(QUIZ_DATA_STORE)) return
-  window.localStorage.setItem(storageKey, JSON.stringify(data))
+  window.localStorage.setItem(storageKey, createStorableQuizData(data))
 }
 
 /** @param {QuizElementInstance[]} elementInstances */
@@ -688,7 +796,20 @@ export default class Quiz extends Component {
       elementsCount: $elementInstances.length - 1
     }
 
-    if ($metadata.autoSave) storeQuizData(quizData, $metadata.storageKey)
+    let questionIndex = -1
+    const finalizedElements = this.$props.elements.map((element) => {
+      if (element.type === "CODE_BOARD") return element
+      questionIndex += 1
+      const { selectedOptionIndex } = answerSelectionDataset[questionIndex]
+      return /** @type {FinalizedQuizQuestionElement} */ ({
+        ...element,
+        selectedOptionIndex
+      })
+    })
+
+    if ($metadata.autoSave) {
+      storeQuizData(finalizedElements, $metadata.storageKey)
+    }
     if (typeof submissionCallback === "function") {
       submissionCallback.call(this, quizData)
     }
@@ -742,40 +863,52 @@ export default class Quiz extends Component {
         this.$handleResultExplanationBtnClick.bind(this)
     })
 
-    const availableResultData =
-      resultData ?? (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
     const resultIndex = elementInstances.length - 1
     const resultInstance = elementInstances[resultIndex]
     assertIsInstance(resultInstance, Result)
 
-    if (availableResultData) {
-      if (!resultDataIsValidForQuiz(availableResultData, elements)) {
-        const dataWasSuppliedDirectly = resultData !== null
-        if (dataWasSuppliedDirectly) {
-          throw new Error(`Invalid quiz data supplied:\n\n${resultData}`)
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(
-            `Invalid quiz data read from storage:\n\n${resultData}. ` +
-              "This could be because there are multiple quizzes using the same storage key."
-          )
-          // Data was read from storage
-          removeStoredQuizData(storageKey)
-        }
-      } else {
-        const questionInstances = elementInstances.filter(
-          /** @returns {element is Question} */ (element) =>
-            element instanceof Question
+    if (resultData) {
+      if (!resultDataIsValidForQuiz(resultData, elements)) {
+        throw new Error(
+          "Invalid quiz data supplied:\n\n" +
+            `${JSON.stringify(resultData, null, 2)}`
         )
+      } else {
+        const { answerSelectionDataset } = resultData
+        let questionIndex = -1
 
-        const { answerSelectionDataset } = availableResultData
-        questionInstances.forEach((instance, index) => {
-          const { selectedOptionIndex } = answerSelectionDataset[index]
+        elementInstances.forEach((instance) => {
+          if (!(instance instanceof Question)) return
+          questionIndex += 1
+          const { selectedOptionIndex } = answerSelectionDataset[questionIndex]
           instance.finalize(selectedOptionIndex)
         })
 
         const { gottenAnswersCount } = getQuizResultData(elementInstances)
         resultInstance.finalize(gottenAnswersCount)
+      }
+    } else if (autoSaveIsEnabled) {
+      const storedData = getStoredQuizData(storageKey)
+      if (storedData) {
+        if (!storedDataIsValidForQuiz(storedData, elements)) {
+          // eslint-disable-next-line no-console
+          console.error(
+            "Unmatching quiz data read from storage:\n\n" +
+              `${JSON.stringify(storedData, null, 2)}\n\n` +
+              "This could be because there are multiple quizzes using the same storage key."
+          )
+          removeStoredQuizData(storageKey)
+        } else {
+          elementInstances.forEach((instance, index) => {
+            if (!(instance instanceof Question)) return
+            const storedQData = storedData.elements[index]
+            if (storedQData.type !== "QUESTION") return
+            instance.finalize(storedQData.selectedOptionIndex)
+          })
+
+          const { gottenAnswersCount } = getQuizResultData(elementInstances)
+          resultInstance.finalize(gottenAnswersCount)
+        }
       }
     }
 

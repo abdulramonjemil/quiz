@@ -32,10 +32,14 @@ Quiz.create({
 Quiz.create({
   container: secondQuizContainer,
   props: {
-    elements: SAMPLE_QUIZ_DATA.slice(6, 7),
+    elements: SAMPLE_QUIZ_DATA.slice(11, 13),
     metadata: {
       autoSave: true,
       header: "Test your knowledge of C",
+      resultData: {
+        elementsCount: 2,
+        answerSelectionDataset: [{ selectedOptionIndex: 1 }]
+      },
       storageKey: "sample-quiz-2",
       isGlobal: false
     },
