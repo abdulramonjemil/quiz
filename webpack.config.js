@@ -1,3 +1,4 @@
+const path = require("path")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
@@ -68,6 +69,9 @@ module.exports = {
   },
 
   resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "src")
+    },
     extensions: [".js", ".jsx"]
   }
 }

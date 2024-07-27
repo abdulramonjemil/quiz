@@ -1,10 +1,9 @@
 module.exports = {
-  babelrcRoots: [".", "./components"],
   plugins: [
     [
       "@babel/plugin-transform-react-jsx",
       {
-        importSource: "./core",
+        importSource: "@/core",
         runtime: "automatic"
       }
     ]
