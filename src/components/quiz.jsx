@@ -527,11 +527,7 @@ const createQuizShortcutHandlers = (() => {
     if (["p", "n"].includes(event.key.toLowerCase())) {
       const button = { p: "prev", n: "next" }[event.key.toLowerCase()]
       const focused = controlPanel.simulateClick(button)
-
-      if (focused && !controlPanel.buttonIsEnabled(button)) {
-        attemptElementFocus(tabs.activeTab().content)
-      }
-
+      if (focused) attemptElementFocus(tabs.activeTab().content)
       return
     }
 
