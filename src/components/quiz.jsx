@@ -18,7 +18,7 @@ import ControlPanel from "./control-panel"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
- * @typedef {import("./question").QuestionMetadata} QuestionMetadata
+ * @typedef {import("./question").AnswerSelectionData} QuestionAnswerSelectionData
  * @typedef {import("./progress").ProgressRevalidationOptions} ProgressRevalidationOptions
  * @typedef {import("./question").QuestionProps} QuestionProps
  * @typedef {import("./code-board").CodeBoardProps} CodeBoardProps
@@ -28,7 +28,7 @@ import ControlPanel from "./control-panel"
 
 /**
  * @typedef {{
- *   questionMetadataSet: QuestionMetadata[];
+ *   answerSelectionDataset: QuestionAnswerSelectionData[];
  *   elementsCount: number;
  * }} ExportedQuizData
  *
@@ -191,11 +191,13 @@ function buildQuizSlideElements({
  */
 function isValidExportedQuizData(data) {
   if (typeof data !== "object") return false
-  const { questionMetadataSet, elementsCount } =
+  const { answerSelectionDataset, elementsCount } =
     /** @type {ExportedQuizData} */ (data)
   const isValidSet =
-    Array.isArray(questionMetadataSet) &&
-    questionMetadataSet.every((d) => typeof d.selectedOptionIndex === "number")
+    Array.isArray(answerSelectionDataset) &&
+    answerSelectionDataset.every(
+      (d) => typeof d.selectedOptionIndex === "number"
+    )
   return isValidSet && typeof elementsCount === "number"
 }
 
@@ -227,13 +229,13 @@ function getStoredQuizData(storageKey) {
  * @param {QuizProps} quizElements
  */
 function resultDataIsValidForQuiz(data, quizElements) {
-  const { questionMetadataSet, elementsCount } = data
+  const { answerSelectionDataset, elementsCount } = data
   const questionElements = quizElements.filter(
     (element) => element.type === "QUESTION"
   )
 
   return (
-    questionMetadataSet.length === questionElements.length &&
+    answerSelectionDataset.length === questionElements.length &&
     elementsCount === quizElements.length
   )
 }
@@ -673,7 +675,7 @@ export default class Quiz extends Component {
     questionInstances.forEach((questionElement) => questionElement.finalize())
     this.$revalidate(resultIndex)
 
-    const questionMetadataSet = questionInstances.map((questionElement) => {
+    const answerSelectionDataset = questionInstances.map((questionElement) => {
       const data = questionElement.getAnswerSelectionData()
       assertIsDefined(data, "answer selection data")
       return data
@@ -681,7 +683,7 @@ export default class Quiz extends Component {
 
     /** @type {ExportedQuizData} */
     const quizData = {
-      questionMetadataSet,
+      answerSelectionDataset,
       // Subtract 1 to exclude the added result element
       elementsCount: $elementInstances.length - 1
     }
@@ -766,9 +768,9 @@ export default class Quiz extends Component {
             element instanceof Question
         )
 
-        const { questionMetadataSet } = availableResultData
+        const { answerSelectionDataset } = availableResultData
         questionInstances.forEach((instance, index) => {
-          const { selectedOptionIndex } = questionMetadataSet[index]
+          const { selectedOptionIndex } = answerSelectionDataset[index]
           instance.finalize(selectedOptionIndex)
         })
 

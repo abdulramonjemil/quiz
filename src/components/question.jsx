@@ -18,7 +18,7 @@ const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
  * @typedef {0 | 1 | 2 | 3} OptionIndex
  * @typedef {{
  *   selectedOptionIndex: OptionIndex;
- * }} QuestionMetadata
+ * }} AnswerSelectionData
  *
  * @typedef {{
  *   title: string,
@@ -234,7 +234,7 @@ export default class Question extends Component {
    * Returns the answer selection data if the question is answered, and `null`
    * otherwise.
    *
-   * @returns {QuestionMetadata | null}
+   * @returns {AnswerSelectionData | null}
    */
   getAnswerSelectionData() {
     if (!this.isAnswered()) return null
