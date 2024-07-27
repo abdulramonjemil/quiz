@@ -2,9 +2,9 @@
 import Prism from "prismjs"
 import "prismjs/plugins/autoloader/prism-autoloader"
 
-import { createElementRefHolder } from "../core/component"
-import { phraseToNode } from "../core/content-parser"
-import Styles from "../scss/code-board.module.scss"
+import { createElementRefHolder } from "@/core/component"
+import { phraseToNode } from "@/core/content-parser"
+import Styles from "@/scss/code-board.module.scss"
 
 /**
  * @typedef {{

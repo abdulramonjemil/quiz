@@ -1,4 +1,4 @@
-/** @type {import("../components/quiz").QuizProps["elements"]} */
+/** @type {import("@/components/quiz").QuizProps["elements"]} */
 export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",

@@ -1,8 +1,8 @@
-import { setElementHTMLAttribute } from "../lib/dom"
+import { setElementHTMLAttribute } from "@/lib/dom"
 import {
   assertOverwrittenParentMethods,
   throwAbsentMethodError
-} from "../lib/value"
+} from "@/lib/value"
 
 /**
  * @typedef {HTMLElement |

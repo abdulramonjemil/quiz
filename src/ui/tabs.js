@@ -1,11 +1,11 @@
-import { AriaKeys } from "../lib/accessibility"
-import { attemptElementFocus } from "../lib/dom"
+import { AriaKeys } from "@/lib/accessibility"
+import { attemptElementFocus } from "@/lib/dom"
 import {
   circularlyFindBackward,
   circularlyFindForward,
   findFirst,
   findLast
-} from "../lib/value"
+} from "@/lib/value"
 import { UIComponent } from "./component"
 
 /**

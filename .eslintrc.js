@@ -1,8 +1,16 @@
 module.exports = {
-  extends: ["airbnb", "prettier"],
+  extends: ["plugin:import/recommended", "airbnb", "prettier"],
   env: { browser: true },
   parserOptions: {
     ecmaVersion: 2020
+  },
+  settings: {
+    "import/resolver": {
+      alias: {
+        map: [["@", "./src"]],
+        extensions: [".js", ".jsx"]
+      }
+    }
   },
   rules: {
     "import/extensions": ["error", "always", { js: "never", jsx: "never" }],

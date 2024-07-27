@@ -2,8 +2,8 @@
 import { SAMPLE_QUIZ_DATA } from "./sample.js"
 
 /**
- * @typedef {import("../components/quiz").QuizClass} QuizClass
- * @typedef {import("../components/quiz").QuizProps} QuizProps
+ * @typedef {import("@/components/quiz").QuizClass} QuizClass
+ * @typedef {import("@/components/quiz").QuizProps} QuizProps
  */
 
 // eslint-disable-next-line prefer-destructuring

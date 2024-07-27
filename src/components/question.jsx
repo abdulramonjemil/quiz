@@ -1,9 +1,9 @@
-import Component, { createElementRefHolder } from "../core/component"
-import { phraseToNode } from "../core/content-parser"
-import { attemptElementFocus } from "../lib/dom"
-import { uniqueId } from "../lib/id"
-import { assertIsInstance } from "../lib/value"
-import Styles from "../scss/question.module.scss"
+import Component, { createElementRefHolder } from "@/core/component"
+import { phraseToNode } from "@/core/content-parser"
+import { attemptElementFocus } from "@/lib/dom"
+import { uniqueId } from "@/lib/id"
+import { assertIsInstance } from "@/lib/value"
+import Styles from "@/scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]

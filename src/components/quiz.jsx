@@ -1,5 +1,11 @@
-import Component, { createInstanceRefHolder } from "../core/component"
-import Styles from "../scss/quiz.module.scss"
+import { uniqueId } from "@/lib/id"
+import { webStorageIsAvailable } from "@/lib/storage"
+import { attemptElementFocus } from "@/lib/dom"
+import { assertIsInstance, tryJSONParse } from "@/lib/value"
+import { Tabs } from "@/ui/tabs"
+
+import Component, { createInstanceRefHolder } from "@/core/component"
+import Styles from "@/scss/quiz.module.scss"
 
 /* Must be imported after importing styles above to allow overrides */
 import Header from "./header"
@@ -10,12 +16,6 @@ import CodeBoard from "./code-board"
 import Result from "./result"
 import ControlPanel from "./control-panel"
 
-import { uniqueId } from "../lib/id"
-import { webStorageIsAvailable } from "../lib/storage"
-import { attemptElementFocus } from "../lib/dom"
-import { assertIsInstance, tryJSONParse } from "../lib/value"
-import { Tabs } from "../ui/tabs"
-
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
  * @typedef {import("./question").QuestionMetadata} QuestionMetadata
@@ -23,7 +23,7 @@ import { Tabs } from "../ui/tabs"
  * @typedef {import("./question").QuestionProps} QuestionProps
  * @typedef {import("./code-board").CodeBoardProps} CodeBoardProps
  * @typedef {import("./result").ResultProps} ResultProps
- * @typedef {import("../ui/tabs").TabChangeHandler} TabChangeHandler
+ * @typedef {import("@/ui/tabs").TabChangeHandler} TabChangeHandler
  */
 
 /**

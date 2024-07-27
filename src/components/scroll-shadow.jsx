@@ -1,5 +1,5 @@
 /* eslint-disable no-param-reassign */
-import Styles from "../scss/scroll-shadow.module.scss"
+import Styles from "@/scss/scroll-shadow.module.scss"
 
 const {
   BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY,

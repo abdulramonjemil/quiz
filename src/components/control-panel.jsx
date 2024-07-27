@@ -1,6 +1,6 @@
-import Component, { createElementRefHolder } from "../core/component"
-import { attemptElementFocus } from "../lib/dom"
-import Styles from "../scss/control-panel.module.scss"
+import Component, { createElementRefHolder } from "@/core/component"
+import { attemptElementFocus } from "@/lib/dom"
+import Styles from "@/scss/control-panel.module.scss"
 
 /**
  * @typedef CTARevalidationResult

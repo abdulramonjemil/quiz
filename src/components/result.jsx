@@ -1,5 +1,5 @@
-import Component, { createElementRefHolder } from "../core/component"
-import Styles from "../scss/result.module.scss"
+import Component, { createElementRefHolder } from "@/core/component"
+import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
 /**

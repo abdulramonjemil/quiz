@@ -1,6 +1,6 @@
-import Component, { createElementRefHolder } from "../core/component"
-import { attemptElementFocus } from "../lib/dom"
-import Styles from "../scss/progress.module.scss"
+import Component, { createElementRefHolder } from "@/core/component"
+import { attemptElementFocus } from "@/lib/dom"
+import Styles from "@/scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
 const COMPLETION_LEVEL_BUTTON_CONTENT = "✓"

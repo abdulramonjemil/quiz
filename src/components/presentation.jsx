@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import Component, { createInstanceRefHolder } from "../core/component"
-import Styles from "../scss/presentation.module.scss"
+import Component, { createInstanceRefHolder } from "@/core/component"
+import Styles from "@/scss/presentation.module.scss"
 
 const SHOWN_SLIDE_CLASS = Styles.Slide_shown
 
