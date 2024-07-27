@@ -49,7 +49,7 @@ import ControlPanel from "./control-panel"
  * }} QuizCodeBoardElement
  *
  * @typedef {{ type: "RESULT" }} QuizResultElement
- * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizPropElement
+ * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizInquiryElement
  * @typedef {QuizQuestionElement | QuizCodeBoardElement | QuizResultElement} QuizSlideElement
  *
  *
@@ -90,7 +90,7 @@ import ControlPanel from "./control-panel"
  *
  *
  * @typedef {{
- *   elements: QuizPropElement[],
+ *   elements: QuizInquiryElement[],
  *   submissionCallback: (data: QuizSubmissionCallbackData) => void,
  *   metadata?: {
  *     autoSave?: boolean | undefined,
@@ -141,7 +141,7 @@ function normalizeQuizMetadataConfig(metadata) {
 }
 
 /**
- * @param {QuizPropElement[]} elements
+ * @param {QuizInquiryElement[]} elements
  */
 function assertValidQuizPropsElementConfig(elements) {
   const elementsCount = elements.length
@@ -317,7 +317,7 @@ function getStoredQuizData(storageKey) {
 
 /**
  * @param {ExportedQuizData} data
- * @param {QuizPropElement[]} quizElements
+ * @param {QuizInquiryElement[]} quizElements
  */
 function resultDataIsValidForQuiz(data, quizElements) {
   const { answerSelectionDataset, elementsCount } = data
@@ -337,7 +337,7 @@ function resultDataIsValidForQuiz(data, quizElements) {
 
 /**
  * @param {DecodedStoredQuizData} data
- * @param {QuizPropElement[]} elements
+ * @param {QuizInquiryElement[]} elements
  */
 function storedDataIsValidForQuiz(data, elements) {
   const decodedElements = data.elements
