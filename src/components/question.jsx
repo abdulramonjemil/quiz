@@ -15,10 +15,9 @@ const ENABLED_EXPLANATION_CLASS = Styles.Explanation_enabled
 const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
 
 /**
- * @typedef {"A" | "B" | "C" | "D"} AnswerOption
  * @typedef {0 | 1 | 2 | 3} OptionIndex
  * @typedef {{
- *   selectedOption: AnswerOption;
+ *   selectedOptionIndex: OptionIndex;
  * }} QuestionMetadata
  *
  * @typedef {{
@@ -232,12 +231,10 @@ export default class Question extends Component {
   }
 
   /** @returns {QuestionMetadata} */
-  exportInteractionMetadata() {
+  getAnswerSelectionData() {
     const { $optionInputs } = this
-    const selectedAnswerInput = $optionInputs.find((input) => input.checked)
-    return {
-      selectedOption: selectedAnswerInput.value
-    }
+    const selectionIndex = $optionInputs.findIndex((input) => input.checked)
+    return { selectedOptionIndex: selectionIndex }
   }
 
   /** @param {number | null | undefined} selectedOptionIndex */

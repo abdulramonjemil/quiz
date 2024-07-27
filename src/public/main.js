@@ -18,10 +18,6 @@ Quiz.create({
     elements: SAMPLE_QUIZ_DATA.slice(0, 5),
     metadata: {
       autoSave: false,
-      // resultData: {
-      //   questionMetadataSet: [{ selectedOption: "B" }],
-      //   elementsCount: 2
-      // },
       header: "Test your knowledge of arrays",
       storageKey: "sample-quiz-1",
       isGlobal: false
@@ -39,11 +35,6 @@ Quiz.create({
     elements: SAMPLE_QUIZ_DATA.slice(6, 7),
     metadata: {
       autoSave: true,
-      // autoSave: false,
-      // resultData: {
-      //   questionMetadataSet: [{ selectedOption: "B" }],
-      //   elementsCount: 2
-      // },
       header: "Test your knowledge of C",
       storageKey: "sample-quiz-2",
       isGlobal: false

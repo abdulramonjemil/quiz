@@ -193,7 +193,10 @@ function isValidExportedQuizData(data) {
   if (typeof data !== "object") return false
   const { questionMetadataSet, elementsCount } =
     /** @type {ExportedQuizData} */ (data)
-  return Array.isArray(questionMetadataSet) && typeof elementsCount === "number"
+  const isValidSet =
+    Array.isArray(questionMetadataSet) &&
+    questionMetadataSet.every((d) => typeof d.selectedOptionIndex === "number")
+  return isValidSet && typeof elementsCount === "number"
 }
 
 /** @param {string} storageKey */
@@ -211,13 +214,12 @@ function getStoredQuizData(storageKey) {
   if (!data) return null
 
   const parseResult = tryJSONParse(data)
-  if (!parseResult.success) {
+  if (!parseResult.success || !isValidExportedQuizData(parseResult.value)) {
     removeStoredQuizData(storageKey)
     return null
   }
 
-  const { value } = parseResult
-  return isValidExportedQuizData(value) ? value : null
+  return parseResult.value
 }
 
 /**
@@ -672,7 +674,7 @@ export default class Quiz extends Component {
     this.$revalidate(resultIndex)
 
     const questionMetadataSet = questionInstances.map((questionElement) =>
-      questionElement.exportInteractionMetadata()
+      questionElement.getAnswerSelectionData()
     )
 
     /** @type {ExportedQuizData} */
@@ -764,11 +766,8 @@ export default class Quiz extends Component {
 
         const { questionMetadataSet } = availableResultData
         questionInstances.forEach((instance, index) => {
-          const { selectedOption } = questionMetadataSet[index]
-          const optionIndex = ["a", "b", "c", "d"].findIndex(
-            (letter) => letter === selectedOption.toLowerCase()
-          )
-          instance.finalize(optionIndex)
+          const { selectedOptionIndex } = questionMetadataSet[index]
+          instance.finalize(selectedOptionIndex)
         })
 
         const { gottenAnswersCount } = getQuizResultData(elementInstances)
