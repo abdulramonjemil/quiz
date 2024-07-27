@@ -54,7 +54,7 @@ import ControlPanel from "./control-panel"
  *
  * @typedef {{
  *   elements: QuizPropElement[],
- *   submissionCallback: (ExportedQuizData) => void,
+ *   submissionCallback: (data: ExportedQuizData) => void,
  *   metadata?: {
  *     autoSave?: boolean | undefined,
  *     resultData?: ExportedQuizData | null | undefined,
