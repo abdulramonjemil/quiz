@@ -47,36 +47,28 @@ import ControlPanel from "./control-panel"
  *   snippet: CodeBoardProps["snippet"]
  * }} QuizCodeBoardElement
  *
- * @typedef {{
- *   type: "RESULT",
- *   handleExplanationBtnClick: ResultProps["handleExplanationBtnClick"]
- * }} QuizResultElement
- */
-
-/**
- * @typedef {ReturnType<typeof getQuizDataForSlide>} SlideQuizData
+ * @typedef {{ type: "RESULT" }} QuizResultElement
  * @typedef {QuizQuestionElement | QuizCodeBoardElement} QuizPropElement
- * @typedef {QuizQuestionElement | QuizCodeBoardElement | QuizResultElement} QuizElement
+ * @typedef {QuizQuestionElement | QuizCodeBoardElement | QuizResultElement} QuizSlideElement
+ *
+ *
+ * @typedef {{
+ *   elements: QuizPropElement[],
+ *   submissionCallback: (ExportedQuizData) => void,
+ *   metadata?: {
+ *     autoSave?: boolean | undefined,
+ *     resultData?: ExportedQuizData | null | undefined,
+ *     header?: string | undefined,
+ *     isGlobal?: boolean | undefined,
+ *     storageKey?: string | undefined
+ *   } | undefined
+ * }} QuizProps
+ *
  * @typedef {Question | Result | null} QuizElementInstance
  * @typedef {typeof Quiz} QuizClass
  *
- * @typedef {{
- *   prev: number | null;
- *   next: number | null;
- * }} PrevNextIndices
- */
-
-/**
- * @typedef QuizProps
- * @property {QuizPropElement[]} elements
- * @property {(ExportedQuizData) => void} submissionCallback
- * @property {{
- *   autoSave?: boolean | undefined,
- *   resultData?: ExportedQuizData | null | undefined,
- *   header?: string | undefined,
- *   isGlobal?: boolean | undefined,
- *   storageKey?: string | undefined
- * }} [metadata]
+ * @typedef {ReturnType<typeof getQuizDataForSlide>} SlideQuizData
+ * @typedef {{ prev: number | null, next: number | null }} PrevNextIndices
  */
 
 const DEFAULT_QUIZ_METADATA = {
@@ -125,10 +117,17 @@ function assertValidQuizPropsElementConfig(elements) {
 }
 
 /**
- * @param {QuizElement[]} elements
- * @param {() => void} handleQuestionOptionChange
+ * @param {{
+ *   elements: QuizSlideElement[],
+ *   handleQuestionOptionChange: () => void,
+ *   handleResultExplanationBtnClick: ResultProps["handleExplanationBtnClick"]
+ * }} param0
  */
-function buildQuizElements(elements, handleQuestionOptionChange) {
+function buildQuizSlideElements({
+  elements,
+  handleQuestionOptionChange,
+  handleResultExplanationBtnClick
+}) {
   /** @type {HTMLElement[]} */
   const elementNodes = []
   /** @type {QuizElementInstance[]} */
@@ -171,7 +170,7 @@ function buildQuizElements(elements, handleQuestionOptionChange) {
       slideNode = (
         <Result
           questionsCount={questionsCount}
-          handleExplanationBtnClick={element.handleExplanationBtnClick}
+          handleExplanationBtnClick={handleResultExplanationBtnClick}
           refHolder={resultInstanceRefHolder}
         />
       )
@@ -223,7 +222,6 @@ function getStoredQuizData(storageKey) {
 /**
  * @param {ExportedQuizData} data
  * @param {QuizProps} quizElements
- * @returns {data is ExportedQuizData}
  */
 function resultDataIsValidForQuiz(data, quizElements) {
   const { questionMetadataSet, elementsCount } = data
@@ -381,7 +379,7 @@ function quizElementIndexToTabName(index) {
 /**
  * @param {Object} param0
  * @param {string} param0.tablistLabel
- * @param {QuizElement[]} param0.elements
+ * @param {QuizSlideElement[]} param0.elements
  * @param {Presentation} param0.presentation
  * @param {Progress} param0.progress
  * @param {TabChangeHandler} param0.tabChangeHandler
@@ -728,18 +726,14 @@ export default class Quiz extends Component {
 
     assertValidQuizPropsElementConfig(elements)
 
-    /** @type {QuizResultElement} */
-    const resultElement = {
-      type: "RESULT",
-      handleExplanationBtnClick:
+    /** @type {QuizSlideElement[]} */
+    const fullQuizElements = [...elements, { type: "RESULT" }]
+    const { elementNodes, elementInstances } = buildQuizSlideElements({
+      elements: fullQuizElements,
+      handleQuestionOptionChange: this.$handleQuestionOptionChange.bind(this),
+      handleResultExplanationBtnClick:
         this.$handleResultExplanationBtnClick.bind(this)
-    }
-
-    const fullQuizElements = [...elements, resultElement]
-    const { elementNodes, elementInstances } = buildQuizElements(
-      fullQuizElements,
-      this.$handleQuestionOptionChange.bind(this)
-    )
+    })
 
     const availableResultData =
       resultData ?? (autoSaveIsEnabled ? getStoredQuizData(storageKey) : null)
