@@ -1,6 +1,6 @@
 import { uniqueId } from "@/lib/id"
 import { webStorageIsAvailable } from "@/lib/storage"
-import { attemptElementFocus } from "@/lib/dom"
+import { attemptElementFocus, cn } from "@/lib/dom"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import { Tabs } from "@/ui/tabs"
 
@@ -18,6 +18,7 @@ import ControlPanel from "./control-panel"
 
 /**
  * @typedef {import("./control-panel").ControlPanelRevalidationOptions} ControlPanelRevalidationOptions
+ * @typedef {import("./header").HeaderLevel} HeaderLevel
  * @typedef {import("./question").AnswerSelectionData} QuestionAnswerSelectionData
  * @typedef {import("./progress").ProgressRevalidationOptions} ProgressRevalidationOptions
  * @typedef {import("./question").OptionIndex} QuestionOptionIndex
@@ -92,7 +93,9 @@ import ControlPanel from "./control-panel"
  *   autosave?: {
  *     identifier: string,
  *     saveWithPathname: boolean
- *   } | null | undefined
+ *   } | null | undefined,
+ *   customRootClass?: string | null | undefined,
+ *   headerLevel?: HeaderLevel | null | undefined
  * }} QuizProps
  *
  * @typedef {Question | Result | null} QuizElementInstance
@@ -708,6 +711,10 @@ const createQuizShortcutHandlers = (() => {
   }
 })()
 
+const quizClasses = {
+  root: cn("quiz", Styles.Quiz)
+}
+
 /**
  * @template {QuizProps} Props
  * @extends {Component<Props>}
@@ -832,9 +839,14 @@ export default class Quiz extends Component {
   }
 
   $render() {
-    const { autosave, elements, finalized, header } = /** @type {QuizProps} */ (
-      this.$props
-    )
+    const {
+      autosave,
+      customRootClass,
+      elements,
+      finalized,
+      header,
+      headerLevel
+    } = /** @type {QuizProps} */ (this.$props)
 
     assertValidQuizPropsElementConfig(elements)
     /** @type {QuizSlideElement[]} */
@@ -915,12 +927,14 @@ export default class Quiz extends Component {
     const quizNode = (
       <section
         aria-labelledby={quizLabellingId}
-        className={Styles.Quiz}
+        className={cn(customRootClass, quizClasses.root)}
         tabIndex={-1}
         onKeyDownCapture={shortcutHandlers.keydown}
         onKeyUpCapture={shortcutHandlers.keyup}
       >
-        <Header labellingId={quizLabellingId}>{header}</Header>
+        <Header labellingId={quizLabellingId} level={headerLevel}>
+          {header}
+        </Header>
         <Progress
           handleLevelButtonClick={this.$handleProgressButtonClick.bind(this)}
           levelsCount={elementInstances.length}

@@ -38,6 +38,7 @@ Quiz.create({
     elements: SAMPLE_QUIZ_DATA.slice(0, 5),
     autosave: null,
     finalized: false,
+    customRootClass: "sample-quiz-1",
     onSubmit: (data) => {
       // eslint-disable-next-line no-console
       console.log(data)
@@ -53,6 +54,7 @@ Quiz.create({
       identifier: "sample-quiz-2",
       saveWithPathname: false
     },
+    customRootClass: "sample-quiz-2",
     elements: SAMPLE_QUIZ_DATA.slice(11, 13),
     finalized: false,
     onSubmit: (data) => {
@@ -67,6 +69,7 @@ Quiz.create({
   props: {
     header: "Test quiz 3",
     autosave: null,
+    customRootClass: "sample-quiz-3",
     elements: createFinalizedInquiryElements(SAMPLE_QUIZ_DATA.slice(9, 14)),
     finalized: true
   }
