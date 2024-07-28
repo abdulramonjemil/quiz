@@ -126,6 +126,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
 
     .Progress__Level_completion & {
       border-radius: 50%;
+      font-weight: 700;
 
       &:not(:disabled) {
         border-color: utils.get-color("light-purple");

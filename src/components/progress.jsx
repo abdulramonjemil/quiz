@@ -1,9 +1,45 @@
 import Component, { createElementRefHolder } from "@/core/component"
-import { attemptElementFocus, cn } from "@/lib/dom"
+import {
+  attemptElementFocus,
+  cn,
+  excludeClassNames,
+  hasClassNames,
+  setElementHTMLAttribute
+} from "@/lib/dom"
 import Styles from "@/scss/progress.module.scss"
 
-const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
 const COMPLETION_LEVEL_BUTTON_CONTENT = "✓"
+
+/**
+ * @typedef {{
+ *   levelsCount: number,
+ *   lastAsCompletionLevel: boolean
+ * }} ProgressProps
+ *
+ *
+ * @typedef {{
+ *   activeLevelIndex: number,
+ *   highestEnabledLevelIndex: number | null
+ * }} ProgressRevalidationOptions
+ */
+
+const progressClasses = {
+  root: cn("quiz-progress", Styles.Progress),
+  list: cn("quiz-progress-list", Styles.Progress__List),
+  level: {
+    base: cn("quiz-progress-level", Styles.Progress__Level),
+    active: cn("quiz-progress-level--active", Styles.Progress__Level_active),
+    completion: cn([
+      "quiz-progress-level--completion",
+      Styles.Progress__Level_completion
+    ]),
+    precedingCompletion: cn([
+      "quiz-progress-level--preceding-completion",
+      Styles.Progress__Level_precedingCompletion
+    ])
+  },
+  levelButton: cn("quiz-progress-level-button", Styles.Progress__LevelButton)
+}
 
 /**
  * @param {levelIndex} number
@@ -29,17 +65,75 @@ function getLevelButton(progressLevel) {
 }
 
 /** @param {HTMLElement} progressLevel  */
-function getLevelButtonContent(progressLevel) {
-  const button = getLevelButton(progressLevel)
-  return button.innerText
+function levelIsCompletionLevel(progressLevel) {
+  return (
+    getLevelButton(progressLevel).innerText === COMPLETION_LEVEL_BUTTON_CONTENT
+  )
+}
+
+/** @param {HTMLElement[]} progressLevels */
+function getActiveLevelIndex(progressLevels) {
+  const index = progressLevels.findIndex((level) =>
+    hasClassNames(level, progressClasses.level.active)
+  )
+  return index >= 0 ? index : null
 }
 
 /**
- * @typedef ProgressRevalidationOptions
- * @property {number} activeLevelIndex
- * @property {number | null} highestEnabledLevelIndex
+ * @param {HTMLElement} progressLevel
+ * @param {"active" | "non-active"} state
  */
+function setProgressLevelState(progressLevel, state) {
+  const { active: activeLevelClassName } = progressClasses.level
+  if (state === "active") {
+    setElementHTMLAttribute(
+      progressLevel,
+      "class",
+      cn([progressLevel.className, activeLevelClassName])
+    )
+  } else if (state === "non-active") {
+    const c = excludeClassNames(progressLevel.className, activeLevelClassName)
+    setElementHTMLAttribute(progressLevel, "class", c)
+  }
+}
 
+/**
+ * Sets the highest enabled progress level. Other levels at indexes higher than
+ * the passed level index are disabled. If `null` is passed, all levels are enabled.
+ *
+ * @param {HTMLElement[]} progressLevels
+ * @param {number | null} levelIndex
+ */
+function setHigestEnabledLevelIndex(progressLevels, levelIndex) {
+  if (levelIndex !== null) assertValidLevelIndex(levelIndex, progressLevels)
+  progressLevels.forEach((progressLevel, index) => {
+    const levelButton = getLevelButton(progressLevel)
+    levelButton.disabled = levelIndex === null ? false : index > levelIndex
+  })
+}
+
+/**
+ * @param {HTMLElement[]} progressLevels
+ * @param {number} levelIndex
+ */
+function setActiveLevel(progressLevels, levelIndex) {
+  assertValidLevelIndex(levelIndex, progressLevels)
+
+  const prevIndex = getActiveLevelIndex(progressLevels)
+  const levelToSet = progressLevels[levelIndex]
+
+  setProgressLevelState(levelToSet, "active")
+  if (prevIndex !== levelIndex && prevIndex !== null) {
+    setProgressLevelState(progressLevels[prevIndex], "non-active")
+  }
+}
+
+/**
+ * @param {Object} param0
+ * @param {string | number} param0.buttonContent
+ * @param {boolean} param0.precedesCompletionLevel
+ * @param {boolean} param0.isCompletionLevel
+ */
 function ProgressLevel({
   buttonContent,
   precedesCompletionLevel,
@@ -48,18 +142,22 @@ function ProgressLevel({
   return (
     <li
       className={cn([
-        Styles.Progress__Level,
-        [precedesCompletionLevel, Styles.Progress__Level_precedingCompletion],
-        [isCompletionLevel, Styles.Progress__Level_completion]
+        progressClasses.level.base,
+        [precedesCompletionLevel, progressClasses.level.precedingCompletion],
+        [isCompletionLevel, progressClasses.level.completion]
       ])}
     >
-      <button className={Styles.Progress__LevelButton} type="button">
+      <button className={cn(progressClasses.levelButton)} type="button">
         {buttonContent}
       </button>
     </li>
   )
 }
 
+/**
+ * @template {ProgressProps} Props
+ * @extends {Component<Props>}
+ */
 export default class Progress extends Component {
   $render() {
     const {
@@ -76,13 +174,7 @@ export default class Progress extends Component {
       progressLevels.push(
         <ProgressLevel
           buttonContent={
-            isCompletionLevel ? (
-              <span style="color: inherit; font-weight: 700;">
-                {COMPLETION_LEVEL_BUTTON_CONTENT}
-              </span>
-            ) : (
-              i + 1
-            )
+            isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
           }
           precedesCompletionLevel={lastAsCompletionLevel && isSecondToLastLevel}
           isCompletionLevel={isCompletionLevel}
@@ -92,8 +184,8 @@ export default class Progress extends Component {
 
     const listRootRefHolder = createElementRefHolder()
     const progressNode = (
-      <div className={Styles.Progress} aria-hidden="true">
-        <ul className={Styles.Progress__List} refHolder={listRootRefHolder}>
+      <div className={progressClasses.root} aria-hidden="true">
+        <ul className={progressClasses.list} refHolder={listRootRefHolder}>
           {[...progressLevels]}
         </ul>
       </div>
@@ -103,42 +195,12 @@ export default class Progress extends Component {
     this.$listRoot = listRootRefHolder.ref
     /** @type {HTMLElement[]} */
     this.$progressLevels = progressLevels
-    /** @type {number} */
-    this.$activeProgressLevelIndex = 0
 
     return progressNode
   }
 
-  /** @param {number} levelIndex */
-  $setActiveLevelIndex(levelIndex) {
-    const { $progressLevels } = this
-    assertValidLevelIndex(levelIndex, $progressLevels)
-
-    const prevActiveLevel = $progressLevels.find((level) =>
-      level.classList.contains(ACTIVE_PROGRESS_LEVEL_CLASS)
-    )
-
-    if (prevActiveLevel) {
-      prevActiveLevel.classList.remove(ACTIVE_PROGRESS_LEVEL_CLASS)
-    }
-
-    $progressLevels[levelIndex].classList.add(ACTIVE_PROGRESS_LEVEL_CLASS)
-    this.$activeProgressLevelIndex = levelIndex
-  }
-
-  /** @param {number | null} levelIndex  */
-  $setHigestEnabledLevelIndex(levelIndex) {
-    const { $progressLevels } = this
-    if (levelIndex !== null) assertValidLevelIndex(levelIndex, $progressLevels)
-
-    $progressLevels.forEach((progressLevel, index) => {
-      const levelButton = getLevelButton(progressLevel)
-      levelButton.disabled = levelIndex === null ? false : index > levelIndex
-    })
-  }
-
   activeLevelIndex() {
-    return this.$activeProgressLevelIndex
+    return getActiveLevelIndex(this.$progressLevels)
   }
 
   elements() {
@@ -151,10 +213,7 @@ export default class Progress extends Component {
   hasCompletionLevel() {
     const lastProgressLevel =
       this.$progressLevels[this.$progressLevels.length - 1]
-    return (
-      getLevelButtonContent(lastProgressLevel) ===
-      COMPLETION_LEVEL_BUTTON_CONTENT
-    )
+    return levelIsCompletionLevel(lastProgressLevel)
   }
 
   levelsCount() {
@@ -164,8 +223,8 @@ export default class Progress extends Component {
   /** @param {ProgressRevalidationOptions} options */
   revalidate(options) {
     const { activeLevelIndex, highestEnabledLevelIndex } = options
-    this.$setActiveLevelIndex(activeLevelIndex)
-    this.$setHigestEnabledLevelIndex(highestEnabledLevelIndex)
+    setActiveLevel(this.$progressLevels, activeLevelIndex)
+    setHigestEnabledLevelIndex(this.$progressLevels, highestEnabledLevelIndex)
   }
 
   /**
