@@ -54,15 +54,6 @@ function Option({ handleOptionChange, index, name, text }) {
   )
 }
 
-function QuestionBox({ title, answerOptions }) {
-  return (
-    <>
-      <legend className={Styles.Question__Title}>{phraseToNode(title)}</legend>
-      <div className={Styles.Question__OptionSet}>{answerOptions}</div>
-    </>
-  )
-}
-
 function Explanation({ content, rootRefHolder }) {
   if (typeof content !== "string" || content === "") {
     return <div refHolder={rootRefHolder} />
@@ -165,7 +156,7 @@ export default class Question extends Component {
     const questionNodeRefHolder = createElementRefHolder()
 
     const groupingName = uniqueId()
-    const answerOptions = options.map((option, index) => (
+    const optionNodes = options.map((option, index) => (
       <Option
         handleOptionChange={handleOptionChange.bind(null, index)}
         index={index}
@@ -185,8 +176,12 @@ export default class Question extends Component {
         >
           <div className={Styles.Question} refHolder={questionNodeRefHolder}>
             <fieldset refHolder={fieldSetRefHolder}>
-              <QuestionBox title={title} answerOptions={answerOptions} />
+              <legend className={Styles.Question__Title}>
+                {phraseToNode(title)}
+              </legend>
+              <div className={Styles.Question__OptionSet}>{optionNodes}</div>
             </fieldset>
+
             <Explanation
               content={explanation}
               rootRefHolder={explanationRefHolder}
