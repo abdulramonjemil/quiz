@@ -29,11 +29,6 @@ import ControlPanel from "./control-panel"
 
 /**
  * @typedef {{
- *   answerSelectionDataset: QuestionAnswerSelectionData[];
- *   elementsCount: number;
- * }} ExportedQuizData
- *
- * @typedef {{
  *   type: "QUESTION",
  *   title: QuestionProps["title"]
  *   answerIndex: QuestionProps["answerIndex"]
@@ -90,15 +85,14 @@ import ControlPanel from "./control-panel"
  *
  *
  * @typedef {{
- *   elements: QuizInquiryElement[],
- *   submissionCallback: (data: QuizSubmissionCallbackData) => void,
- *   metadata?: {
- *     autoSave?: boolean | undefined,
- *     resultData?: ExportedQuizData | null | undefined,
- *     header?: string | undefined,
- *     isGlobal?: boolean | undefined,
- *     storageKey?: string | undefined
- *   } | undefined
+ *   header: string,
+ *   elements: QuizInquiryElement[] | FinalizedQuizInquiryElement[],
+ *   finalized: boolean,
+ *   onSubmit?: ((data: QuizSubmissionCallbackData) => void) | undefined,
+ *   autosave?: {
+ *     identifier: string,
+ *     saveWithPathname: boolean
+ *   } | null | undefined
  * }} QuizProps
  *
  * @typedef {Question | Result | null} QuizElementInstance
@@ -108,36 +102,21 @@ import ControlPanel from "./control-panel"
  * @typedef {{ prev: number | null, next: number | null }} PrevNextIndices
  */
 
-const DEFAULT_QUIZ_METADATA = {
-  AUTO_SAVE: true,
-  STORED_DATA: null,
-  HEADER: "Test your knowledge",
-  IS_GLOBAL: false,
-  STORAGE_KEY: ""
-}
-
 const QUIZ_DATA_STORE = "localStorage"
 
-/** @param {QuizProps["metadata"]} metadata  */
-function normalizeQuizMetadataConfig(metadata) {
-  const { AUTO_SAVE, STORED_DATA, HEADER, IS_GLOBAL, STORAGE_KEY } =
-    DEFAULT_QUIZ_METADATA
-
-  if (metadata?.isGlobal === true && typeof metadata?.storageKey !== "string") {
-    throw new Error("Storage key is required for a global quiz")
+/**
+ * @param {QuizInquiryElement | FinalizedQuizInquiryElement} element
+ * @returns {element is FinalizedQuizInquiryElement}
+ */
+function isFinalizedQuizInquiryElement(element) {
+  if (element.type === "CODE_BOARD") return true
+  if (element.type === "QUESTION") {
+    const e = /** @type {FinalizedQuizQuestionElement} */ (element)
+    return (
+      e.selectedOptionIndex >= 0 && e.selectedOptionIndex < e.options.length
+    )
   }
-
-  const globalizationValue = metadata?.isGlobal ?? IS_GLOBAL
-  return {
-    autoSave: metadata?.autoSave ?? AUTO_SAVE,
-    resultData: metadata?.resultData ?? STORED_DATA,
-    header: metadata?.header ?? HEADER,
-    storageKey:
-      // eslint-disable-next-line prefer-template
-      "QUIZDATA" +
-      `@k=>${metadata?.storageKey ?? STORAGE_KEY}` +
-      (globalizationValue === true ? "" : `@p=>${window.location.pathname}`)
-  }
+  return false
 }
 
 /**
@@ -220,6 +199,13 @@ function buildQuizSlideElements({
   })
 
   return { elementNodes, elementInstances }
+}
+
+/** @param {Exclude<QuizProps["autosave"], null | undefined>} props */
+function getStorageKey(props) {
+  const id = props.identifier
+  const pathname = props.saveWithPathname ? window.location.pathname : "*"
+  return `Quiz::id=${id}::pname=${pathname}`
 }
 
 /** @param {string} storageKey */
@@ -313,26 +299,6 @@ function getStoredQuizData(storageKey) {
   }
 
   return decodingResult
-}
-
-/**
- * @param {ExportedQuizData} data
- * @param {QuizInquiryElement[]} quizElements
- */
-function resultDataIsValidForQuiz(data, quizElements) {
-  const { answerSelectionDataset, elementsCount } = data
-  const questionElements = quizElements.filter(
-    (element) => element.type === "QUESTION"
-  )
-
-  return (
-    answerSelectionDataset.length === questionElements.length &&
-    elementsCount === quizElements.length &&
-    answerSelectionDataset.every(
-      (d, index) =>
-        d.selectedOptionIndex < questionElements[index].options.length
-    )
-  )
 }
 
 /**
@@ -777,7 +743,7 @@ export default class Quiz extends Component {
 
   $handleCPanelSubmitCTAClick() {
     const { $elementInstances, $metadata } = this
-    const { submissionCallback } = this.$props
+    const { onSubmit } = this.$props
 
     const resultIndex = $elementInstances.length - 1
     const resultInstance = $elementInstances[$elementInstances.length - 1]
@@ -811,11 +777,12 @@ export default class Quiz extends Component {
       })
     })
 
+    assertIsDefined($metadata, "quiz metadata attribute")
     if ($metadata.autoSave) {
       storeQuizData(finalizedElements, $metadata.storageKey)
     }
 
-    if (typeof submissionCallback === "function") {
+    if (typeof onSubmit === "function") {
       const f = finalizedElements
       const codeboardsCount = f.filter((e) => e.type === "CODE_BOARD").length
       const questionsCount = f.filter((e) => e.type === "QUESTION").length
@@ -833,7 +800,7 @@ export default class Quiz extends Component {
         elementsCount: finalizedElements.length,
         elements: finalizedElements
       }
-      submissionCallback.call(this, submissionData)
+      onSubmit.call(this, submissionData)
     }
   }
 
@@ -865,19 +832,14 @@ export default class Quiz extends Component {
   }
 
   $render() {
-    const { elements } = /** @type {QuizProps} */ (this.$props)
-
-    const {
-      autoSave: autoSaveIsEnabled,
-      resultData,
-      header,
-      storageKey
-    } = normalizeQuizMetadataConfig(this.$props.metadata)
+    const { autosave, elements, finalized, header } = /** @type {QuizProps} */ (
+      this.$props
+    )
 
     assertValidQuizPropsElementConfig(elements)
-
     /** @type {QuizSlideElement[]} */
     const fullQuizElements = [...elements, { type: "RESULT" }]
+
     const { elementNodes, elementInstances } = buildQuizSlideElements({
       elements: fullQuizElements,
       handleQuestionOptionChange: this.$handleQuestionOptionChange.bind(this),
@@ -889,27 +851,24 @@ export default class Quiz extends Component {
     const resultInstance = elementInstances[resultIndex]
     assertIsInstance(resultInstance, Result)
 
-    if (resultData) {
-      if (!resultDataIsValidForQuiz(resultData, elements)) {
-        throw new Error(
-          "Invalid quiz data supplied:\n\n" +
-            `${JSON.stringify(resultData, null, 2)}`
-        )
+    if (finalized) {
+      const e = /** @type {((typeof elements)[number])[]} */ (elements)
+      const filtered = e.filter(isFinalizedQuizInquiryElement)
+      if (filtered.length !== elements.length) {
+        throw new Error("Invalid finalized quiz data.")
       } else {
-        const { answerSelectionDataset } = resultData
-        let questionIndex = -1
-
-        elementInstances.forEach((instance) => {
+        elementInstances.forEach((instance, index) => {
           if (!(instance instanceof Question)) return
-          questionIndex += 1
-          const { selectedOptionIndex } = answerSelectionDataset[questionIndex]
-          instance.finalize(selectedOptionIndex)
+          const elementData = filtered[index]
+          if (elementData.type !== "QUESTION") return
+          instance.finalize(elementData.selectedOptionIndex)
         })
 
         const { gottenAnswersCount } = getQuizResultData(elementInstances)
         resultInstance.finalize(gottenAnswersCount)
       }
-    } else if (autoSaveIsEnabled) {
+    } else if (autosave) {
+      const storageKey = getStorageKey(autosave)
       const storedData = getStoredQuizData(storageKey)
       if (storedData) {
         if (!storedDataIsValidForQuiz(storedData, elements)) {
@@ -1018,8 +977,11 @@ export default class Quiz extends Component {
       progress
     })
 
-    // Start of property setting
-    this.$metadata = { autoSave: autoSaveIsEnabled, storageKey }
+    /** @type {{ autoSave: false } | { autoSave: true, storageKey: string }} */
+    this.$metadata = {
+      autoSave: Boolean(autosave),
+      ...(!!autosave && { storageKey: getStorageKey(autosave) })
+    }
     this.$elementInstances = elementInstances
 
     this.$tabs = tabs
