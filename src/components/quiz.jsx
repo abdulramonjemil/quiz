@@ -829,7 +829,7 @@ export default class Quiz extends Component {
 
   $handleResultExplanationBtnClick() {
     this.$revalidate(0)
-    attemptElementFocus(this.$composedNode)
+    attemptElementFocus(this.$tabs.activeTab().content)
   }
 
   /** @type {TabChangeHandler} */
