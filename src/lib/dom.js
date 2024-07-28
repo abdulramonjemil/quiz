@@ -35,6 +35,18 @@ export function cn(...config) {
 }
 
 /**
+ * @param {string} classString
+ * @param {string | string[]} exlusions
+ */
+export function excludeClassNames(classString, exlusions) {
+  const c = new Set(cn(classString).split(/ +/))
+  cn(exlusions)
+    .split(/ +/)
+    .forEach((e) => c.delete(e))
+  return cn(Array.from(c))
+}
+
+/**
  * @param {HTMLElement} element
  * @param {string} classString
  */
