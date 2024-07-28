@@ -196,7 +196,7 @@ $max-indicator-bar-dashoffset-value: math.div(
     width: $inner-shadow-dimension;
   }
 
-  &__Graphic {
+  &__SVG {
     $svg-dimension: calc(
       $result-indicator-dimension - $result-indicator-bar-dimension
     );
@@ -208,7 +208,7 @@ $max-indicator-bar-dashoffset-value: math.div(
     width: $svg-dimension;
   }
 
-  &__Bar {
+  &__Circle {
     /*
       The code below was previously used to set the real dashoffset to use on
       the inidicator bar after the scored percentage has been populated, and it
@@ -257,7 +257,7 @@ $max-indicator-bar-dashoffset-value: math.div(
     }
   }
 
-  &__Text {
+  &__PercentContainer {
     align-items: center;
     display: flex;
     justify-content: center;
@@ -279,7 +279,7 @@ $max-indicator-bar-dashoffset-value: math.div(
     -webkit-background-clip: text; /* stylelint-disable-line */
   }
 
-  &__PercentSign {
+  &__PercentSymbol {
     color: $result-green-color;
     font-size: 1.2em;
     font-weight: 700;

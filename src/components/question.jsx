@@ -166,7 +166,7 @@ export default class Question extends Component {
     ))
 
     const questionNode = (
-      <div className={Styles.QuestionContainer}>
+      <div className={Styles.Root}>
         <ScrollShadow
           observerConfig={{
             attributes: true,
@@ -179,7 +179,7 @@ export default class Question extends Component {
               <legend className={Styles.Question__Title}>
                 {phraseToNode(title)}
               </legend>
-              <div className={Styles.Question__OptionSet}>{optionNodes}</div>
+              <div className={Styles.OptionsRoot}>{optionNodes}</div>
             </fieldset>
 
             <Explanation

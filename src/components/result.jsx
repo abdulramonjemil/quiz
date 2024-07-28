@@ -98,7 +98,7 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
       <div className={Styles.Indicator__OuterShadow} />
       <div className={Styles.Indicator__InnerShadow} />
       <svg
-        class={Styles.Indicator__Graphic}
+        class={Styles.Indicator__SVG}
         height="100"
         version="1.1"
         viewBox="0 0 100 100"
@@ -113,16 +113,16 @@ function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
         </defs>
 
         {/* Inspect this circle in devtools to see how the styling for it works */}
-        <circle class={Styles.Indicator__Bar} cx="50" cy="50" r="50" />
+        <circle class={Styles.Indicator__Circle} cx="50" cy="50" r="50" />
       </svg>
-      <div className={Styles.Indicator__Text}>
+      <div className={Styles.Indicator__PercentContainer}>
         <span
           className={Styles.Indicator__PercentValue}
           refHolder={percentValueRefHolder}
         >
           {DEFAULT_RESULT_PERCENTAGE_VALUE}
         </span>
-        <span className={Styles.Indicator__PercentSign}>%</span>
+        <span className={Styles.Indicator__PercentSymbol}>%</span>
       </div>
     </div>
   )

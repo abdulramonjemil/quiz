@@ -7,7 +7,7 @@ $gap-between-question-elements: utils.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
-.QuestionContainer {
+.Root {
   @include element.height-config;
 
   display: flex;
@@ -30,13 +30,13 @@ $option-letter-span: 30px;
     width: 100%;
     text-align: center;
   }
+}
 
-  &__OptionSet {
-    display: flex;
-    flex-wrap: wrap;
-    gap: $gap-between-question-elements;
-    margin-top: $gap-between-question-elements;
-  }
+.OptionsRoot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $gap-between-question-elements;
+  margin-top: $gap-between-question-elements;
 }
 
 .Option {

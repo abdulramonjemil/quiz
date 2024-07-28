@@ -56,7 +56,7 @@ export default class ControlPanel extends Component {
           </button>
           <button
             aria-controls={controlledElementId}
-            className={Styles.Submit}
+            className={Styles.Cta}
             onClick={handleCTAButtonClick}
             refHolder={submitButtonRefHolder}
             type="button"

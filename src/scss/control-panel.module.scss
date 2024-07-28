@@ -49,7 +49,7 @@
   }
 }
 
-.Submit {
+.Cta {
   @extend %control-button;
 
   $submit-button-color: utils.get-color("purple");
