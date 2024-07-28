@@ -28,7 +28,22 @@ export function cn(...config) {
     }
     return cn(...c)
   })
-  return mapped.join(" ").replace(/ {2,}/g, " ").trim()
+
+  // Split all space-containing class strings including those from recursive calls
+  const distinctSet = new Set(mapped.join(" ").split(/ +/))
+  return Array.from(distinctSet).join(" ").trim()
+}
+
+/**
+ * @param {HTMLElement} element
+ * @param {string} classString
+ */
+export function hasClassNames(element, classString) {
+  const set = /** @type {Set<string} */ (new Set(element.classList))
+  return classString.split(/ +/).every((name) => {
+    if (name === "") return true
+    return set.has(name)
+  })
 }
 
 /**
