@@ -1,5 +1,5 @@
 import Component, { createElementRefHolder } from "@/core/component"
-import { attemptElementFocus } from "@/lib/dom"
+import { attemptElementFocus, cn } from "@/lib/dom"
 import Styles from "@/scss/progress.module.scss"
 
 const ACTIVE_PROGRESS_LEVEL_CLASS = Styles.Progress__Level_active
@@ -47,13 +47,11 @@ function ProgressLevel({
 }) {
   return (
     <li
-      className={
-        Styles.Progress__Level +
-        (precedesCompletionLevel
-          ? ` ${Styles.Progress__Level_precedingCompletion}`
-          : "") +
-        (isCompletionLevel ? ` ${Styles.Progress__Level_completion}` : "")
-      }
+      className={cn([
+        Styles.Progress__Level,
+        [precedesCompletionLevel, Styles.Progress__Level_precedingCompletion],
+        [isCompletionLevel, Styles.Progress__Level_completion]
+      ])}
     >
       <button className={Styles.Progress__LevelButton} type="button">
         {buttonContent}

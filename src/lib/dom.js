@@ -5,6 +5,33 @@ export function escapeHTMLContent(unsafeText) {
 }
 
 /**
+ * Creates CSS class string from different structures
+ *
+ * @typedef {string | null | undefined | ConditionalClassValue} ClassValue
+ * @typedef {UnaryConditionalClassValue | BinaryConditionalClassValue} ConditionalClassValue
+ * @typedef {[boolean, ClassValue]} UnaryConditionalClassValue
+ * @typedef {[boolean, ClassValue, ClassValue]} BinaryConditionalClassValue
+ * @typedef {(ClassValue | ClassValue[])[]} ClassConfig
+ *
+ * @param {ClassConfig} config
+ * @returns {string}
+ */
+export function cn(...config) {
+  /** @type {(value: any[]) => value is ClassValue & any[]} */
+  const isClassValueArray = (value) => typeof value[0] === "boolean"
+  const mapped = config.map((c) => {
+    if (c === null || c === undefined) return ""
+    if (typeof c === "string") return c
+    if (isClassValueArray(c)) {
+      if (c.length === 2) return c[0] ? cn(c[1]) : ""
+      return c[0] ? cn(c[1]) : cn(c[2])
+    }
+    return cn(...c)
+  })
+  return mapped.join(" ").replace(/ {2,}/g, " ").trim()
+}
+
+/**
  * @returns {DocumentFragment}
  */
 export function htmlStringToFragment(htmlString) {
