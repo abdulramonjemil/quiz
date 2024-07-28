@@ -51,9 +51,9 @@ Quiz.create({
     header: "Test quiz 2",
     autosave: {
       identifier: "sample-quiz-2",
-      saveWithPathname: true
+      saveWithPathname: false
     },
-    elements: SAMPLE_QUIZ_DATA.slice(9, 13),
+    elements: SAMPLE_QUIZ_DATA.slice(11, 13),
     finalized: false,
     onSubmit: (data) => {
       // eslint-disable-next-line no-console
