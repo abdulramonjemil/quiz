@@ -19,7 +19,7 @@ export const assertIsDefined = (value, desc) => {
 
 /**
  * @template {new () => any} Constructor
- * @param {Value} value
+ * @param {any} value
  * @param {Constructor} constructor
  * @returns {asserts value is InstanceType<Constructor>}
  */
