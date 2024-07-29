@@ -1,18 +1,8 @@
+import { resolveToNode } from "./base"
+
 const REF_DEFAULT_VALUE = null
 const REF_HOLDER_MAIN_KEY = "ref"
 const REF = Symbol("REF")
-
-export function resolveToNode(value) {
-  if (value instanceof Node) return value
-  if (typeof value === "boolean" || value === null || value === undefined)
-    return document.createTextNode("")
-  if (Array.isArray(value)) {
-    const fragment = new DocumentFragment()
-    fragment.append(...value.map((val) => resolveToNode(val)))
-    return fragment
-  }
-  return document.createTextNode(String(value))
-}
 
 /**
  * This class is used as an abstract class that actual
