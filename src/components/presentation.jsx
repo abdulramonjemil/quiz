@@ -1,115 +1,133 @@
 /* eslint-disable max-classes-per-file */
-import Component, { createInstanceRefHolder } from "@/core/component"
+import Component from "@/core/component"
+import { addClasses, cn, hasClasses, removeClasses } from "@/lib/dom"
+import { assertIsDefined } from "@/lib/value"
 import Styles from "@/scss/presentation.module.scss"
 
-const SHOWN_SLIDE_CLASS = Styles.Slide_shown
+/**
+ * @typedef {{ id: string, slides: HTMLElement[] }} PresentationProps
+ * @typedef {{ shownSlideIndex: number }} PresentationRevalidationOptions
+ */
+
+const presentationClasses = {
+  root: cn("quiz-presentation", Styles.Presentation),
+  slide: {
+    base: cn("quiz-presentation-slide", Styles.Slide),
+    shown: cn("quiz-presentation-slide--shown", Styles.Slide_shown)
+  },
+  slideContent: cn("quiz-presentation-slide-content", Styles.Slide__Content)
+}
 
 /**
- * @param {slideIndex} number
- * @param {Slide[]} progressLevels
+ * @param {number} slideIndex
+ * @param {HTMLElement[]} slideNodes
  */
-function assertValidSlideIndex(slideIndex, slides) {
+function assertValidSlideIndex(slideIndex, slideNodes) {
   if (
     !Number.isInteger(slideIndex) ||
     slideIndex < 0 ||
-    slideIndex > slides.length - 1
+    slideIndex > slideNodes.length - 1
   ) {
     throw new Error(`There is no slide at index: ${slideIndex}`)
   }
 }
 
+/** @param {HTMLElement[]} nodes */
+function getShownSlideIndex(nodes) {
+  const index = nodes.findIndex((node) =>
+    hasClasses(node, presentationClasses.slide.shown)
+  )
+  return index >= 0 ? index : null
+}
+
 /**
- * @typedef PresentationRevalidationOptions
- * @property {number} activeSlide
+ * @param {HTMLElement} slide
+ * @param {"shown" | "hidden"} state
  */
-
-class Slide extends Component {
-  $render() {
-    const { content } = this.$props
-    return (
-      <div className={Styles.Slide}>
-        <div className={Styles.Slide__Content}>{content}</div>
-      </div>
-    )
-  }
-
-  node() {
-    return /** @type {HTMLElement} */ (this.$composedNode)
-  }
-
-  /** @param {"shown" | "hidden"} state */
-  setShownState(state) {
-    const { classList } = this.$composedNode
-    if (state === "shown") classList.add(SHOWN_SLIDE_CLASS)
-    else if (state === "hidden") classList.remove(SHOWN_SLIDE_CLASS)
-    else throw new TypeError(`Unknown state: '${state}'`)
+function setSlideState(slide, state) {
+  if (state === "shown") {
+    addClasses(slide, presentationClasses.slide.shown)
+  } else if (state === "hidden") {
+    removeClasses(slide, presentationClasses.slide.shown)
+  } else {
+    throw new TypeError(`Unknown state: '${state}'`)
   }
 }
 
+/**
+ * @param {HTMLElement[]} slideNodes
+ * @param {number} slideIndex
+ */
+function showSlide(slideNodes, slideIndex) {
+  const currentIndex = getShownSlideIndex(slideNodes)
+  if (currentIndex === slideIndex) return
+
+  const currentNode = slideNodes[currentIndex]
+  const nodeToShow = slideNodes[slideIndex]
+  setSlideState(currentNode, "hidden")
+  setSlideState(nodeToShow, "shown")
+}
+
+/**
+ * @param {Object} param0
+ * @param {unknown} param0.content
+ */
+function Slide({ content }) {
+  return (
+    <div className={presentationClasses.slide.base}>
+      <div className={presentationClasses.slideContent}>{content}</div>
+    </div>
+  )
+}
+
+/**
+ * @template {PresentationProps} Props
+ * @extends {Component<Props>}
+ */
 export default class Presentation extends Component {
   $render() {
     const { id, slides } = this.$props
 
     const slideContents = Array.from(new Set(slides))
-    const slideNodes = []
-    /** @type {Slide[]} */
-    const slideInstances = []
-
-    slideContents.forEach((slideContent) => {
-      const slideRefHolder = createInstanceRefHolder()
-      const slideNode = (
-        <Slide content={slideContent} refHolder={slideRefHolder} />
-      )
-      slideNodes.push(slideNode)
-      slideInstances.push(slideRefHolder.ref)
-    })
+    const slideNodes = slideContents.map((slideContent) => (
+      <Slide content={slideContent} />
+    ))
 
     const indexOfSlideToShow = 0
-    const slideToShow = slideInstances[indexOfSlideToShow]
-    slideToShow.setShownState("shown")
+    const slideNodeToShow = slideNodes[indexOfSlideToShow]
+    setSlideState(slideNodeToShow, "shown")
 
     const presentationNode = (
-      <div aria-live="polite" className={Styles.Presentation} id={id}>
+      <div aria-live="polite" className={presentationClasses.root} id={id}>
         {slideNodes}
       </div>
     )
 
-    /** @type {number} */
-    this.$indexOfCurrentSlide = indexOfSlideToShow
-    this.$slideContents = [...slideContents]
-    this.$slideInstances = slideInstances
+    /** @type {HTMLElement[]} */
+    this.$slideNodes = slideNodes
 
     return presentationNode
   }
 
-  $showSlide(slideIndex) {
-    const { $indexOfCurrentSlide, $slideInstances } = this
-    assertValidSlideIndex(slideIndex, $slideInstances)
-    if (slideIndex === $indexOfCurrentSlide) return
-
-    const currentSlide = $slideInstances[$indexOfCurrentSlide]
-    const slideToShow = $slideInstances[slideIndex]
-
-    currentSlide.setShownState("hidden")
-    slideToShow.setShownState("shown")
-    this.$indexOfCurrentSlide = slideIndex
-  }
-
   currentSlideIndex() {
-    return this.$indexOfCurrentSlide
+    const index = getShownSlideIndex(this.$slideNodes)
+    assertIsDefined(index, "current slide index")
+    return index
   }
 
   /** @param {PresentationRevalidationOptions} options */
   revalidate(options) {
-    const { activeSlide: newActiveSlideIndex } = options
-    this.$showSlide(newActiveSlideIndex)
+    const { shownSlideIndex } = options
+    assertValidSlideIndex(shownSlideIndex, this.$slideNodes)
+    showSlide(this.$slideNodes, shownSlideIndex)
   }
 
   slideNodes() {
-    return this.$slideInstances.map((instance) => instance.node())
+    assertIsDefined(this.$slideNodes, "presentation slide nodes")
+    return [...this.$slideNodes]
   }
 
   slidesCount() {
-    return this.$slideInstances.length
+    return this.$slideNodes.length
   }
 }

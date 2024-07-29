@@ -561,7 +561,7 @@ function revalidateQuiz({
   )
 
   tabs.setActiveTab(quizElementIndexToTabName(slideIndex))
-  presentation.revalidate({ activeSlide: slideIndex })
+  presentation.revalidate({ shownSlideIndex: slideIndex })
   progress.revalidate(getProgressRevalidationOptions(appropriateSlideQuizData))
   controlPanel.revalidate(
     getControlPanelRevalidationOptions(
