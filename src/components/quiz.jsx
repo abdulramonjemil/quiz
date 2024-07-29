@@ -245,7 +245,7 @@ function createStorableQuizData(data) {
  * Converts stored string to usable object
  *
  * @param {string} storedData
- * @return {DecodedStoredQuizData}
+ * @return {DecodedStoredQuizData | null}
  */
 function decodeStoredQuizData(storedData) {
   const split = storedData.split("--")
