@@ -29,6 +29,13 @@ const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
  * }} QuestionProps
  */
 
+/**
+ * @param {Object} param0
+ * @param {() => void} param0.handleOptionChange
+ * @param {number} param0.index
+ * @param {string} param0.name
+ * @param {string} param0.text
+ */
 function Option({ handleOptionChange, index, name, text }) {
   const optionLabellingId = uniqueId()
   const letter = LETTERS_FOR_ANSWER_CHOICES[index]
