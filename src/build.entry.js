@@ -1,11 +1,19 @@
-/**
- * This file is used as entry point for webpack. Quizzes can then be created
- * by calling 'Quiz.create' after linking the generated javascript file
- * with an HTML page (causing the object to be defined in the global scope).
- */
-
-import Polyfiller from "./core/polyfiller"
 import Quiz from "./components/quiz"
 
-Polyfiller.polyfillForBrowser()
+/**
+ * -------------------------------------------
+ * Polyfill container queries if not supported
+ * -------------------------------------------
+ */
+const containerQueriesAreSupported =
+  "container" in document.documentElement.style
+
+if (!containerQueriesAreSupported) {
+  const polyfillURL =
+    "https://cdn.jsdelivr.net/npm/container-query-polyfill@1/dist/container-query-polyfill.modern.js"
+  const script = document.createElement("script")
+  script.src = polyfillURL
+  document.head.appendChild(script)
+}
+
 window.Quiz = Quiz
