@@ -1,3 +1,28 @@
+/**
+ * Sets HTML attribute on element preventing resetting of already set values.
+ *
+ * @type {(
+ *   element: HTMLElement,
+ *   attributeName: string,
+ *   attributeValue: string | boolean
+ * ) => void}
+ */
+export const setElementHTMLAttribute = (
+  element,
+  attributeName,
+  attributeValue
+) => {
+  if (typeof attributeValue === "string") {
+    if (element.getAttribute(attributeName) === attributeValue) return
+    element.setAttribute(attributeName, attributeValue)
+  } else if (typeof attributeValue === "boolean") {
+    if (element.hasAttribute(attributeName) === attributeValue) return
+    if (attributeValue === true) element.setAttribute(attributeName, "")
+    else element.removeAttribute(attributeName)
+  }
+}
+
+/** @param {string} unsafeText */
 export function escapeHTMLContent(unsafeText) {
   const div = document.createElement("div")
   div.innerText = String(unsafeText)
@@ -5,13 +30,15 @@ export function escapeHTMLContent(unsafeText) {
 }
 
 /**
- * Creates CSS class string from different structures
- *
  * @typedef {string | null | undefined | ConditionalClassValue} ClassValue
  * @typedef {UnaryConditionalClassValue | BinaryConditionalClassValue} ConditionalClassValue
  * @typedef {[boolean, ClassValue]} UnaryConditionalClassValue
  * @typedef {[boolean, ClassValue, ClassValue]} BinaryConditionalClassValue
  * @typedef {(ClassValue | ClassConfig)[]} ClassConfig
+ */
+
+/**
+ * Creates CSS class string from different structures
  *
  * @param {ClassConfig} config
  * @returns {string}
@@ -35,26 +62,35 @@ export function cn(...config) {
 }
 
 /**
- * @param {string} classString
- * @param {string | string[]} exlusions
+ * @param {HTMLElement} element
+ * @param {ClassConfig} classes
  */
-export function excludeClassNames(classString, exlusions) {
-  const c = new Set(cn(classString).split(/ +/))
-  cn(exlusions)
-    .split(/ +/)
-    .forEach((e) => c.delete(e))
-  return cn(Array.from(c))
+export function addClasses(element, ...classes) {
+  setElementHTMLAttribute(element, "class", cn([element.className, classes]))
 }
 
 /**
  * @param {HTMLElement} element
- * @param {string} classString
+ * @param {ClassConfig} classes
  */
-export function hasClassNames(element, classString) {
-  const set = /** @type {Set<string} */ (new Set(element.classList))
-  return classString.split(/ +/).every((name) => {
-    if (name === "") return true
-    return set.has(name)
+export function removeClasses(element, ...classes) {
+  const c = new Set(cn(element.className).split(/ +/))
+  cn(classes)
+    .split(/ +/)
+    .forEach((e) => c.delete(e))
+  setElementHTMLAttribute(element, "class", cn(Array.from(c)))
+}
+
+/**
+ * @param {HTMLElement} element
+ * @param {ClassConfig} classes
+ */
+export function hasClasses(element, ...classes) {
+  const c = new Set(cn(element.className).split(/ +/))
+  const t = cn(classes).split(/ +/)
+  return t.every((n) => {
+    if (n === "") return true
+    return c.has(n)
   })
 }
 
@@ -70,30 +106,6 @@ export function htmlStringToFragment(htmlString) {
   const fragment = new DocumentFragment()
   fragment.append(...div.childNodes)
   return fragment
-}
-
-/**
- * Sets HTML attribute on element preventing resetting of already set values.
- *
- * @type {(
- *   element: HTMLElement,
- *   attributeName: string,
- *   attributeValue: string | boolean
- * ) => void}
- */
-export const setElementHTMLAttribute = (
-  element,
-  attributeName,
-  attributeValue
-) => {
-  if (typeof attributeValue === "string") {
-    if (element.getAttribute(attributeName) === attributeValue) return
-    element.setAttribute(attributeName, attributeValue)
-  } else if (typeof attributeValue === "boolean") {
-    if (element.hasAttribute(attributeName) === attributeValue) return
-    if (attributeValue === true) element.setAttribute(attributeName, "")
-    else element.removeAttribute(attributeName)
-  }
 }
 
 /**

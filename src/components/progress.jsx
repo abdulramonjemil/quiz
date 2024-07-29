@@ -1,10 +1,10 @@
 import Component, { createElementRefHolder } from "@/core/component"
 import {
+  addClasses,
   attemptElementFocus,
   cn,
-  excludeClassNames,
-  hasClassNames,
-  setElementHTMLAttribute
+  hasClasses,
+  removeClasses
 } from "@/lib/dom"
 import Styles from "@/scss/progress.module.scss"
 
@@ -74,7 +74,7 @@ function levelIsCompletionLevel(progressLevel) {
 /** @param {HTMLElement[]} progressLevels */
 function getActiveLevelIndex(progressLevels) {
   const index = progressLevels.findIndex((level) =>
-    hasClassNames(level, progressClasses.level.active)
+    hasClasses(level, progressClasses.level.active)
   )
   return index >= 0 ? index : null
 }
@@ -84,16 +84,10 @@ function getActiveLevelIndex(progressLevels) {
  * @param {"active" | "non-active"} state
  */
 function setProgressLevelState(progressLevel, state) {
-  const { active: activeLevelClassName } = progressClasses.level
   if (state === "active") {
-    setElementHTMLAttribute(
-      progressLevel,
-      "class",
-      cn([progressLevel.className, activeLevelClassName])
-    )
+    addClasses(progressLevel, progressClasses.level.active)
   } else if (state === "non-active") {
-    const c = excludeClassNames(progressLevel.className, activeLevelClassName)
-    setElementHTMLAttribute(progressLevel, "class", c)
+    removeClasses(progressLevel, progressClasses.level.active)
   }
 }
 
