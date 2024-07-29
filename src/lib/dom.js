@@ -11,7 +11,7 @@ export function escapeHTMLContent(unsafeText) {
  * @typedef {UnaryConditionalClassValue | BinaryConditionalClassValue} ConditionalClassValue
  * @typedef {[boolean, ClassValue]} UnaryConditionalClassValue
  * @typedef {[boolean, ClassValue, ClassValue]} BinaryConditionalClassValue
- * @typedef {(ClassValue | ClassValue[])[]} ClassConfig
+ * @typedef {(ClassValue | ClassConfig)[]} ClassConfig
  *
  * @param {ClassConfig} config
  * @returns {string}
