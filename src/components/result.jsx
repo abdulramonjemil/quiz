@@ -1,4 +1,5 @@
-import Component, { createElementRefHolder } from "@/core/component"
+import Component from "@/core/component"
+import { refHolder } from "@/core/base"
 import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
@@ -80,8 +81,8 @@ function renderResultIndicator(
 }
 
 function ResultIndicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
-  const indicatorRefHolder = createElementRefHolder()
-  const percentValueRefHolder = createElementRefHolder()
+  const indicatorRefHolder = refHolder()
+  const percentValueRefHolder = refHolder()
 
   const resultIndicatorNode = (
     <div
@@ -163,7 +164,7 @@ export default class Result extends Component {
   $render() {
     const { handleExplanationBtnClick, questionsCount } =
       /** @type {ResultProps} */ (this.$props)
-    const placeholderRefHolder = createElementRefHolder()
+    const placeholderRefHolder = refHolder()
 
     /** @type {(answersGotten: number) => void} */
     const finalizeResultFn = (answersGotten) => {

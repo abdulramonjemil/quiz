@@ -1,8 +1,13 @@
-import { resolveToNode } from "./base"
-import Component, { isElementRefHolder, isInstanceRefHolder } from "./component"
+import { assertIsInstance } from "@/lib/value"
+import { isRefHolder, resolveToNode } from "./base"
+import Component from "./component"
 
-const PROP_FOR_REF_HOLDER = "refHolder"
-const MUST_CHAIN_HTML_KEYS = ["className", "htmlFor", "innerHTML"]
+const MUST_CHAIN_HTML_ATTR_SET = new Set(["className", "htmlFor", "innerHTML"])
+const REF_HOLDER_PROPS = /** @type {const} */ ({
+  componentInstance: "instanceRefHolder",
+  componentNode: "nodeRefHolder",
+  elementInterface: "refHolder"
+})
 
 const END_OF_CAPTURE_EVENT_ATTRIBUTE = "Capture"
 const MINIMUM_EVENT_ATTRIBUTE_LENGTH = 5
@@ -63,12 +68,14 @@ function getEventDetails(attribute) {
 
 function assignAttributesFromProps(element, props) {
   Object.entries(props).forEach(([key, value]) => {
-    if (typeof value === "string" || typeof value === "number")
-      if (MUST_CHAIN_HTML_KEYS.includes(key))
+    if (typeof value === "string" || typeof value === "number") {
+      if (MUST_CHAIN_HTML_ATTR_SET.has(key)) {
         /* eslint-disable-next-line no-param-reassign */
         element[key] = value
-      else element.setAttribute(key, value)
-    else if (typeof value === "boolean") {
+      } else {
+        element.setAttribute(key, value)
+      }
+    } else if (typeof value === "boolean") {
       if (value === true) element.setAttribute(key, key)
     } else if (typeof value === "function") {
       if (isEventAttribute(key)) {
@@ -85,7 +92,7 @@ function assignAttributesFromProps(element, props) {
 function createElement(tagName, props, children) {
   const {
     [XML_NAMESPACE_PROP]: elementNamespace,
-    [PROP_FOR_REF_HOLDER]: providedElementRefHolder,
+    [REF_HOLDER_PROPS.elementInterface]: elementRefHolder,
     ...propsToPass
   } = props
 
@@ -121,47 +128,45 @@ function createElement(tagName, props, children) {
     }
   }
 
-  if (providedElementRefHolder !== undefined) {
-    if (!isElementRefHolder(providedElementRefHolder))
-      throw new TypeError("Invalid element ref holder")
-    providedElementRefHolder.ref = element
-  }
-
+  if (isRefHolder(elementRefHolder)) elementRefHolder.ref = element
   assignAttributesFromProps(element, propsToPass)
   if (children !== undefined) element.appendChild(resolveToNode(children))
   return element
 }
 
 function resolveTypeAsComponent(func, props, children) {
-  const { [PROP_FOR_REF_HOLDER]: providedInstanceRefHolder, ...propsToPass } =
-    props
+  const { componentInstance: instanceRHProp, componentNode: nodeRHProp } =
+    REF_HOLDER_PROPS
+  const {
+    [instanceRHProp]: instanceRefHolder,
+    [nodeRHProp]: nodeRefHolder,
+    ...propsToPass
+  } = props
 
-  const instanceRefIsRequested = providedInstanceRefHolder !== undefined
   let componentIsFunction = false
 
   try {
     // Will throw an error if it is a class
     const componentComposedNode = func(propsToPass, children)
     componentIsFunction = true // Error isn't thrown by calling func()
-    if (instanceRefIsRequested && componentIsFunction)
+
+    if (isRefHolder(nodeRefHolder)) nodeRefHolder.ref = componentComposedNode
+    if (isRefHolder(instanceRefHolder) && componentIsFunction) {
       throw new Error(
-        `'instance ref' cannot be requested for a function component: '${func.name}'`
+        "Instance ref cannot be requested for a function component. " +
+          `Requesting for: '${func.name}'`
       )
+    }
     return componentComposedNode
   } catch (error) {
     if (componentIsFunction) throw error
-    const DefinedComponent = func
-
+    const DefinedComponent = /** @type {new () => object} */ (func)
     const component = new DefinedComponent(propsToPass, children)
-    if (!(component instanceof Component))
-      throw new Error(`${DefinedComponent.name} does not extend 'Component'`)
+    assertIsInstance(component, Component)
 
-    if (instanceRefIsRequested) {
-      if (!isInstanceRefHolder(providedInstanceRefHolder))
-        throw new Error("Invalid instance ref holder")
-      else providedInstanceRefHolder.ref = component
-    }
-    return component.composedNode
+    if (isRefHolder(nodeRefHolder)) nodeRefHolder.ref = component.rootNode()
+    if (isRefHolder(instanceRefHolder)) instanceRefHolder.ref = component
+    return component.rootNode()
   }
 }
 
@@ -172,8 +177,9 @@ function resolveTypeAsComponent(func, props, children) {
 function resolveJSXElement(type, { children, ...otherProps }, key) {
   const props = { ...otherProps, key }
   if (typeof type === "string") return createElement(type, props, children)
-  if (typeof type === "function")
+  if (typeof type === "function") {
     return resolveTypeAsComponent(type, props, children)
+  }
   throw new TypeError("`type` must be a string or a function")
 }
 

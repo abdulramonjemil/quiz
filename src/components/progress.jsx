@@ -1,4 +1,5 @@
-import Component, { createElementRefHolder } from "@/core/component"
+import { refHolder } from "@/core/base"
+import Component from "@/core/component"
 import {
   addClasses,
   attemptElementFocus,
@@ -176,7 +177,7 @@ export default class Progress extends Component {
       )
     }
 
-    const listRootRefHolder = createElementRefHolder()
+    const listRootRefHolder = refHolder()
     const progressNode = (
       <div className={progressClasses.root} aria-hidden="true">
         <ul className={progressClasses.list} refHolder={listRootRefHolder}>

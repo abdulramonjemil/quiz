@@ -10,3 +10,26 @@ export function resolveToNode(value) {
   }
   return document.createTextNode(String(value))
 }
+
+/**
+ * @template {any} T
+ * @typedef {{ ref: T }} RefHolder
+ */
+
+/**
+ * @template {any} T
+ * @param {T} value
+ * @returns {RefHolder<T>}
+ */
+export function refHolder(value = undefined) {
+  return { ref: value }
+}
+
+/** @type {<T extends any>(value: any) => value is RefHolder<T>} */
+export function isRefHolder(value) {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    Object.prototype.hasOwnProperty.call(value, "ref")
+  )
+}

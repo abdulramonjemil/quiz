@@ -1,4 +1,5 @@
-import Component, { createElementRefHolder } from "@/core/component"
+import { refHolder } from "@/core/base"
+import Component from "@/core/component"
 import { attemptElementFocus } from "@/lib/dom"
 import Styles from "@/scss/control-panel.module.scss"
 
@@ -29,9 +30,9 @@ export default class ControlPanel extends Component {
     this.$nextButton = null
     this.$cta = null
 
-    const prevButtonRefHolder = createElementRefHolder()
-    const nextButtonRefHolder = createElementRefHolder()
-    const submitButtonRefHolder = createElementRefHolder()
+    const prevButtonRefHolder = refHolder()
+    const nextButtonRefHolder = refHolder()
+    const submitButtonRefHolder = refHolder()
 
     const controlPanelNode = (
       <div className={Styles.ControlPanelContainer}>

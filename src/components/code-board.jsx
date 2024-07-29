@@ -2,9 +2,9 @@
 import Prism from "prismjs"
 import "prismjs/plugins/autoloader/prism-autoloader"
 
-import { createElementRefHolder } from "@/core/component"
 import { phraseToNode } from "@/core/content-parser"
 import Styles from "@/scss/code-board.module.scss"
+import { refHolder } from "@/core/base"
 
 /**
  * @typedef {{
@@ -40,7 +40,7 @@ Prism.manual = true
 /** @param {CodeBoardProps} param0 */
 export default function CodeBoard({ snippet, language, title }) {
   loadPrismTheme(DEFAULT_PRISM_THEME_URL)
-  const codeRefHolder = createElementRefHolder()
+  const codeRefHolder = refHolder()
 
   const codeBoardNode = (
     <div className={Styles.CodeBoard}>

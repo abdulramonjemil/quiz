@@ -1,9 +1,10 @@
-import Component, { createElementRefHolder } from "@/core/component"
+import Component from "@/core/component"
 import { phraseToNode } from "@/core/content-parser"
 import { attemptElementFocus } from "@/lib/dom"
 import { uniqueId } from "@/lib/id"
 import { assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/question.module.scss"
+import { refHolder } from "@/core/base"
 import ScrollShadow from "./scroll-shadow"
 
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
@@ -158,9 +159,9 @@ export default class Question extends Component {
     this.$explanationElement = null
     this.$fieldSet = null
 
-    const fieldSetRefHolder = createElementRefHolder()
-    const explanationRefHolder = createElementRefHolder()
-    const questionNodeRefHolder = createElementRefHolder()
+    const fieldSetRefHolder = refHolder()
+    const explanationRefHolder = refHolder()
+    const questionNodeRefHolder = refHolder()
 
     const groupingName = uniqueId()
     const optionNodes = options.map((option, index) => (

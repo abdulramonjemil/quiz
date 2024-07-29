@@ -2,9 +2,10 @@ import { uniqueId } from "@/lib/id"
 import { webStorageIsAvailable } from "@/lib/storage"
 import { attemptElementFocus, cn } from "@/lib/dom"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
+import { refHolder } from "@/core/base"
 import { Tabs } from "@/ui/tabs"
 
-import Component, { createInstanceRefHolder } from "@/core/component"
+import Component from "@/core/component"
 import Styles from "@/scss/quiz.module.scss"
 
 /* Must be imported after importing styles above to allow overrides */
@@ -169,7 +170,7 @@ function buildQuizSlideElements({
       )
       slideInstance = null
     } else if (element.type === "QUESTION") {
-      const questionInstanceRefHolder = createInstanceRefHolder()
+      const questionInstanceRefHolder = refHolder()
       slideNode = (
         <Question
           title={element.title}
@@ -177,12 +178,12 @@ function buildQuizSlideElements({
           answerIndex={element.answerIndex}
           explanation={element.explanation}
           handleOptionChange={handleQuestionOptionChange}
-          refHolder={questionInstanceRefHolder}
+          instanceRefHolder={questionInstanceRefHolder}
         />
       )
       slideInstance = questionInstanceRefHolder.ref
     } else if (element.type === "RESULT") {
-      const resultInstanceRefHolder = createInstanceRefHolder()
+      const resultInstanceRefHolder = refHolder()
       const questionsCount = elements.filter(
         (elem) => elem.type === "QUESTION"
       ).length
@@ -191,7 +192,7 @@ function buildQuizSlideElements({
         <Result
           questionsCount={questionsCount}
           handleExplanationBtnClick={handleResultExplanationBtnClick}
-          refHolder={resultInstanceRefHolder}
+          instanceRefHolder={resultInstanceRefHolder}
         />
       )
       slideInstance = resultInstanceRefHolder.ref
@@ -728,10 +729,12 @@ export default class Quiz extends Component {
    */
   static create({ props, container }) {
     const containerIsElementInstance = container instanceof Element
-    const quizInstanceRefHolder = createInstanceRefHolder()
-    const quizElement = <Quiz {...props} refHolder={quizInstanceRefHolder} />
+    const instanceRefHolder = refHolder()
+    const quizElement = (
+      <Quiz {...props} instanceRefHolder={instanceRefHolder} />
+    )
     if (containerIsElementInstance) container.replaceChildren(quizElement)
-    return [quizElement, quizInstanceRefHolder.ref]
+    return [quizElement, instanceRefHolder.ref]
   }
 
   /** @param {"prev" | "next"} button */
@@ -908,9 +911,9 @@ export default class Quiz extends Component {
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
 
-    const progressRefHolder = createInstanceRefHolder()
-    const presentationRefHolder = createInstanceRefHolder()
-    const controlPanelRefHolder = createInstanceRefHolder()
+    const progressRefHolder = refHolder()
+    const presentationRefHolder = refHolder()
+    const controlPanelRefHolder = refHolder()
     let tabs = /** @type {Tabs | null} */ (null)
 
     const shortcutHandlers = createQuizShortcutHandlers(() => {
@@ -939,11 +942,11 @@ export default class Quiz extends Component {
           handleLevelButtonClick={this.$handleProgressButtonClick.bind(this)}
           levelsCount={elementInstances.length}
           lastAsCompletionLevel
-          refHolder={progressRefHolder}
+          instanceRefHolder={progressRefHolder}
         />
         <Presentation
           id={presentationControllingId}
-          refHolder={presentationRefHolder}
+          instanceRefHolder={presentationRefHolder}
           slides={elementNodes}
         />
         <ControlPanel
@@ -959,7 +962,7 @@ export default class Quiz extends Component {
             if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
             else this.$handleCPanelSubmitCTAClick()
           }}
-          refHolder={controlPanelRefHolder}
+          instanceRefHolder={controlPanelRefHolder}
         />
       </section>
     )
