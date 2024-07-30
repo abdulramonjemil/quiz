@@ -127,12 +127,12 @@ $option-letter-span: 30px;
       color: $incorrect-option-color;
     }
 
-    .Option__Body:hover & {
+    .Option__Content:hover & {
       background-color: utils.get-color(deep-light);
       color: utils.get-color(soft-dark);
     }
 
-    .Option__Input:checked + .Option__Body & {
+    .Option__Input:checked + .Option__Content & {
       background-color: utils.get-color(deep-light);
       color: $selected-option-dark-color;
     }
