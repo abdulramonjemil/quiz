@@ -103,6 +103,12 @@ export function toggleClasses(element, ...classes) {
   else addClasses(element, ...classes)
 }
 
+/** @param {([string, string | number])[]} config  */
+export function css(config) {
+  const mapped = config.map((def) => `${def[0]}: ${def[1]};`)
+  return mapped.join("\n")
+}
+
 /**
  * @returns {DocumentFragment}
  */
