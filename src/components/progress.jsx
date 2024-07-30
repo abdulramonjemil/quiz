@@ -43,7 +43,7 @@ const progressClasses = {
 }
 
 /**
- * @param {levelIndex} number
+ * @param {number} levelIndex
  * @param {HTMLElement[]} progressLevels
  */
 function assertValidLevelIndex(levelIndex, progressLevels) {
