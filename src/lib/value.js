@@ -18,7 +18,7 @@ export const assertIsDefined = (value, desc) => {
 }
 
 /**
- * @template {new () => any} Constructor
+ * @template {new (...params: any[]) => any} Constructor
  * @param {any} value
  * @param {Constructor} constructor
  * @returns {asserts value is InstanceType<Constructor>}
@@ -32,7 +32,7 @@ export function assertIsInstance(value, constructor) {
 }
 
 /**
- * @param {new (...args: any[]) => object} classRef
+ * @param {Function} classRef
  * @param {string} methodName
  */
 export function throwAbsentMethodError(classRef, methodName) {
