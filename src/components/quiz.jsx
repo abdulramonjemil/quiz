@@ -96,7 +96,8 @@ import ControlPanel from "./control-panel"
  *     saveWithPathname: boolean
  *   } | null | undefined,
  *   customRootClass?: string | null | undefined,
- *   headerLevel?: HeaderLevel | null | undefined
+ *   headerLevel?: HeaderLevel | null | undefined,
+ *   codeBoardTheme?: CodeBoardProps["theme"]
  * }} QuizProps
  *
  * @typedef {Question | Result | null} QuizElementInstance
@@ -140,12 +141,14 @@ function assertValidQuizPropsElementConfig(elements) {
 /**
  * @param {{
  *   elements: QuizSlideElement[],
+ *   codeBoardTheme: QuizProps["codeBoardTheme"]
  *   handleQuestionOptionChange: () => void,
  *   handleResultExplanationBtnClick: ResultProps["handleExplanationBtnClick"]
  * }} param0
  */
 function buildQuizSlideElements({
   elements,
+  codeBoardTheme,
   handleQuestionOptionChange,
   handleResultExplanationBtnClick
 }) {
@@ -163,9 +166,10 @@ function buildQuizSlideElements({
     if (element.type === "CODE_BOARD") {
       slideNode = (
         <CodeBoard
-          snippet={element.snippet}
-          language={element.language}
           title={element.title}
+          language={element.language}
+          snippet={element.snippet}
+          theme={codeBoardTheme}
         />
       )
       slideInstance = null
@@ -848,8 +852,9 @@ export default class Quiz extends Component {
       elements,
       finalized,
       header,
-      headerLevel
-    } = /** @type {QuizProps} */ (this.$props)
+      headerLevel,
+      codeBoardTheme
+    } = this.$props
 
     assertValidQuizPropsElementConfig(elements)
     /** @type {QuizSlideElement[]} */
@@ -857,6 +862,7 @@ export default class Quiz extends Component {
 
     const { elementNodes, elementInstances } = buildQuizSlideElements({
       elements: fullQuizElements,
+      codeBoardTheme,
       handleQuestionOptionChange: this.$handleQuestionOptionChange.bind(this),
       handleResultExplanationBtnClick:
         this.$handleResultExplanationBtnClick.bind(this)

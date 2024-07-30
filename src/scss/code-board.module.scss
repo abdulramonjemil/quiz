@@ -2,7 +2,6 @@
 @use "partials/utils";
 @use "partials/element";
 
-$code-board-background: utils.get-color(dark-grey);
 $code-board-scrollbar-main-size: 8px;
 $code-board-horizontal-padding: 12px;
 $code-board-vertical-padding: 10px;
@@ -20,7 +19,7 @@ $code-board-vertical-padding: 10px;
   }
 }
 
-.CodeWrapper {
+.PreWrapper {
   flex: 0 1 max-content;
   height: 50px;
   margin-top: 10px;
@@ -38,10 +37,11 @@ $code-board-vertical-padding: 10px;
   );
 }
 
-.Code {
+.Pre {
   border-radius: utils.get-constant(border-radius);
   height: max-content;
   max-height: 100%;
+  overflow: auto;
   scrollbar-color: utils.get-color(deep-light) transparent;
   scrollbar-width: thin;
 
@@ -68,19 +68,28 @@ $code-board-vertical-padding: 10px;
   &::-webkit-scrollbar-thumb {
     background-color: utils.get-color(deep-light);
   }
+
+  // `[class*="language-"]` is required to overwrite theme styles
+  &[class*="language-"] {
+    margin: 0;
+  }
+
+  @at-root %internal-themed {
+    background: utils.get-color(dark-grey);
+    line-height: utils.get-constant(line-height);
+    padding: $code-board-vertical-padding $code-board-horizontal-padding;
+
+    code {
+      background: utils.get-color(dark-grey);
+    }
+  }
+
+  &_basicThemed[class*="language-"] {
+    @extend %internal-themed;
+    color: utils.get-color(deep-light);
+  }
+
+  &_defaultThemed[class*="language-"] {
+    @extend %internal-themed;
+  }
 }
-
-/* PrismJS selectors start here */
-
-code[class*="language-"],
-pre[class*="language-"] {
-  background: $code-board-background;
-  line-height: utils.get-constant(line-height);
-}
-
-pre[class*="language-"] {
-  padding: $code-board-vertical-padding $code-board-horizontal-padding;
-  margin: 0;
-}
-
-/* PrismJS selectors end here */

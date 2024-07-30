@@ -5,14 +5,27 @@ import "prismjs/plugins/autoloader/prism-autoloader"
 import { phraseToNode } from "@/core/content-parser"
 import Styles from "@/scss/code-board.module.scss"
 import { refHolder } from "@/core/base"
+import { cn } from "@/lib/dom"
 
 /**
  * @typedef {{
  *   title: string;
  *   language: string;
  *   snippet: string;
+ *   theme?: "basic" | "default" | "none" | (string & {}) | null | undefined
  * }} CodeBoardProps
  */
+
+const codeClasses = {
+  root: cn("quiz-cboard", Styles.CodeBoard),
+  title: cn("quiz-cboard-title", Styles.CodeBoard__Title),
+  preWrapper: cn("quiz-cboard-pre-wrapper", Styles.PreWrapper),
+  pre: {
+    base: cn("quiz-cboard-pre", Styles.Pre),
+    basicThemed: cn("quiz-cboard-pre--basic", Styles.Pre_basicThemed),
+    defaultThemed: cn(["quiz-cboard-pre--default", Styles.Pre_defaultThemed])
+  }
+}
 
 const DEFAULT_PRISM_THEME_URL =
   "https://cdn.jsdelivr.net/gh/PrismJS/prism-themes/themes/prism-material-oceanic.css"
@@ -38,15 +51,27 @@ Prism.plugins.autoloader.languages_path = PRISMJS_COMPONENTS_CDN_URL
 Prism.manual = true
 
 /** @param {CodeBoardProps} param0 */
-export default function CodeBoard({ snippet, language, title }) {
-  loadPrismTheme(DEFAULT_PRISM_THEME_URL)
-  const codeRefHolder = refHolder()
+export default function CodeBoard({ title, language, snippet, theme }) {
+  const basicThemed = theme === "basic" || !theme
+  const defaultThemed = theme === "default"
+  const noTheme = theme === "none"
+  const customThemed = !basicThemed && !defaultThemed && !noTheme
 
+  if (defaultThemed) loadPrismTheme(DEFAULT_PRISM_THEME_URL)
+  else if (customThemed) loadPrismTheme(theme)
+
+  const codeRefHolder = refHolder()
   const codeBoardNode = (
-    <div className={Styles.CodeBoard}>
-      <p className={Styles.CodeBoard__Title}>{phraseToNode(title)}</p>
-      <div className={Styles.CodeWrapper}>
-        <pre className={Styles.Code}>
+    <div className={codeClasses.root}>
+      <p className={codeClasses.title}>{phraseToNode(title)}</p>
+      <div className={codeClasses.preWrapper}>
+        <pre
+          className={cn([
+            codeClasses.pre.base,
+            [basicThemed, codeClasses.pre.basicThemed],
+            [defaultThemed, codeClasses.pre.defaultThemed]
+          ])}
+        >
           <code className={`language-${language}`} refHolder={codeRefHolder}>
             {snippet.trim()}
           </code>
