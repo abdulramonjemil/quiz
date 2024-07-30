@@ -150,7 +150,7 @@ function ProgressLevel({
 }
 
 /**
- * @template {ProgressProps} Props
+ * @template {ProgressProps} [Props=ProgressProps]
  * @extends {Component<Props>}
  */
 export default class Progress extends Component {
