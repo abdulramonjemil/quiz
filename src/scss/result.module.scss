@@ -1,46 +1,34 @@
-@use "sass:color";
 @use "sass:math";
 @use "sass:string";
 @use "partials/number";
 @use "partials/element";
 @use "partials/utils";
 
-$result-green-color: rgb(143 188 188);
-$result-pink-color: rgb(180 142 173);
+$indicator-circle-animation-duration: 1.5s;
+$indicator-circle-gradient-id: string.unique-id();
+$indicator-circle-final-dashoffset-css-var: --indicator-circle-final-dashoffset;
+$result-percentage-css-var: --result-percentage;
 
-/* stylelint-disable scss/dollar-variable-pattern */
-$DURATION_OF_INDICATOR_ANIMATION: 1.5s;
-$ID_OF_RESULT_INDICATOR_BAR_GRADIENT: string.unique-id();
-$PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET: --final-dashoffset;
-$PROPERTY_FOR_SCORED_PERCENTAGE: --scored-percentage;
-/* stylelint-enable scss/dollar-variable-pattern */
+$result-primary-color: utils.get-color("light-green");
+$result-secondary-color: utils.get-color("light-pink");
 
-$viewbox-width-of-svg-graphic: 100;
-$radius-of-indicator-bar-in-graphic: 50;
-$highest-percentage-value: 100;
-$circumference-of-indicator-bar: 2 * math.$pi *
-  $radius-of-indicator-bar-in-graphic;
-$default-result-percentage: 0.1;
-
-$max-indicator-bar-dashoffset-value: math.div(
-    $highest-percentage-value - $default-result-percentage,
-    $highest-percentage-value
-  ) * $circumference-of-indicator-bar;
+$indicator-svg-viewbox-width: 100;
+$indicator-circle-radius: 50;
+$indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 
 :export {
-  INDICATOR_BAR_GRADIENT_ID: $ID_OF_RESULT_INDICATOR_BAR_GRADIENT;
-  CIRCUMFERENCE_OF_INDICATOR_BAR: $circumference-of-indicator-bar;
-  DURATION_OF_INDICATOR_ANIMATION_SECS: number.unitless(
-    $DURATION_OF_INDICATOR_ANIMATION
+  INDICATOR_CIRCLE_GRADIENT_ID: $indicator-circle-gradient-id;
+  INDICATOR_CIRCLE_CIRCUMFERENCE: $indicator-circle-circumference;
+  INDICATOR_CIRCLE_ANIMATION_DURATION_SECS: number.unitless(
+    $indicator-circle-animation-duration
   );
-  MAX_INDICATOR_BAR_DASHOFFSET_VALUE: $max-indicator-bar-dashoffset-value;
-  PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET: $PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET;
-  PROPERTY_FOR_SCORED_PERCENTAGE: $PROPERTY_FOR_SCORED_PERCENTAGE;
-  RESULT_GREEN_COLOR: $result-green-color;
-  RESULT_PINK_COLOR: $result-pink-color;
+  INDICATOR_CIRCLE_FINAL_DASHOFFSET_CSS_VAR: $indicator-circle-final-dashoffset-css-var;
+  RESULT_PERCENTAGE_CSS_VAR: $result-percentage-css-var;
+  RESULT_PRIMARY_COLOR: $result-primary-color;
+  RESULT_SECONDARY_COLOR: $result-secondary-color;
 }
 
-.ResultContainer {
+.ResultWrapper {
   @include element.height-config;
 
   display: flex;
@@ -71,43 +59,168 @@ $max-indicator-bar-dashoffset-value: math.div(
     align-items: center;
     flex-direction: column;
   }
+}
 
-  &__Board {
-    display: flex;
-    flex-direction: column;
-    flex: 0 1 max-content;
-    justify-content: center;
+.Indicator {
+  --indicator-dimension: 220px;
+  --indicator-bar-dimension: 35px;
+  --indicator-unitless-dimension: 220;
+  --indicator-bar-unitless-dimension: 35;
 
-    opacity: 0;
-    transition: opacity linear $DURATION_OF_INDICATOR_ANIMATION * math.div(7, 9);
-    transition-delay: $DURATION_OF_INDICATOR_ANIMATION * math.div(2, 9);
+  $indicator-dimension: var(--indicator-dimension);
+  $indicator-bar-dimension: var(--indicator-bar-dimension);
 
-    .Indicator_transitionAnimated + & {
-      opacity: 1;
-    }
+  $indicator-unitless-dimension: var(--indicator-unitless-dimension);
+  $indicator-bar-unitless-dimension: var(--indicator-bar-unitless-dimension);
 
-    @container (width <= 560px) {
-      align-items: center;
-      justify-content: flex-start;
-      margin-top: 10px;
-      text-align: center;
+  align-items: center;
+  display: flex;
+  flex: 0 0 $indicator-dimension;
+  height: $indicator-dimension;
+  justify-content: center;
+  position: relative;
+  width: $indicator-dimension;
+
+  &_transitionAnimated {
+    // Used to render the indicator animations
+  }
+
+  @container (width <= 720px) {
+    --indicator-dimension: 180px;
+    --indicator-bar-dimension: 30px;
+    --indicator-unitless-dimension: 180;
+    --indicator-bar-unitless-dimension: 30;
+  }
+
+  @container (width <= 560px) {
+    --indicator-dimension: 220px;
+    --indicator-bar-dimension: 35px;
+    --indicator-unitless-dimension: 220;
+    --indicator-bar-unitless-dimension: 35;
+  }
+
+  @container (width <= 300px) {
+    --indicator-dimension: 180px;
+    --indicator-bar-dimension: 30px;
+    --indicator-unitless-dimension: 180;
+    --indicator-bar-unitless-dimension: 30;
+  }
+
+  &__OuterShadow {
+    border-radius: 50%;
+    box-shadow: 0 0 7px -4px $result-secondary-color;
+    height: 100%;
+    width: 100%;
+  }
+
+  &__InnerShadow {
+    $indicator-inner-shadow-dimension: calc(
+      100% - $indicator-bar-dimension * 2
+    );
+
+    border-radius: 50%;
+    box-shadow: inset 0 0 7px -4px $result-secondary-color;
+    height: $indicator-inner-shadow-dimension;
+    position: absolute;
+    width: $indicator-inner-shadow-dimension;
+  }
+
+  &__SVG {
+    $indicator-svg-dimension: calc(
+      $indicator-dimension - $indicator-bar-dimension
+    );
+
+    height: $indicator-svg-dimension;
+    overflow: visible;
+    position: absolute;
+    transform: rotate(-90deg);
+    width: $indicator-svg-dimension;
+  }
+
+  &__Circle {
+    fill: none;
+    stroke: url("##{$indicator-circle-gradient-id}");
+    stroke-width: calc(
+      $indicator-bar-dimension *
+        (
+          $indicator-svg-viewbox-width /
+            ($indicator-unitless-dimension - $indicator-bar-unitless-dimension)
+        )
+    );
+
+    stroke-dasharray: $indicator-circle-circumference;
+    stroke-dashoffset: $indicator-circle-circumference;
+    stroke-linecap: round;
+    transition: stroke-dashoffset $indicator-circle-animation-duration
+      ease-in-out;
+
+    .Indicator_transitionAnimated & {
+      stroke-dashoffset: var(#{$indicator-circle-final-dashoffset-css-var});
     }
   }
 
-  &__Instructions {
+  &__Percent {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: max-content;
+    position: absolute;
+    width: max-content;
+
+    background-image: linear-gradient(
+      to top,
+      $result-primary-color,
+      $result-secondary-color
+    );
+    background-clip: text;
+    -webkit-background-clip: text; /* stylelint-disable-line */
+
+    color: transparent;
+    font-size: calc($indicator-dimension / 5);
+    font-weight: 900;
+  }
+
+  &__PercentSymbol {
+    font-size: calc($indicator-dimension / 8);
+  }
+}
+
+.Remark {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 max-content;
+  justify-content: center;
+
+  opacity: 0;
+  transition: opacity linear $indicator-circle-animation-duration *
+    math.div(7, 9);
+  transition-delay: $indicator-circle-animation-duration * math.div(2, 9);
+
+  .Indicator_transitionAnimated + & {
+    opacity: 1;
+  }
+
+  @container (width <= 560px) {
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 10px;
+    text-align: center;
+  }
+
+  &__Text {
     font-size: 1.4em;
     font-weight: 600;
 
     em {
-      color: $result-pink-color;
+      color: $result-secondary-color;
       font-weight: 800;
     }
   }
 
-  &__ReviewButton {
+  &__Button {
     background-color: transparent;
     border-radius: utils.get-constant(border-radius);
-    color: $result-pink-color;
+    color: $result-secondary-color;
     cursor: pointer;
     font-weight: 500;
     margin-top: 20px;
@@ -126,165 +239,5 @@ $max-indicator-bar-dashoffset-value: math.div(
     &:hover {
       opacity: 0.8;
     }
-  }
-}
-
-.Indicator {
-  --result-indicator-dimension: 220px;
-  --result-indicator-bar-dimension: 35px;
-  --result-indicator-unitless-dimension: 220;
-  --result-indicator-bar-unitless-dimension: 35;
-
-  $result-indicator-dimension: var(--result-indicator-dimension);
-  $result-indicator-bar-dimension: var(--result-indicator-bar-dimension);
-
-  $result-indicator-unitless-dimension: var(
-    --result-indicator-unitless-dimension
-  );
-
-  $result-indicator-bar-unitless-dimension: var(
-    --result-indicator-bar-unitless-dimension
-  );
-
-  align-items: center;
-  display: flex;
-  flex: 0 0 $result-indicator-dimension;
-  height: $result-indicator-dimension;
-  justify-content: center;
-  position: relative;
-  width: $result-indicator-dimension;
-
-  &_transitionAnimated {
-    // Used to render the indicator animations
-  }
-
-  @container (width <= 720px) {
-    --result-indicator-dimension: 180px;
-    --result-indicator-bar-dimension: 30px;
-    --result-indicator-unitless-dimension: 180;
-    --result-indicator-bar-unitless-dimension: 30;
-  }
-
-  @container (width <= 560px) {
-    --result-indicator-dimension: 220px;
-    --result-indicator-bar-dimension: 35px;
-    --result-indicator-unitless-dimension: 220;
-    --result-indicator-bar-unitless-dimension: 35;
-  }
-
-  @container (width <= 300px) {
-    --result-indicator-dimension: 180px;
-    --result-indicator-bar-dimension: 30px;
-    --result-indicator-unitless-dimension: 180;
-    --result-indicator-bar-unitless-dimension: 30;
-  }
-
-  &__OuterShadow {
-    border-radius: 50%;
-    box-shadow: 0 0 7px -4px $result-pink-color;
-    height: 100%;
-    width: 100%;
-  }
-
-  &__InnerShadow {
-    $inner-shadow-dimension: calc(100% - $result-indicator-bar-dimension * 2);
-
-    border-radius: 50%;
-    box-shadow: inset 0 0 7px -4px $result-pink-color;
-    height: $inner-shadow-dimension;
-    position: absolute;
-    width: $inner-shadow-dimension;
-  }
-
-  &__SVG {
-    $svg-dimension: calc(
-      $result-indicator-dimension - $result-indicator-bar-dimension
-    );
-
-    height: $svg-dimension;
-    overflow: visible;
-    position: absolute;
-    transform: rotate(-90deg);
-    width: $svg-dimension;
-  }
-
-  &__Circle {
-    /*
-      The code below was previously used to set the real dashoffset to use on
-      the inidicator bar after the scored percentage has been populated, and it
-      works fine in Google Chrome. However, because firefox doesn't support the
-      use of var() inside calc() and many other CSS functions, it's replaced
-      with the code far below it.
-    */
-
-    /*
-    $scored-percentage-to-use: max(
-      var(#{$PROPERTY_FOR_SCORED_PERCENTAGE}),
-      $default-result-percentage
-    );
-
-    $real-dashoffset: calc(
-      (
-          ($highest-percentage-value - $scored-percentage-to-use) /
-            $highest-percentage-value
-        ) * $circumference-of-indicator-bar
-    );
-    */
-
-    // This is used for the reason mentiond above (pertaining to firefox)
-    $real-dashoffset: var(#{$PROPERTY_FOR_INDICATOR_BAR_FINAL_DASHOFFSET});
-
-    fill: none;
-    stroke: url("##{$ID_OF_RESULT_INDICATOR_BAR_GRADIENT}");
-    stroke-width: calc(
-      $result-indicator-bar-dimension *
-        (
-          $viewbox-width-of-svg-graphic /
-            (
-              $result-indicator-unitless-dimension -
-                $result-indicator-bar-unitless-dimension
-            )
-        )
-    );
-
-    stroke-dasharray: $circumference-of-indicator-bar;
-    stroke-dashoffset: $max-indicator-bar-dashoffset-value;
-    stroke-linecap: round;
-    transition: stroke-dashoffset $DURATION_OF_INDICATOR_ANIMATION ease-in-out;
-
-    .Indicator_transitionAnimated & {
-      stroke-dashoffset: $real-dashoffset;
-    }
-  }
-
-  &__PercentContainer {
-    align-items: center;
-    display: flex;
-    justify-content: center;
-    height: max-content;
-    position: absolute;
-    width: max-content;
-  }
-
-  &__PercentValue {
-    color: transparent;
-    font-size: calc($result-indicator-dimension / 4);
-    font-weight: 900;
-    background-image: linear-gradient(
-      to top,
-      $result-green-color,
-      $result-pink-color
-    );
-    background-clip: text;
-    -webkit-background-clip: text; /* stylelint-disable-line */
-  }
-
-  &__PercentSymbol {
-    color: $result-green-color;
-    font-size: 1.2em;
-    font-weight: 700;
-    position: absolute;
-    right: -0.8em;
-    top: 1em;
   }
 }

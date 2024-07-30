@@ -2,12 +2,22 @@ import { throwAbsentMethodError } from "@/lib/value"
 import { resolveToNode } from "./base"
 
 /**
+ * @typedef {Record<string, unknown>} ComponentProps
+ * @typedef {unknown} ComponentChildren
+ */
+
+/**
  * This class is used as an abstract class that actual
  * UI components extend.
  *
- * @template {ComponentProps} [Props=Record<string, unknown>]
+ * @template {ComponentProps} [Props=ComponentProps]
+ * @template {ComponentChildren} [Children=ComponentChildren]
  */
 export default class Component {
+  /**
+   * @param {Props} props
+   * @param {Children} children
+   */
   constructor(props, children) {
     if (new.target === Component)
       throw new Error("An instance of 'Component' cannot be created directly")
@@ -22,13 +32,17 @@ export default class Component {
      */
     this.$props = props
 
-    this.$children = children
-
     /**
      * @readonly
      * @protected
+     * @type {Children}
+     */
+    this.$children = children
+
+    /**
+     * @protected
      * @type {Node} */
-    this.$composedNode = resolveToNode(this.$render())
+    this.$rootNode = resolveToNode(this.$render())
   }
 
   $render() {
@@ -37,6 +51,6 @@ export default class Component {
   }
 
   rootNode() {
-    return this.$composedNode
+    return this.$rootNode
   }
 }
