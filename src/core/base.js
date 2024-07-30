@@ -33,3 +33,15 @@ export function isRefHolder(value) {
     Object.prototype.hasOwnProperty.call(value, "ref")
   )
 }
+
+/**
+ * @template {new () => T} Constructor
+ * @param {RefHolder<any>} holder
+ * @param {Constructor} constructor
+ * @returns {asserts holder is RefHolder<InstanceType<Constructor>>}
+ */
+export function assertIsInstanceRefHolder(holder, constructor) {
+  if (!(holder.ref instanceof constructor)) {
+    throw new Error(`Expected a ref holder of '${constructor.name}' instance`)
+  }
+}

@@ -1,19 +1,52 @@
 import Component from "@/core/component"
 import { phraseToNode } from "@/core/content-parser"
-import { attemptElementFocus } from "@/lib/dom"
+import {
+  addClasses,
+  attemptElementFocus,
+  cn,
+  hasClasses,
+  removeClasses,
+  toggleClasses
+} from "@/lib/dom"
 import { uniqueId } from "@/lib/id"
-import { assertIsInstance } from "@/lib/value"
+import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/question.module.scss"
-import { refHolder } from "@/core/base"
+import { assertIsInstanceRefHolder, refHolder } from "@/core/base"
 import ScrollShadow from "./scroll-shadow"
+
+/**
+ * @template {any} T
+ * @typedef {import("@/core/base").RefHolder<T>} RefHolder
+ */
 
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
 
-const CORRECT_OPTION_CLASS = Styles.Option_correct
-const INCORRECT_OPTION_CLASS = Styles.Option_incorrect
-
-const ENABLED_EXPLANATION_CLASS = Styles.Explanation_enabled
-const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
+const questionClasses = {
+  wrapper: cn("quiz-question-wrapper", Styles.QuestionWrapper),
+  root: cn("quiz-question", Styles.Question),
+  title: cn("quiz-question-title", Styles.Question__Title),
+  optionsContainer: cn([
+    "quiz-question-options-container",
+    Styles.OptionsContainer
+  ]),
+  optionRoot: {
+    base: cn("quiz-question-option", Styles.Option),
+    correct: cn("quiz-question-option--correct", Styles.Option_correct),
+    incorrect: cn("quiz-question-option--incorrect", Styles.Option_incorrect)
+  },
+  optionInput: cn("quiz-question-option-input", Styles.Option__Input),
+  optionContent: cn("quiz-question-option-content", Styles.Option__Content),
+  optionLetter: cn("quiz-question-option-letter", Styles.Option__Letter),
+  optionText: cn("quiz-question-option-text", Styles.Option__Text),
+  explRoot: {
+    base: cn("quiz-question-expl", Styles.Explanation),
+    enabled: cn("quiz-question-expl--enabled", Styles.Explanation_enabled),
+    shown: cn("quiz-question-expl--shown", Styles.Explanation_shown)
+  },
+  explButton: cn("quiz-question-expl-button", Styles.Explanation__Button),
+  explDivider: cn("quiz-question-expl-divider", Styles.Explanation__Divider),
+  explContent: cn("quiz-question-expl-content", Styles.Explanation__Content)
+}
 
 /**
  * @typedef {0 | 1 | 2 | 3} OptionIndex
@@ -31,74 +64,52 @@ const SHOWN_EXPLANATION_CLASS = Styles.Explanation_shown
  */
 
 /**
- * @param {Object} param0
- * @param {() => void} param0.handleOptionChange
- * @param {number} param0.index
- * @param {string} param0.name
- * @param {string} param0.text
+ * @param {number} index
+ * @param {HTMLInputElement[]} optionInputs
  */
-function Option({ handleOptionChange, index, name, text }) {
-  const optionLabellingId = uniqueId()
-  const letter = LETTERS_FOR_ANSWER_CHOICES[index]
-
-  return (
-    <label className={Styles.Option} htmlFor={optionLabellingId}>
-      <input
-        checked={false}
-        className={Styles.Option__Input}
-        id={optionLabellingId}
-        name={name}
-        onChange={handleOptionChange}
-        type="radio"
-        value={letter}
-      />
-      <div className={Styles.Option__Body}>
-        <div className={Styles.Option__Letter}>{letter}</div>
-        <div className={Styles.Option__Text}>
-          <span>{phraseToNode(text)}</span>
-        </div>
-      </div>
-    </label>
-  )
+function assertValidOptionIndex(index, optionInputs) {
+  if (index > optionInputs.length - 1) {
+    throw new Error(`There is no option at index: ${index}`)
+  }
 }
 
-function Explanation({ content, rootRefHolder }) {
-  if (typeof content !== "string" || content === "") {
-    return <div refHolder={rootRefHolder} />
-  }
+/** @param {HTMLInputElement[]} optionInputs */
+function getSelectedOptionIndex(optionInputs) {
+  const index = optionInputs.findIndex((input) => input.checked)
+  return index >= 0 ? index : null
+}
 
-  return (
-    <div className={Styles.Explanation} refHolder={rootRefHolder}>
-      <button
-        className={Styles.Explanation__Toggler}
-        onClick={() => {
-          rootRefHolder.ref.classList.toggle(SHOWN_EXPLANATION_CLASS)
-        }}
-        type="button"
-      >
-        Toggle Explanations
-      </button>
-      <hr className={Styles.Explanation__Divider} />
-      <div className={Styles.Explanation__Content}>{phraseToNode(content)}</div>
-    </div>
-  )
+/** @param {HTMLInputElement[]} optionInputs */
+function getSelectedOptionInput(optionInputs) {
+  return optionInputs.find((input) => input.checked) ?? null
 }
 
 /**
- * @param {HTMLElement} answerInput
+ * @param {HTMLInputElement} optionInput
+ * @param {"selected" | "deselected"} state
+ */
+function setOptionSelectionState(optionInput, state) {
+  const input = optionInput
+  if (state === "selected") input.checked = true
+  else input.checked = false
+}
+
+/**
+ * @param {HTMLInputElement} optionInput
  * @param {"correct" | "incorrect" | "reset"} type
  */
-function styleOptionInput(answerInput, type) {
-  const answerInputLabel = answerInput.closest("label")
+function styleOption(optionInput, type) {
+  const optionInputLabel = optionInput.closest("label")
+  assertIsDefined(optionInputLabel, "option input <label>")
   if (type === "correct") {
-    answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
-    answerInputLabel.classList.add(CORRECT_OPTION_CLASS)
+    removeClasses(optionInputLabel, questionClasses.optionRoot.incorrect)
+    addClasses(optionInputLabel, questionClasses.optionRoot.correct)
   } else if (type === "incorrect") {
-    answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
-    answerInputLabel.classList.add(INCORRECT_OPTION_CLASS)
+    removeClasses(optionInputLabel, questionClasses.optionRoot.correct)
+    addClasses(optionInputLabel, questionClasses.optionRoot.incorrect)
   } else if (type === "reset") {
-    answerInputLabel.classList.remove(CORRECT_OPTION_CLASS)
-    answerInputLabel.classList.remove(INCORRECT_OPTION_CLASS)
+    removeClasses(optionInputLabel, questionClasses.optionRoot.correct)
+    removeClasses(optionInputLabel, questionClasses.optionRoot.incorrect)
   }
 }
 
@@ -111,7 +122,7 @@ function getExplanationButton(element) {
 
 /** @param {HTMLElement} element */
 function getExplanationState(element) {
-  return element.classList.contains(ENABLED_EXPLANATION_CLASS)
+  return hasClasses(element, questionClasses.explRoot.enabled)
     ? "enabled"
     : "disabled"
 }
@@ -122,9 +133,9 @@ function getExplanationState(element) {
  */
 function setExplanationState(element, state) {
   if (state === "enabled") {
-    element.classList.add(ENABLED_EXPLANATION_CLASS)
+    addClasses(element, questionClasses.explRoot.enabled)
   } else if (state === "disabled") {
-    element.classList.remove(ENABLED_EXPLANATION_CLASS)
+    removeClasses(element, questionClasses.explRoot.enabled)
   }
 }
 
@@ -146,6 +157,69 @@ function setQuestionState(fieldSetElement, state) {
 }
 
 /**
+ * @param {Object} param0
+ * @param {() => void} param0.handleOptionChange
+ * @param {number} param0.index
+ * @param {string} param0.name
+ * @param {string} param0.text
+ */
+function Option({ handleOptionChange, index, name, text }) {
+  const optionLabellingId = uniqueId()
+  const letter = LETTERS_FOR_ANSWER_CHOICES[index]
+
+  return (
+    <label
+      className={questionClasses.optionRoot.base}
+      htmlFor={optionLabellingId}
+    >
+      <input
+        checked={false}
+        className={questionClasses.optionInput}
+        id={optionLabellingId}
+        name={name}
+        onChange={handleOptionChange}
+        type="radio"
+        value={letter}
+      />
+      <div className={questionClasses.optionContent}>
+        <div className={questionClasses.optionLetter}>{letter}</div>
+        <div className={questionClasses.optionText}>
+          <span>{phraseToNode(text)}</span>
+        </div>
+      </div>
+    </label>
+  )
+}
+
+/**
+ * @param {Object} param0
+ * @param {string} param0.content
+ */
+function Explanation({ content }) {
+  if (typeof content !== "string" || content === "") {
+    return <div />
+  }
+
+  const rootRefHolder = refHolder()
+  return (
+    <div className={questionClasses.explRoot.base} refHolder={rootRefHolder}>
+      <button
+        className={questionClasses.explButton}
+        onClick={() => {
+          assertIsInstanceRefHolder(rootRefHolder, HTMLElement)
+          toggleClasses(rootRefHolder.ref, questionClasses.explRoot.shown)
+        }}
+        type="button"
+      >
+        Toggle Explanations
+      </button>
+      <hr className={questionClasses.explDivider} />
+      <div className={questionClasses.explContent}>{phraseToNode(content)}</div>
+    </div>
+  )
+}
+
+/**
  * @template {QuestionProps} Props
  * @extends {Component<Props>}
  */
@@ -153,11 +227,6 @@ export default class Question extends Component {
   $render() {
     const { answerIndex, explanation, handleOptionChange, options, title } =
       this.$props
-
-    this.$optionInputs = null
-    this.$answerInput = null
-    this.$explanationElement = null
-    this.$fieldSet = null
 
     const fieldSetRefHolder = refHolder()
     const explanationRefHolder = refHolder()
@@ -174,7 +243,7 @@ export default class Question extends Component {
     ))
 
     const questionNode = (
-      <div className={Styles.Root}>
+      <div className={questionClasses.wrapper}>
         <ScrollShadow
           observerConfig={{
             attributes: true,
@@ -182,55 +251,60 @@ export default class Question extends Component {
             subtree: true
           }}
         >
-          <div className={Styles.Question} refHolder={questionNodeRefHolder}>
+          <div
+            className={questionClasses.root}
+            refHolder={questionNodeRefHolder}
+          >
             <fieldset refHolder={fieldSetRefHolder}>
-              <legend className={Styles.Question__Title}>
+              <legend className={questionClasses.title}>
                 {phraseToNode(title)}
               </legend>
-              <div className={Styles.OptionsRoot}>{optionNodes}</div>
+              <div className={questionClasses.optionsContainer}>
+                {optionNodes}
+              </div>
             </fieldset>
 
             <Explanation
               content={explanation}
-              rootRefHolder={explanationRefHolder}
+              nodeRefHolder={explanationRefHolder}
             />
           </div>
         </ScrollShadow>
       </div>
     )
 
-    /** @type {HTMLElement} */
-    this.$explanationElement = explanationRefHolder.ref
     /** @type {HTMLFieldSetElement} */
-    this.$fieldSet = fieldSetRefHolder.ref
-    /** @type {HTMLInputElement[]} */
-    this.$optionInputs = Array.from(
-      this.$fieldSet.getElementsByTagName("input")
-    )
-    /** @type {HTMLInputElement} */
-    this.$answerInput = this.$optionInputs[answerIndex]
+    const fieldSet = fieldSetRefHolder.ref
+    const optionInputs = Array.from(fieldSet.getElementsByTagName("input"))
+
+    this.$elements = {
+      explanation: /** @type {HTMLElement} */ (explanationRefHolder.ref),
+      fieldSet,
+      optionInputs,
+      answerInput: optionInputs[answerIndex]
+    }
 
     return questionNode
   }
 
   correctAnswerIsPicked() {
-    const { $optionInputs, $answerInput } = this
-    const selectedAnswerInput = $optionInputs.find((input) => input.checked)
-    return selectedAnswerInput === $answerInput
+    const { $elements } = this
+    const selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
+    return selectedOptionInput === $elements.answerInput
   }
 
   doReset() {
-    const { $optionInputs, $explanationElement, $answerInput, $fieldSet } = this
+    const { $elements } = this
 
-    const selectedAnswerInput = $optionInputs.find((input) => input.checked)
-    if (selectedAnswerInput !== undefined) {
-      selectedAnswerInput.checked = false
-      styleOptionInput(selectedAnswerInput, "reset")
+    const selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
+    if (selectedOptionInput !== undefined) {
+      setOptionSelectionState(selectedOptionInput, "deselected")
+      styleOption(selectedOptionInput, "reset")
     }
 
-    styleOptionInput($answerInput, "reset")
-    setExplanationState($explanationElement, "disabled")
-    setQuestionState($fieldSet, "enabled")
+    styleOption($elements.answerInput, "reset")
+    setExplanationState($elements.explanation, "disabled")
+    setQuestionState($elements.fieldSet, "enabled")
   }
 
   /**
@@ -240,62 +314,61 @@ export default class Question extends Component {
    * @returns {AnswerSelectionData | null}
    */
   getAnswerSelectionData() {
-    if (!this.isAnswered()) return null
-    const { $optionInputs } = this
-    const selectionIndex = $optionInputs.findIndex((input) => input.checked)
-    return { selectedOptionIndex: selectionIndex }
+    const index = getSelectedOptionIndex(this.$elements.optionInputs)
+    if (index === null) return null
+    return { selectedOptionIndex: index }
   }
 
   /** @param {number | null | undefined} selectedOptionIndex */
   finalize(selectedOptionIndex) {
-    const { $optionInputs, $explanationElement, $answerInput, $fieldSet } = this
-    /** @type {HTMLInputElement | undefined | null} */
-    let selectedAnswerInput = null
+    const { $elements } = this
+    /** @type {HTMLInputElement | null} */
+    let selectedOptionInput = null
 
     if (typeof selectedOptionIndex !== "number") {
-      selectedAnswerInput = $optionInputs.find((input) => input.checked)
-      if (!selectedAnswerInput) throw new Error("No answer is selected")
+      selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
+      if (!selectedOptionInput) throw new Error("No answer is selected")
     } else {
-      selectedAnswerInput = $optionInputs[selectedOptionIndex]
-      if (!selectedAnswerInput) {
-        throw new Error("Invalid selected option index")
-      }
-      selectedAnswerInput.checked = true
+      assertValidOptionIndex(selectedOptionIndex, $elements.optionInputs)
+      selectedOptionInput = $elements.optionInputs[selectedOptionIndex]
+      setOptionSelectionState(selectedOptionInput, "selected")
     }
 
-    styleOptionInput($answerInput, "correct")
-    if (selectedAnswerInput !== $answerInput) {
-      styleOptionInput(selectedAnswerInput, "incorrect")
+    assertIsDefined($elements.answerInput, "answer input")
+    styleOption($elements.answerInput, "correct")
+    if (selectedOptionInput !== $elements.answerInput) {
+      styleOption(selectedOptionInput, "incorrect")
     }
 
-    setExplanationState($explanationElement, "enabled")
-    setQuestionState($fieldSet, "disabled")
+    setExplanationState($elements.explanation, "enabled")
+    setQuestionState($elements.fieldSet, "disabled")
   }
 
   isFinalized() {
-    const { $fieldSet, $explanationElement } = this
+    const { $elements } = this
     return (
-      getQuestionState($fieldSet) === "disabled" &&
-      getExplanationState($explanationElement) === "enabled"
+      getQuestionState($elements.fieldSet) === "disabled" &&
+      getExplanationState($elements.explanation) === "enabled"
     )
   }
 
   isAnswered() {
-    const { $optionInputs } = this
-    return $optionInputs.some((input) => input.checked)
+    return getSelectedOptionIndex(this.$elements.optionInputs) !== null
   }
 
   /** @param {{ type: "option", index: OptionIndex } | { type: "toggle" }} options  */
   simulateClick(options) {
+    const { $elements } = this
     let focused = false
+
     if (options.type === "toggle") {
-      const toggleButton = getExplanationButton(this.$explanationElement)
+      const toggleButton = getExplanationButton($elements.explanation)
       if (!(toggleButton instanceof HTMLElement)) return false
 
       focused = attemptElementFocus(toggleButton)
       toggleButton.click()
     } else {
-      const input = this.$optionInputs[options.index]
+      const input = $elements.optionInputs[options.index]
       if (options.index >= 0 && input instanceof HTMLElement) {
         focused = attemptElementFocus(input)
         input.click()

@@ -7,7 +7,7 @@ $gap-between-question-elements: utils.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
-.Root {
+.QuestionWrapper {
   @include element.height-config;
 
   display: flex;
@@ -32,7 +32,7 @@ $option-letter-span: 30px;
   }
 }
 
-.OptionsRoot {
+.OptionsContainer {
   display: flex;
   flex-wrap: wrap;
   gap: $gap-between-question-elements;
@@ -68,7 +68,7 @@ $option-letter-span: 30px;
   $correct-option-color: rgb(15 90 40);
   $incorrect-option-color: rgb(90 13 13);
 
-  &__Body {
+  &__Content {
     border: 2px solid utils.get-color(soft-dark);
     border-radius: utils.get-constant(border-radius);
     cursor: pointer;
@@ -156,7 +156,7 @@ $option-letter-span: 30px;
     display: block;
   }
 
-  &__Toggler {
+  &__Button {
     $toggler-default-bg-color: color.change(
       utils.get-color(deep-dark),
       $alpha: 0.3

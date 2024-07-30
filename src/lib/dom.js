@@ -95,6 +95,15 @@ export function hasClasses(element, ...classes) {
 }
 
 /**
+ * @param {HTMLElement} element
+ * @param {ClassConfig} classes
+ */
+export function toggleClasses(element, ...classes) {
+  if (hasClasses(element, ...classes)) removeClasses(element, ...classes)
+  else addClasses(element, ...classes)
+}
+
+/**
  * @returns {DocumentFragment}
  */
 export function htmlStringToFragment(htmlString) {
