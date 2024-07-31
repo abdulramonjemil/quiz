@@ -1,9 +1,7 @@
-import { throwAbsentMethodError } from "@/lib/value"
 import { resolveToNode } from "./base"
 
 /**
- * @typedef {Record<string, unknown>} ComponentProps
- * @typedef {unknown} ComponentChildren
+ * @typedef {import("./base").ElementProps} ComponentProps
  */
 
 /**
@@ -11,19 +9,19 @@ import { resolveToNode } from "./base"
  * UI components extend.
  *
  * @template {ComponentProps} [Props=ComponentProps]
- * @template {ComponentChildren} [Children=ComponentChildren]
  */
 export default class Component {
   /**
    * @param {Props} props
-   * @param {Children} children
+   * @param {any} node
    */
-  constructor(props, children) {
+  constructor(props, node) {
     if (new.target === Component)
       throw new Error("An instance of 'Component' cannot be created directly")
 
-    if (typeof props !== "object" || props === null)
+    if (typeof props !== "object" || props === null) {
       throw new TypeError("'props' must be an object")
+    }
 
     /**
      * @readonly
@@ -33,21 +31,10 @@ export default class Component {
     this.$props = props
 
     /**
-     * @readonly
-     * @protected
-     * @type {Children}
-     */
-    this.$children = children
-
-    /**
      * @protected
      * @type {Node} */
-    this.$rootNode = resolveToNode(this.$render())
-  }
-
-  $render() {
-    // Method must be overwritten by extenders
-    throwAbsentMethodError(this.constructor, "$render")
+    this.$rootNode = resolveToNode(node)
+    // this.$rootNode = resolveToNode(this.$render())
   }
 
   rootNode() {

@@ -9,6 +9,20 @@ import { SAMPLE_QUIZ_DATA } from "./sample.js"
  */
 
 /**
+ * @template {new (...params: any[]) => any} Constructor
+ * @param {any} value
+ * @param {Constructor} constructor
+ * @returns {asserts value is InstanceType<Constructor>}
+ */
+export function assertIsInstance(value, constructor) {
+  if (!(value instanceof constructor)) {
+    throw new Error(
+      `Expected ${value} to be an instance of '${constructor.name}'`
+    )
+  }
+}
+
+/**
  * @param {QuizInquiryElement[]} elements
  * @returns {FinalizedQuizInquiryElement[]}
  */
@@ -25,11 +39,17 @@ function createFinalizedInquiryElements(elements) {
   )
 }
 
-const { Quiz } = /** @type {{Quiz: QuizClass}} */ (window)
+const { Quiz } = /** @type {{Quiz: QuizClass}} */ (
+  /** @type {unknown} */ (window)
+)
 
 const container1 = document.getElementById("quiz-1")
 const container2 = document.getElementById("quiz-2")
 const container3 = document.getElementById("quiz-3")
+
+assertIsInstance(container1, HTMLElement)
+assertIsInstance(container2, HTMLElement)
+assertIsInstance(container3, HTMLElement)
 
 Quiz.create({
   container: container1,

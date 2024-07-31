@@ -1,4 +1,4 @@
-import { refHolder } from "@/core/base"
+import { rh } from "@/core/base"
 import Component from "@/core/component"
 import { attemptElementFocus } from "@/lib/dom"
 import Styles from "@/scss/control-panel.module.scss"
@@ -12,27 +12,35 @@ import Styles from "@/scss/control-panel.module.scss"
  * @property {boolean} prev
  * @property {boolean} next
  * @property {CTARevalidationResult} cta
+ *
+ * @typedef {(button: "prev" | "next" | "cta") => HTMLElement} GetAlternateFocusable
+ * @typedef {{
+ *   getAlternateFocusable: GetAlternateFocusable,
+ *   controlledElementId: string,
+ *   handlePrevButtonClick: (event: MouseEvent) => void,
+ *   handleNextButtonClick: (event: MouseEvent) => void,
+ *   handleCTAButtonClick: (event: MouseEvent) => void
+ * }} ControlPanelProps
  */
 
+/**
+ * @template {ControlPanelProps} [Props=ControlPanelProps]
+ * @extends {Component<Props>}
+ */
 export default class ControlPanel extends Component {
-  $render() {
+  /** @param {Props} props */
+  constructor(props) {
     const {
-      // This is used to get an element to focus when one of the control panel
-      // buttons is disabled
       getAlternateFocusable,
       controlledElementId,
       handlePrevButtonClick,
       handleNextButtonClick,
       handleCTAButtonClick
-    } = this.$props
+    } = props
 
-    this.$prevButton = null
-    this.$nextButton = null
-    this.$cta = null
-
-    const prevButtonRefHolder = refHolder()
-    const nextButtonRefHolder = refHolder()
-    const submitButtonRefHolder = refHolder()
+    const prevButtonRH = /** @type {typeof rh<HTMLButtonElement>} */ (rh)(null)
+    const nextButtonRH = /** @type {typeof rh<HTMLButtonElement>} */ (rh)(null)
+    const ctaButtonRH = /** @type {typeof rh<HTMLButtonElement>} */ (rh)(null)
 
     const controlPanelNode = (
       <div className={Styles.ControlPanelContainer}>
@@ -41,7 +49,7 @@ export default class ControlPanel extends Component {
             aria-controls={controlledElementId}
             className={Styles.Prev}
             onClick={handlePrevButtonClick}
-            refHolder={prevButtonRefHolder}
+            refHolder={prevButtonRH}
             type="button"
           >
             Prev
@@ -50,7 +58,7 @@ export default class ControlPanel extends Component {
             aria-controls={controlledElementId}
             className={Styles.Next}
             onClick={handleNextButtonClick}
-            refHolder={nextButtonRefHolder}
+            refHolder={nextButtonRH}
             type="button"
           >
             Next
@@ -59,7 +67,7 @@ export default class ControlPanel extends Component {
             aria-controls={controlledElementId}
             className={Styles.Cta}
             onClick={handleCTAButtonClick}
-            refHolder={submitButtonRefHolder}
+            refHolder={ctaButtonRH}
             type="button"
           >
             Submit
@@ -68,15 +76,32 @@ export default class ControlPanel extends Component {
       </div>
     )
 
-    /** @type {(button: "prev" | "next" | "cta") => HTMLElement} */
+    super(props, controlPanelNode)
+
+    /**
+     * @protected
+     * @readonly
+     * @type {GetAlternateFocusable}
+     */
     this.$alternateFocusableGetter = getAlternateFocusable
-    /** @type {HTMLButtonElement} */
-    this.$prevButton = prevButtonRefHolder.ref
-    /** @type {HTMLButtonElement} */
-    this.$nextButton = nextButtonRefHolder.ref
-    /** @type {HTMLButtonElement} */
-    this.$cta = submitButtonRefHolder.ref
-    return controlPanelNode
+    /**
+     * @protected
+     * @readonly
+     * @type {HTMLButtonElement}
+     */
+    this.$prevButton = prevButtonRH.ref
+    /**
+     * @protected
+     * @readonly
+     * @type {HTMLButtonElement}
+     */
+    this.$nextButton = nextButtonRH.ref
+    /**
+     * @protected
+     * @readonly
+     * @type {HTMLButtonElement}
+     */
+    this.$cta = ctaButtonRH.ref
   }
 
   /** @param {"next" | "prev" | "cta"} button */

@@ -1,4 +1,4 @@
-import { refHolder } from "@/core/base"
+import { rh } from "@/core/base"
 import Component from "@/core/component"
 import {
   addClasses,
@@ -7,6 +7,7 @@ import {
   hasClasses,
   removeClasses
 } from "@/lib/dom"
+import { assertIsDefined } from "@/lib/value"
 import Styles from "@/scss/progress.module.scss"
 
 const COMPLETION_LEVEL_BUTTON_CONTENT = "✓"
@@ -115,11 +116,12 @@ function setActiveLevel(progressLevels, levelIndex) {
   assertValidLevelIndex(levelIndex, progressLevels)
 
   const prevIndex = getActiveLevelIndex(progressLevels)
-  const levelToSet = progressLevels[levelIndex]
+  const levelToSet = /** @type {HTMLElement} */ (progressLevels[levelIndex])
 
   setProgressLevelState(levelToSet, "active")
   if (prevIndex !== levelIndex && prevIndex !== null) {
-    setProgressLevelState(progressLevels[prevIndex], "non-active")
+    const prevLevel = /** @type {HTMLElement} */ (progressLevels[prevIndex])
+    setProgressLevelState(prevLevel, "non-active")
   }
 }
 
@@ -154,10 +156,9 @@ function ProgressLevel({
  * @extends {Component<Props>}
  */
 export default class Progress extends Component {
-  $render() {
-    const {
-      $props: { levelsCount, lastAsCompletionLevel }
-    } = this
+  /** @param {Props} props  */
+  constructor(props) {
+    const { levelsCount, lastAsCompletionLevel } = props
 
     /** @type {HTMLElement[]} */
     const progressLevels = []
@@ -177,21 +178,21 @@ export default class Progress extends Component {
       )
     }
 
-    const listRootRefHolder = refHolder()
+    const listRootRH = /** @type {typeof rh<HTMLUListElement>} */ (rh)(null)
     const progressNode = (
       <div className={progressClasses.root} aria-hidden="true">
-        <ul className={progressClasses.list} refHolder={listRootRefHolder}>
+        <ul className={progressClasses.list} refHolder={listRootRH}>
           {[...progressLevels]}
         </ul>
       </div>
     )
 
-    /** @type {HTMLElement} */
-    this.$listRoot = listRootRefHolder.ref
+    super(props, progressNode)
+
+    /** @type {HTMLUListElement} */
+    this.$listRoot = listRootRH.ref
     /** @type {HTMLElement[]} */
     this.$progressLevels = progressLevels
-
-    return progressNode
   }
 
   activeLevelIndex() {
@@ -208,6 +209,7 @@ export default class Progress extends Component {
   hasCompletionLevel() {
     const lastProgressLevel =
       this.$progressLevels[this.$progressLevels.length - 1]
+    assertIsDefined(lastProgressLevel, "last progress level")
     return levelIsCompletionLevel(lastProgressLevel)
   }
 
@@ -227,7 +229,8 @@ export default class Progress extends Component {
    */
   simulateClick(levelIndex) {
     assertValidLevelIndex(levelIndex, this.$progressLevels)
-    const levelButton = getLevelButton(this.$progressLevels[levelIndex])
+    const level = /** @type {HTMLElement} */ (this.$progressLevels[levelIndex])
+    const levelButton = getLevelButton(level)
     const focused = attemptElementFocus(levelButton)
     levelButton.click()
     return focused

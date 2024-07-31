@@ -1,22 +1,36 @@
-/* eslint-disable no-param-reassign */
 import Styles from "@/scss/scroll-shadow.module.scss"
 
-const {
-  BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY,
-  TOP_SCROLL_SHADOW_SIZER_PROPERTY,
-  MAX_SUITABLE_SCROLL_SHADOW_SIZE
-} = Styles
+/**
+ * @typedef {{ top?: number, bottom?: number }} ScrollShadowMaxSizes
+ */
 
-const SCROLL_SHADOW_MAX_SUITABLE_SIZE = Number(MAX_SUITABLE_SCROLL_SHADOW_SIZE)
+// eslint-disable-next-line prefer-destructuring
+const BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY = /** @type {string} */ (
+  Styles.BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY
+)
 
+// eslint-disable-next-line prefer-destructuring
+const TOP_SCROLL_SHADOW_SIZER_PROPERTY = /** @type {string} */ (
+  Styles.TOP_SCROLL_SHADOW_SIZER_PROPERTY
+)
+
+const SCROLL_SHADOW_MAX_SUITABLE_SIZE = Number(
+  Styles.MAX_SUITABLE_SCROLL_SHADOW_SIZE
+)
+
+/** @param {number} number  */
 function clampToPositive(number) {
-  if (!Number.isFinite(number)) throw new TypeError("Expected a finite number")
   return number < 0 ? 0 : number
 }
 
 const adjustScrollShadow = (() => {
   let thereAreUnrenderedFrames = false
 
+  /**
+   * @param {HTMLElement} scrollableElement
+   * @param {HTMLElement} scrollShadow
+   * @param {ScrollShadowMaxSizes | undefined} [maxSizes]
+   */
   return (scrollableElement, scrollShadow, maxSizes) => {
     if (thereAreUnrenderedFrames) return
     window.requestAnimationFrame(() => {
@@ -68,11 +82,15 @@ const adjustScrollShadow = (() => {
   }
 })()
 
-export default function ScrollShadow(
-  { observerConfig, maxSizes },
-  scrollableElement
-) {
+/**
+ * @param {Object} param0
+ * @param {MutationObserverInit} [param0.observerConfig]
+ * @param {HTMLElement} param0.children
+ * @param {ScrollShadowMaxSizes} [param0.maxSizes]
+ */
+export default function ScrollShadow({ observerConfig, children, maxSizes }) {
   const scrollShadow = <div className={Styles.ScrollShadow} />
+  const scrollableElement = children
   const adjustAppropriateScrollShadow = adjustScrollShadow.bind(
     null,
     scrollableElement,
@@ -84,24 +102,21 @@ export default function ScrollShadow(
   scrollableElement.addEventListener("scroll", adjustAppropriateScrollShadow)
   new ResizeObserver(adjustAppropriateScrollShadow).observe(scrollableElement)
 
-  if (typeof observerConfig === "object" && observerConfig !== null) {
+  if (observerConfig) {
     new MutationObserver(adjustAppropriateScrollShadow).observe(
       scrollableElement,
       observerConfig
     )
   }
 
-  // Trigger scroll on element if it's initially scrollable to show scroll
-  // shadow. This is done asynchronously as it won't be effective if the element
-  // isn't yet mounted.
+  // Attempt to trigger scroll on element
   setTimeout(() => {
-    // Stored and reused in case the element has been scrolled down for some reason
+    /* eslint-disable no-param-reassign */
     const prevScrollTop = scrollableElement.scrollTop
     scrollableElement.scrollTop += 1
-
-    // If the previous scrollTop was the maximum, scrollTop won't change, so ...
     scrollableElement.scrollTop -= 1
     scrollableElement.scrollTop = prevScrollTop
+    /* eslint-enable no-param-reassign */
   }, 100)
 
   return (

@@ -60,10 +60,13 @@ function setSlideState(slide, state) {
  */
 function showSlide(slideNodes, slideIndex) {
   const currentIndex = getShownSlideIndex(slideNodes)
+  if (currentIndex === null) return
   if (currentIndex === slideIndex) return
 
   const currentNode = slideNodes[currentIndex]
   const nodeToShow = slideNodes[slideIndex]
+  assertIsDefined(currentNode, `current node: at index ${currentIndex}`)
+  assertIsDefined(nodeToShow, `node to show: at index ${slideIndex}`)
   setSlideState(currentNode, "hidden")
   setSlideState(nodeToShow, "shown")
 }
@@ -81,12 +84,13 @@ function Slide({ content }) {
 }
 
 /**
- * @template {PresentationProps} Props
+ * @template {PresentationProps} [Props=PresentationProps]
  * @extends {Component<Props>}
  */
 export default class Presentation extends Component {
-  $render() {
-    const { id, slides } = this.$props
+  /** @param {Props} props  */
+  constructor(props) {
+    const { id, slides } = props
 
     const slideContents = Array.from(new Set(slides))
     const slideNodes = slideContents.map((slideContent) => (
@@ -103,10 +107,13 @@ export default class Presentation extends Component {
       </div>
     )
 
-    /** @type {HTMLElement[]} */
-    this.$slideNodes = slideNodes
+    super(props, presentationNode)
 
-    return presentationNode
+    /**
+     * @readonly
+     * @protected
+     * @type {HTMLElement[]} */
+    this.$slideNodes = slideNodes
   }
 
   currentSlideIndex() {

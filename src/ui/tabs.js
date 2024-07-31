@@ -1,6 +1,7 @@
 import { AriaKeys } from "@/lib/accessibility"
 import { attemptElementFocus } from "@/lib/dom"
 import {
+  assertIsDefined,
   circularlyFindBackward,
   circularlyFindForward,
   findFirst,
@@ -13,7 +14,7 @@ import { UIComponent } from "./component"
  * @typedef {"event" | "api"} TabChangeSource
  * @typedef {(
  *   newTabName: string,
- *   oldTabName: string
+ *   oldTabName: string,
  *   source: TabChangeSource
  * ) => void | undefined} TabChangeHandler
  *
@@ -45,10 +46,11 @@ function throwInvalidTabNameError(tabName) {
 }
 
 /**
- * @extends {UIComponent<TabsConfig, TabsState>}
+ * @template {TabsConfig} Config
+ * @extends {UIComponent<Config, TabsState>}
  */
 export class Tabs extends UIComponent {
-  /** @param {TabsConfig} config */
+  /** @param {Config} config */
   constructor(config) {
     if (config.elements.tabItems.length < 1) {
       throw new Error("Expected one or more tab items")
@@ -97,6 +99,7 @@ export class Tabs extends UIComponent {
     UIComponent.setElementAttributes(elements.tablist.ref, attributes.tablist)
     elements.tabItems.forEach(({ refs }, index) => {
       const attrs = attributes.tabItems[index]
+      assertIsDefined(attrs, `tab item static attrs at index: ${index}`)
       UIComponent.setElementAttributes(refs.trigger, attrs.trigger)
       UIComponent.setElementAttributes(refs.content, attrs.content)
     })
@@ -107,8 +110,14 @@ export class Tabs extends UIComponent {
     const { activeTabIndex } = this.$state
     if (activeTabIndex === index) return
 
-    const oldTabName = this.$config.elements.tabItems[activeTabIndex].name
-    const newTabName = this.$config.elements.tabItems[index].name
+    const oldTabItem = this.$config.elements.tabItems[activeTabIndex]
+    const newTabItem = this.$config.elements.tabItems[index]
+
+    assertIsDefined(oldTabItem, `old tab item at index: ${activeTabIndex}`)
+    assertIsDefined(newTabItem, `new tab item at index: ${index}`)
+
+    const oldTabName = oldTabItem.name
+    const newTabName = newTabItem.name
 
     this.$state = /** @satisfies {TabsState} */ { activeTabIndex: index }
     this.render()
@@ -160,6 +169,7 @@ export class Tabs extends UIComponent {
   activeTab() {
     const { activeTabIndex } = this.$state
     const item = this.$config.elements.tabItems[activeTabIndex]
+    assertIsDefined(item, `active tab item at index: ${activeTabIndex}`)
 
     return {
       name: item.name,
@@ -218,6 +228,7 @@ export class Tabs extends UIComponent {
     const attributes = this.getManagedElementAttributeSets().tabItems
     this.$config.elements.tabItems.forEach(({ refs }, index) => {
       const attrs = attributes[index]
+      assertIsDefined(attrs, `tab item managed attrs at index: ${index}`)
       UIComponent.setElementAttributes(refs.trigger, attrs.trigger)
       UIComponent.setElementAttributes(refs.content, attrs.content)
     })
@@ -236,7 +247,9 @@ export class Tabs extends UIComponent {
     }
 
     const { activeTabIndex } = this.$state
-    const oldTabName = this.$config.elements.tabItems[activeTabIndex].name
+    const oldTabItem = this.$config.elements.tabItems[activeTabIndex]
+    assertIsDefined(oldTabItem, `old tab item at index: ${activeTabIndex}`)
+    const oldTabName = oldTabItem.name
 
     this.$state = /** @satisfies {TabsState} */ {
       activeTabIndex: intendedItemIndex

@@ -12,3 +12,6 @@
 
 # notes
 /__notes.js
+
+# ts
+tsconfig.tsbuildinfo

@@ -16,4 +16,5 @@ if (!containerQueriesAreSupported) {
   document.head.appendChild(script)
 }
 
+// @ts-expect-error
 window.Quiz = Quiz

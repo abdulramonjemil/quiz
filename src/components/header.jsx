@@ -15,14 +15,14 @@ const headerClasses = {
  * @param {Object} param0
  * @param {string} param0.labellingId
  * @param {HeaderLevel | null | undefined} param0.level
- * @param {string} content
+ * @param {string} param0.children
  */
-export default function Header({ labellingId, level }, content) {
+export default function Header({ labellingId, children, level }) {
   const HeadingLevel = level ?? "h2"
   return (
     <header className={headerClasses.root}>
       <HeadingLevel className={headerClasses.element} id={labellingId}>
-        {phraseToNode(content)}
+        {phraseToNode(children)}
       </HeadingLevel>
     </header>
   )

@@ -72,12 +72,14 @@ export function find({ array, startIndex, wrap, backward, predicate }) {
 
   // Iterate from startIndex to the end of the array
   for (let i = start; i < arr.length; i += 1) {
-    if (predicate(arr[i]) === true) return arr[i]
+    const item = /** @type {ArrayItem} */ (arr[i])
+    if (predicate(item) === true) return arr[i]
   }
 
   if (wrap) {
     for (let i = 0; i < start; i += 1) {
-      if (predicate(arr[i]) === true) return arr[i]
+      const item = /** @type {ArrayItem} */ (arr[i])
+      if (predicate(item) === true) return arr[i]
     }
   }
 
@@ -133,4 +135,18 @@ export const findLast = (array, predicate, highestIndex = array.length - 1) => {
     backward: true
   })
   return result
+}
+
+/**
+ * @template T
+ * @template {any[]} A
+ * @template {any[]} B
+ * @template R
+ * @param {(this: T, ...params: [...A, ...B]) => R} func
+ * @param {() => T} getThis
+ * @param {A} params1
+ */
+export function bind(func, getThis, ...params1) {
+  /** @param {B} params2 */
+  return (...params2) => func.call(getThis(), ...params1, ...params2)
 }

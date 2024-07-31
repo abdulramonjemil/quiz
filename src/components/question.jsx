@@ -8,15 +8,31 @@ import {
   removeClasses,
   toggleClasses
 } from "@/lib/dom"
+
 import { uniqueId } from "@/lib/id"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/question.module.scss"
-import { assertIsInstanceRefHolder, refHolder } from "@/core/base"
+import { rh } from "@/core/base"
 import ScrollShadow from "./scroll-shadow"
 
 /**
  * @template {any} T
  * @typedef {import("@/core/base").RefHolder<T>} RefHolder
+ */
+
+/**
+ * @typedef {0 | 1 | 2 | 3 | (number & {})} OptionIndex
+ * @typedef {{
+ *   selectedOptionIndex: OptionIndex;
+ * }} AnswerSelectionData
+ *
+ * @typedef {{
+ *   title: string,
+ *   answerIndex: OptionIndex
+ *   options: string[],
+ *   explanation?: string | undefined,
+ *   handleOptionChange: (index: OptionIndex) => void
+ * }} QuestionProps
  */
 
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
@@ -47,21 +63,6 @@ const questionClasses = {
   explDivider: cn("quiz-question-expl-divider", Styles.Explanation__Divider),
   explContent: cn("quiz-question-expl-content", Styles.Explanation__Content)
 }
-
-/**
- * @typedef {0 | 1 | 2 | 3} OptionIndex
- * @typedef {{
- *   selectedOptionIndex: OptionIndex;
- * }} AnswerSelectionData
- *
- * @typedef {{
- *   title: string,
- *   answerIndex: OptionIndex
- *   options: string[],
- *   explanation?: string | undefined,
- *   handleOptionChange: (index: OptionIndex) => void
- * }} QuestionProps
- */
 
 /**
  * @param {number} index
@@ -193,20 +194,19 @@ function Option({ handleOptionChange, index, name, text }) {
 
 /**
  * @param {Object} param0
- * @param {string} param0.content
+ * @param {string} [param0.content]
  */
 function Explanation({ content }) {
   if (typeof content !== "string" || content === "") {
     return <div />
   }
 
-  const rootRefHolder = refHolder()
+  const rootRefHolder = /** @type {typeof rh<HTMLDivElement>} */ (rh)(null)
   return (
     <div className={questionClasses.explRoot.base} refHolder={rootRefHolder}>
       <button
         className={questionClasses.explButton}
         onClick={() => {
-          assertIsInstanceRefHolder(rootRefHolder, HTMLElement)
           toggleClasses(rootRefHolder.ref, questionClasses.explRoot.shown)
         }}
         type="button"
@@ -220,17 +220,18 @@ function Explanation({ content }) {
 }
 
 /**
- * @template {QuestionProps} Props
+ * @template {QuestionProps} [Props=QuestionProps]
  * @extends {Component<Props>}
  */
 export default class Question extends Component {
-  $render() {
+  /** @param {Props} props */
+  constructor(props) {
     const { answerIndex, explanation, handleOptionChange, options, title } =
-      this.$props
+      props
 
-    const fieldSetRefHolder = refHolder()
-    const explanationRefHolder = refHolder()
-    const questionNodeRefHolder = refHolder()
+    const fieldSetRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
+    const explanationRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
+    const questionRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
 
     const groupingName = uniqueId()
     const optionNodes = options.map((option, index) => (
@@ -251,11 +252,8 @@ export default class Question extends Component {
             subtree: true
           }}
         >
-          <div
-            className={questionClasses.root}
-            refHolder={questionNodeRefHolder}
-          >
-            <fieldset refHolder={fieldSetRefHolder}>
+          <div className={questionClasses.root} refHolder={questionRH}>
+            <fieldset refHolder={fieldSetRH}>
               <legend className={questionClasses.title}>
                 {phraseToNode(title)}
               </legend>
@@ -264,27 +262,23 @@ export default class Question extends Component {
               </div>
             </fieldset>
 
-            <Explanation
-              content={explanation}
-              nodeRefHolder={explanationRefHolder}
-            />
+            <Explanation content={explanation} nodeRefHolder={explanationRH} />
           </div>
         </ScrollShadow>
       </div>
     )
 
-    /** @type {HTMLFieldSetElement} */
-    const fieldSet = fieldSetRefHolder.ref
+    super(props, questionNode)
+
+    const fieldSet = /** @type {HTMLFieldSetElement} */ (fieldSetRH.ref)
     const optionInputs = Array.from(fieldSet.getElementsByTagName("input"))
 
     this.$elements = {
-      explanation: /** @type {HTMLElement} */ (explanationRefHolder.ref),
+      explanation: explanationRH.ref,
       fieldSet,
       optionInputs,
-      answerInput: optionInputs[answerIndex]
+      answerInput: /** @type {HTMLInputElement} */ (optionInputs[answerIndex])
     }
-
-    return questionNode
   }
 
   correctAnswerIsPicked() {
@@ -297,7 +291,7 @@ export default class Question extends Component {
     const { $elements } = this
 
     const selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
-    if (selectedOptionInput !== undefined) {
+    if (selectedOptionInput !== null) {
       setOptionSelectionState(selectedOptionInput, "deselected")
       styleOption(selectedOptionInput, "reset")
     }
@@ -320,7 +314,7 @@ export default class Question extends Component {
   }
 
   /** @param {number | null | undefined} selectedOptionIndex */
-  finalize(selectedOptionIndex) {
+  finalize(selectedOptionIndex = null) {
     const { $elements } = this
     /** @type {HTMLInputElement | null} */
     let selectedOptionInput = null
@@ -330,7 +324,9 @@ export default class Question extends Component {
       if (!selectedOptionInput) throw new Error("No answer is selected")
     } else {
       assertValidOptionIndex(selectedOptionIndex, $elements.optionInputs)
-      selectedOptionInput = $elements.optionInputs[selectedOptionIndex]
+      selectedOptionInput = /** @type {HTMLInputElement} */ (
+        $elements.optionInputs[selectedOptionIndex]
+      )
       setOptionSelectionState(selectedOptionInput, "selected")
     }
 

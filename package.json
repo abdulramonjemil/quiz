@@ -9,10 +9,14 @@
   "scripts": {
     "build": "webpack --config webpack.prod.js",
     "dev": "webpack serve --config webpack.dev.js",
-    "format": "prettier --write .",
-    "lint": "eslint --ext .js,.jsx ./ && stylelint src/scss/**/*.scss",
+    "lint": "npm run lint:css && npm run lint:js",
+    "lint:css": "stylelint src/scss/**/*.scss",
+    "lint:js": "eslint --ext .js,.jsx ./",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write .",
     "prepare": "husky install",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "type:check": "tsc -p tsconfig.json --noEmit"
   },
   "author": "Abdulramon Jemil",
   "keywords": [
@@ -23,7 +27,6 @@
     "@babel/cli": "^7.20.7",
     "@babel/core": "^7.20.12",
     "@babel/plugin-transform-react-jsx": "^7.20.13",
-    "@types/react": "^18.3.3",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^4.2.2",
@@ -53,6 +56,8 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
-    "prismjs": "^1.29.0"
+    "@types/prismjs": "^1.26.4",
+    "prismjs": "^1.29.0",
+    "typescript": "^5.5.4"
   }
 }

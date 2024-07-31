@@ -1,10 +1,8 @@
-import { refHolder } from "@/core/base"
+import { rh } from "@/core/base"
 import Component from "@/core/component"
 import { css } from "@/lib/dom"
-import styles from "@/scss/result.module.scss"
+import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
-
-const Styles = /** @type {Record<string, string>} */ (styles)
 
 /**
  * @typedef {{
@@ -20,11 +18,19 @@ const INDICATOR_CIRCLE_CIRCUMFERENCE = Number(
   Styles.INDICATOR_CIRCLE_CIRCUMFERENCE
 )
 
-const { INDICATOR_CIRCLE_FINAL_DASHOFFSET_CSS_VAR, RESULT_PERCENTAGE_CSS_VAR } =
-  Styles
+// eslint-disable-next-line prefer-destructuring
+const INDICATOR_CIRCLE_FINAL_DASHOFFSET_CSS_VAR = /** @type {string} */ (
+  Styles.INDICATOR_CIRCLE_FINAL_DASHOFFSET_CSS_VAR
+)
 
-/** @type {string} */
-const TRANSITION_ANIMATED_INDICATOR_CLASS = Styles.Indicator_transitionAnimated
+// eslint-disable-next-line prefer-destructuring
+const RESULT_PERCENTAGE_CSS_VAR = /** @type {string} */ (
+  Styles.RESULT_PERCENTAGE_CSS_VAR
+)
+
+const TRANSITION_ANIMATED_INDICATOR_CLASS = /** @type {string} */ (
+  Styles.Indicator_transitionAnimated
+)
 
 /** @param {number} percentageValue */
 function getIndicatorCircleDashoffset(percentageValue) {
@@ -74,8 +80,8 @@ function renderResultIndicator(
 }
 
 function Indicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
-  const indicatorRefHolder = refHolder()
-  const percentValueRefHolder = refHolder()
+  const indicatorRefHolder = rh()
+  const percentValueRefHolder = rh()
   const dashoffset = getIndicatorCircleDashoffset(scoredPercentage)
 
   const resultIndicatorNode = (
@@ -150,14 +156,15 @@ function Remark({ answersGotten, handleExplanationBtnClick, questionsCount }) {
  * @extends {Component<Props>}
  */
 export default class Result extends Component {
-  $render() {
-    const { handleExplanationBtnClick, questionsCount } = this.$props
-    const placeholderRefHolder = refHolder()
+  /** @param {Props} props */
+  constructor(props) {
+    const { handleExplanationBtnClick, questionsCount } = props
+    const placeholderRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
 
     /** @type {(answersGotten: number) => void} */
     const finalizeResultFn = (answersGotten) => {
       const indicatorRenderFnRefHolder = {}
-      const placeholder = /** @type {Element} */ (placeholderRefHolder.ref)
+      const placeholder = /** @type {Element} */ (placeholderRH.ref)
       const scoredPercentage = Math.floor(
         (answersGotten / questionsCount) * 100
       )
@@ -184,13 +191,14 @@ export default class Result extends Component {
 
     const resultNode = (
       <div className={Styles.ResultWrapper}>
-        <div refHolder={placeholderRefHolder} />
+        <div refHolder={placeholderRH} />
       </div>
     )
 
+    super(props, resultNode)
+
     this.$isFinalized = false
     this.$finalizeResultFn = finalizeResultFn
-    return resultNode
   }
 
   /** @param {number} answersGotten */

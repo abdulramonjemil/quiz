@@ -7,7 +7,7 @@ import {
 /**
  * @typedef {HTMLElement |
  *   { ref: HTMLElement, [key: string]: unknown } |
- *   { ref: Record<string, HTMLElement>, [key: string]: unknown }
+ *   { refs: Record<string, HTMLElement>, [key: string]: unknown }
  * } ElementConfig
  *
  * @typedef {{elements: Record<
@@ -98,12 +98,14 @@ export class UIComponent {
   // eslint-disable-next-line class-methods-use-this
   getManagedElementAttributeSets() {
     throwAbsentMethodError(this.constructor, "getManagedElementAttributeSets")
+    return {} // prevent TS Error
   }
 
   /** @type {() => UIComponentElementsAttributeSet} */
   // eslint-disable-next-line class-methods-use-this
   getStaticElementAttributeSets() {
     throwAbsentMethodError(this.constructor, "getStaticElementAttributeSets")
+    return {} // prevent TS Error
   }
 
   /**

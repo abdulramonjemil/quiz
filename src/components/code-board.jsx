@@ -4,7 +4,7 @@ import "prismjs/plugins/autoloader/prism-autoloader"
 
 import { phraseToNode } from "@/core/content-parser"
 import Styles from "@/scss/code-board.module.scss"
-import { refHolder } from "@/core/base"
+import { rh } from "@/core/base"
 import { cn } from "@/lib/dom"
 
 /**
@@ -46,7 +46,7 @@ export function loadPrismTheme(url) {
   document.head.prepend(linkToInsert)
 }
 
-window.Prism = window.Prism || {}
+window.Prism = window.Prism || /** @type {typeof Prism} */ ({})
 Prism.plugins.autoloader.languages_path = PRISMJS_COMPONENTS_CDN_URL
 Prism.manual = true
 
@@ -60,7 +60,8 @@ export default function CodeBoard({ title, language, snippet, theme }) {
   if (defaultThemed) loadPrismTheme(DEFAULT_PRISM_THEME_URL)
   else if (customThemed) loadPrismTheme(theme)
 
-  const codeRefHolder = refHolder()
+  const codeRefHolder = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
+
   const codeBoardNode = (
     <div className={codeClasses.root}>
       <p className={codeClasses.title}>{phraseToNode(title)}</p>
@@ -79,6 +80,7 @@ export default function CodeBoard({ title, language, snippet, theme }) {
       </div>
     </div>
   )
+
   Prism.highlightElement(codeRefHolder.ref)
   return codeBoardNode
 }
