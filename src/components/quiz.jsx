@@ -93,7 +93,8 @@ import ControlPanel from "./control-panel"
  *   } | null | undefined,
  *   customRootClass?: string | null | undefined,
  *   headerLevel?: HeaderLevel | null | undefined,
- *   codeBoardTheme?: CodeBoardProps["theme"]
+ *   codeBoardTheme?: CodeBoardProps["theme"],
+ *   getResultSummaryText?: ResultProps["getSummaryText"]
  * }} QuizProps
  *
  * @typedef {Question | Result | null} QuizElementInstance
@@ -140,15 +141,17 @@ function assertValidQuizPropsElementConfig(elements) {
  * @param {{
  *   elements: QuizSlideElement[],
  *   codeBoardTheme: QuizProps["codeBoardTheme"]
+ *   getResultSummaryText: ResultProps["getSummaryText"],
  *   handleQuestionOptionChange: () => void,
- *   handleResultExplanationBtnClick: ResultProps["handleExplanationBtnClick"]
+ *   handleResultCTAButtonClick: ResultProps["handleCTAButtonClick"]
  * }} param0
  */
 function buildQuizSlideElements({
   elements,
   codeBoardTheme,
+  getResultSummaryText,
   handleQuestionOptionChange,
-  handleResultExplanationBtnClick
+  handleResultCTAButtonClick
 }) {
   /** @type {HTMLElement[]} */
   const elementNodes = []
@@ -193,7 +196,8 @@ function buildQuizSlideElements({
       slideNode = (
         <Result
           questionsCount={questionsCount}
-          handleExplanationBtnClick={handleResultExplanationBtnClick}
+          getSummaryText={getResultSummaryText}
+          handleCTAButtonClick={handleResultCTAButtonClick}
           instanceRefHolder={resultRH}
         />
       )
@@ -757,7 +761,8 @@ export default class Quiz extends Component {
       finalized,
       header,
       headerLevel,
-      codeBoardTheme
+      codeBoardTheme,
+      getResultSummaryText
     } = props
 
     assertValidQuizPropsElementConfig(elements)
@@ -770,11 +775,9 @@ export default class Quiz extends Component {
     const { elementNodes, elementInstances } = buildQuizSlideElements({
       elements: fullQuizElements,
       codeBoardTheme,
+      getResultSummaryText,
       handleQuestionOptionChange: bind(p.$handleQuestionOptionChange, getThis),
-      handleResultExplanationBtnClick: bind(
-        p.$handleResultExplanationBtnClick,
-        getThis
-      )
+      handleResultCTAButtonClick: bind(p.$handleResultCTAButtonClick, getThis)
     })
 
     const resultIndex = elementInstances.length - 1
@@ -1014,7 +1017,7 @@ export default class Quiz extends Component {
     this.$revalidate(currentSlideIndex)
   }
 
-  $handleResultExplanationBtnClick() {
+  $handleResultCTAButtonClick() {
     this.$revalidate(0)
     attemptElementFocus(this.$tabs.activeTab().content)
   }

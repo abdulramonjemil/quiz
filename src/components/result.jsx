@@ -1,17 +1,20 @@
-import { rh } from "@/core/base"
 import Component from "@/core/component"
-import { css } from "@/lib/dom"
+import { rh } from "@/core/base"
+import { phraseToNode } from "@/core/content-parser"
+import { Slot } from "@/core/slot"
+import { addClasses, cn, css } from "@/lib/dom"
 import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
 
 /**
+ * @typedef {(questionsCount: number, answersGotten: number) => string} GetSummaryText
  * @typedef {{
- *   handleExplanationBtnClick: () => void,
- *   questionsCount: number
+ *   questionsCount: number,
+ *   getSummaryText?: GetSummaryText | null | undefined,
+ *   handleCTAButtonClick: (event: MouseEvent) => void,
  * }} ResultProps
  */
 
-const DEFAULT_RESULT_PERCENTAGE_VALUE = 0
 const INDICATOR_CIRCLE_ANIMATION_DURATION_MS =
   Number(Styles.INDICATOR_CIRCLE_ANIMATION_DURATION_SECS) * 1000
 const INDICATOR_CIRCLE_CIRCUMFERENCE = Number(
@@ -28,76 +31,107 @@ const RESULT_PERCENTAGE_CSS_VAR = /** @type {string} */ (
   Styles.RESULT_PERCENTAGE_CSS_VAR
 )
 
-const TRANSITION_ANIMATED_INDICATOR_CLASS = /** @type {string} */ (
-  Styles.Indicator_transitionAnimated
-)
-
-/** @param {number} percentageValue */
-function getIndicatorCircleDashoffset(percentageValue) {
-  return ((100 - percentageValue) / 100) * INDICATOR_CIRCLE_CIRCUMFERENCE
+const resultClasses = {
+  wrapper: cn("quiz-result-wrapper", Styles.ResultWrapper),
+  root: cn("quiz-result", Styles.Result),
+  indicatorRoot: {
+    base: cn("quiz-result-indicator", Styles.Indicator),
+    transitionAnimated: cn(
+      "quiz-result-indicator--animated",
+      Styles.Indicator_transitionAnimated
+    )
+  },
+  indicatorOuterShadow: cn([
+    "quiz-result-indicator-outershadow",
+    Styles.Indicator__OuterShadow
+  ]),
+  indicatorInnerShadow: cn([
+    "quiz-result-indicator-innershadow",
+    Styles.Indicator__InnerShadow
+  ]),
+  indicatorSVG: cn("quiz-result-indicator-svg", Styles.Indicator__SVG),
+  indicatorCircle: cn("quiz-result-indicator-circle", Styles.Indicator__Circle),
+  indicatorPercent: cn([
+    "quiz-result-indicator-percent",
+    Styles.Indicator__Percent
+  ]),
+  indicatorPercentSymbol: cn([
+    "quiz-result-indicator-percent-symbol",
+    Styles.Indicator__PercentSymbol
+  ]),
+  summaryRoot: cn("quiz-result-summary", Styles.Summary),
+  summaryText: cn("quiz-result-summary-text", Styles.Summary__Text),
+  summaryButton: cn("quiz-result-summary-button", Styles.Summary__Button)
 }
 
-function renderResultIndicator(
+/**
+ * @param {Object} param0
+ * @param {HTMLElement} param0.indicator
+ * @param {(value: number) => void} param0.setPercentValue
+ * @param {number} param0.scoredPercentage
+ */
+function animateIndicatorPercentValue({
   indicator,
-  percentValueContainer,
-  scoredPercentage
-) {
-  const totalValueToAnimate = scoredPercentage - DEFAULT_RESULT_PERCENTAGE_VALUE
-  let startTime = null
-  let lastFrameTime = null
+  scoredPercentage,
+  setPercentValue
+}) {
+  const duration = INDICATOR_CIRCLE_ANIMATION_DURATION_MS
+  let startTime = /** @type {DOMHighResTimeStamp | null} */ (null)
+  let lastFrameTime = /** @type {DOMHighResTimeStamp | null} */ (0)
 
-  function setPercentValue(time) {
+  /** @param {DOMHighResTimeStamp} time */
+  const animate = (time) => {
     if (startTime === null) startTime = time
     const elapsedTime = time - startTime
-    const shouldBeTheLastFrame =
-      elapsedTime >= INDICATOR_CIRCLE_ANIMATION_DURATION_MS
+    const animationShouldStop = elapsedTime >= duration
 
-    if (time !== lastFrameTime) {
-      const percentValueToSet = shouldBeTheLastFrame
-        ? scoredPercentage
-        : Math.floor(
-            DEFAULT_RESULT_PERCENTAGE_VALUE +
-              (elapsedTime / INDICATOR_CIRCLE_ANIMATION_DURATION_MS) *
-                totalValueToAnimate
-          )
-
-      // eslint-disable-next-line no-param-reassign
-      percentValueContainer.innerText = percentValueToSet
-      lastFrameTime = time
+    if (time === lastFrameTime) {
+      if (!animationShouldStop) window.requestAnimationFrame(animate)
+      return
     }
 
-    if (!shouldBeTheLastFrame) {
-      window.requestAnimationFrame(setPercentValue)
-    }
+    const nextPercentValue = animationShouldStop
+      ? scoredPercentage
+      : Math.floor((elapsedTime / duration) * scoredPercentage)
+    setPercentValue(nextPercentValue)
+    lastFrameTime = time
+    if (!animationShouldStop) window.requestAnimationFrame(animate)
   }
 
-  window.requestAnimationFrame(setPercentValue)
-  // The settimeout is needed to trigger the animation by transition since
-  // without it, the transition wouldn't take effect.
+  window.requestAnimationFrame(animate)
   setTimeout(() => {
-    indicator.classList.add(TRANSITION_ANIMATED_INDICATOR_CLASS)
+    addClasses(indicator, resultClasses.indicatorRoot.transitionAnimated)
   }, 0)
 }
 
-function Indicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
-  const indicatorRefHolder = rh()
-  const percentValueRefHolder = rh()
-  const dashoffset = getIndicatorCircleDashoffset(scoredPercentage)
+/** @param {number} scoredPercentage */
+function getCircleDashoffset(scoredPercentage) {
+  return ((100 - scoredPercentage) / 100) * INDICATOR_CIRCLE_CIRCUMFERENCE
+}
 
-  const resultIndicatorNode = (
+/**
+ * @param {Object} param0
+ * @param {number} param0.scoredPercentage
+ */
+function Indicator({ scoredPercentage }) {
+  const indicatorRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
+  const percentValueRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
+  const dashoffset = getCircleDashoffset(scoredPercentage)
+
+  const indicatorNode = (
     <div
-      className={Styles.Indicator}
+      className={resultClasses.indicatorRoot.base}
       role="presentation"
-      refHolder={indicatorRefHolder}
+      refHolder={indicatorRH}
       style={css([
         [RESULT_PERCENTAGE_CSS_VAR, scoredPercentage],
         [INDICATOR_CIRCLE_FINAL_DASHOFFSET_CSS_VAR, dashoffset]
       ])}
     >
-      <div className={Styles.Indicator__OuterShadow} />
-      <div className={Styles.Indicator__InnerShadow} />
+      <div className={resultClasses.indicatorOuterShadow} />
+      <div className={resultClasses.indicatorInnerShadow} />
       <svg
-        class={Styles.Indicator__SVG}
+        class={resultClasses.indicatorSVG}
         height="100"
         version="1.1"
         viewBox="0 0 100 100"
@@ -110,42 +144,71 @@ function Indicator({ indicatorRenderFnRefHolder, scoredPercentage }) {
             <stop offset="100%" stop-color={Styles.RESULT_SECONDARY_COLOR} />
           </linearGradient>
         </defs>
-
-        {/* Inspect this circle in devtools to see how the styling for it works */}
-        <circle class={Styles.Indicator__Circle} cx="50" cy="50" r="50" />
+        <circle class={resultClasses.indicatorCircle} cx="50" cy="50" r="50" />
       </svg>
-      <div className={Styles.Indicator__Percent}>
-        <span refHolder={percentValueRefHolder}>
-          {DEFAULT_RESULT_PERCENTAGE_VALUE}
-        </span>
-        <span className={Styles.Indicator__PercentSymbol}>%</span>
+
+      <div className={resultClasses.indicatorPercent}>
+        <span refHolder={percentValueRH} />
+        <span className={resultClasses.indicatorPercentSymbol}>%</span>
       </div>
     </div>
   )
 
-  // eslint-disable-next-line no-param-reassign
-  indicatorRenderFnRefHolder.ref = renderResultIndicator.bind(
-    null,
-    indicatorRefHolder.ref,
-    percentValueRefHolder.ref,
-    scoredPercentage
-  )
-  return resultIndicatorNode
+  animateIndicatorPercentValue({
+    scoredPercentage,
+    indicator: indicatorRH.ref,
+    setPercentValue: (value) => {
+      percentValueRH.ref.innerText = `${value}`
+    }
+  })
+  return indicatorNode
 }
 
-function Remark({ answersGotten, handleExplanationBtnClick, questionsCount }) {
+/**
+ * @param {Object} param0
+ * @param {number} param0.answersGotten
+ * @param {ResultProps["getSummaryText"]} param0.getSummaryText
+ * @param {(event: MouseEvent) => void} param0.handleCTAButtonClick
+ * @param {number} param0.questionsCount
+ */
+function Remark({
+  answersGotten,
+  questionsCount,
+  getSummaryText,
+  handleCTAButtonClick
+}) {
+  const encouragement = (() => {
+    const percent = Math.floor((answersGotten / questionsCount) * 100)
+    if (percent < 20) return "Keep trying!"
+    if (percent < 40) return "Good start!"
+    if (percent < 60) return "Well done!"
+    if (percent < 80) return "Great effort!"
+    if (percent !== 100) return "Almost there!"
+    return "Excellent!"
+  })()
+
   return (
-    <div className={Styles.Remark}>
-      <p className={Styles.Remark__Text}>
-        You answered <em>{answersGotten}</em> of <em>{questionsCount}</em>{" "}
-        questions correctly. Please review explanations given for each question.
+    <div className={resultClasses.summaryRoot}>
+      <p className={resultClasses.summaryText}>
+        {getSummaryText && (
+          <span>
+            {phraseToNode(getSummaryText(questionsCount, answersGotten))}
+          </span>
+        )}
+        {!getSummaryText && (
+          <span>
+            {encouragement} You correctly answered <em>{answersGotten}</em> of{" "}
+            <em>{questionsCount}</em> questions. Take a moment to review your
+            answers.
+          </span>
+        )}
       </p>
       <button
-        className={Styles.Remark__Button}
-        onClick={handleExplanationBtnClick}
+        className={resultClasses.summaryButton}
+        onClick={handleCTAButtonClick}
         type="submit"
       >
-        Review Explanations
+        Review Answers
       </button>
     </div>
   )
@@ -158,52 +221,47 @@ function Remark({ answersGotten, handleExplanationBtnClick, questionsCount }) {
 export default class Result extends Component {
   /** @param {Props} props */
   constructor(props) {
-    const { handleExplanationBtnClick, questionsCount } = props
-    const placeholderRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
-
-    /** @type {(answersGotten: number) => void} */
-    const finalizeResultFn = (answersGotten) => {
-      const indicatorRenderFnRefHolder = {}
-      const placeholder = /** @type {Element} */ (placeholderRH.ref)
-      const scoredPercentage = Math.floor(
-        (answersGotten / questionsCount) * 100
-      )
-
-      const actualResultNode = (
-        <ScrollShadow maxSizes={{ bottom: 25 }}>
-          <div className={Styles.Result}>
-            <Indicator
-              scoredPercentage={scoredPercentage}
-              indicatorRenderFnRefHolder={indicatorRenderFnRefHolder}
-            />
-            <Remark
-              answersGotten={answersGotten}
-              handleExplanationBtnClick={handleExplanationBtnClick}
-              questionsCount={questionsCount}
-            />
-          </div>
-        </ScrollShadow>
-      )
-
-      placeholder.replaceWith(actualResultNode)
-      indicatorRenderFnRefHolder.ref.call()
-    }
+    /** @typedef {(answersGotten: number) => any} Finalizer */
+    const RSlot = /** @type {typeof Slot<Finalizer>} */ (Slot)
+    const slotRH = /** @type {typeof rh<Slot<Finalizer>>} */ (rh)(null)
+    const { getSummaryText, handleCTAButtonClick, questionsCount } = props
 
     const resultNode = (
-      <div className={Styles.ResultWrapper}>
-        <div refHolder={placeholderRH} />
+      <div className={resultClasses.wrapper}>
+        <RSlot instanceRefHolder={slotRH} placeholder={<div />}>
+          {(answersGotten) => {
+            const scoredPercentage = Math.floor(
+              (answersGotten / questionsCount) * 100
+            )
+            return (
+              <ScrollShadow maxSizes={{ bottom: 25 }}>
+                <div className={resultClasses.root}>
+                  <Indicator scoredPercentage={scoredPercentage} />
+                  <Remark
+                    answersGotten={answersGotten}
+                    getSummaryText={getSummaryText}
+                    handleCTAButtonClick={handleCTAButtonClick}
+                    questionsCount={questionsCount}
+                  />
+                </div>
+              </ScrollShadow>
+            )
+          }}
+        </RSlot>
       </div>
     )
 
     super(props, resultNode)
-
+    /** @private */
+    this.$slot = slotRH.ref
+    /** @private */
     this.$isFinalized = false
-    this.$finalizeResultFn = finalizeResultFn
   }
 
   /** @param {number} answersGotten */
   finalize(answersGotten) {
-    this.$finalizeResultFn.call(null, answersGotten)
+    if (this.$isFinalized) return
+    this.$slot.revalidate(answersGotten)
     this.$isFinalized = true
   }
 
