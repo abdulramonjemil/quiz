@@ -84,7 +84,7 @@ import ControlPanel from "./control-panel"
  *
  * @typedef {{
  *   header: string,
- *   elements: QuizInquiryElement[] | FinalizedQuizInquiryElement[],
+ *   elements: (QuizInquiryElement | FinalizedQuizInquiryElement)[],
  *   finalized: boolean,
  *   onSubmit?: ((data: QuizSubmissionCallbackData) => void) | undefined,
  *   autosave?: {

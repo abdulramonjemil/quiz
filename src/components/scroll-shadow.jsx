@@ -1,3 +1,4 @@
+import { cn } from "@/lib/dom"
 import Styles from "@/scss/scroll-shadow.module.scss"
 
 /**
@@ -18,13 +19,17 @@ const SCROLL_SHADOW_MAX_SUITABLE_SIZE = Number(
   Styles.MAX_SUITABLE_SCROLL_SHADOW_SIZE
 )
 
+const scrollShadowClasses = {
+  root: cn("quiz-scroll-shadow", Styles.ScrollShadow)
+}
+
 /** @param {number} number  */
-function clampToPositive(number) {
+function toPositive(number) {
   return number < 0 ? 0 : number
 }
 
-const adjustScrollShadow = (() => {
-  let thereAreUnrenderedFrames = false
+const createAdjustScrollShadow = () => {
+  let scheduledFrame = /** @type {number | null} */ (null)
 
   /**
    * @param {HTMLElement} scrollableElement
@@ -32,55 +37,37 @@ const adjustScrollShadow = (() => {
    * @param {ScrollShadowMaxSizes | undefined} [maxSizes]
    */
   return (scrollableElement, scrollShadow, maxSizes) => {
-    if (thereAreUnrenderedFrames) return
-    window.requestAnimationFrame(() => {
-      const {
-        clientHeight,
-        scrollHeight,
-        scrollTop: scrolledTopDistance
-      } = scrollableElement
+    if (scheduledFrame !== null) {
+      window.cancelAnimationFrame(scheduledFrame)
+    }
 
-      const scrolledBottomDistance =
-        scrollHeight - scrolledTopDistance - clientHeight
+    scheduledFrame = window.requestAnimationFrame(() => {
+      const { clientHeight, scrollHeight, scrollTop } = scrollableElement
+      const scrollBottom = scrollHeight - scrollTop - clientHeight
 
-      const maxTopSuitableSizeToUse =
-        typeof maxSizes?.top === "number"
-          ? maxSizes.top
-          : SCROLL_SHADOW_MAX_SUITABLE_SIZE
+      const maxTop = maxSizes?.top ?? SCROLL_SHADOW_MAX_SUITABLE_SIZE
+      const maxBottom = maxSizes?.bottom ?? SCROLL_SHADOW_MAX_SUITABLE_SIZE
 
-      const maxBottomSuitableSizeToUse =
-        typeof maxSizes?.bottom === "number"
-          ? maxSizes.bottom
-          : SCROLL_SHADOW_MAX_SUITABLE_SIZE
-
-      const topShadowSizeToUse =
-        scrolledTopDistance / 2 > maxTopSuitableSizeToUse
-          ? maxTopSuitableSizeToUse
-          : scrolledTopDistance / 2
-
-      const bottomShadowSizeToUse =
-        scrolledBottomDistance / 2 > maxBottomSuitableSizeToUse
-          ? maxBottomSuitableSizeToUse
-          : scrolledBottomDistance / 2
+      const topShadowSize = scrollTop / 2 > maxTop ? maxTop : scrollTop / 2
+      const bottomShadowSize =
+        scrollBottom / 2 > maxBottom ? maxBottom : scrollBottom / 2
 
       // Numbers are clamped because they're sometimes negative (as noticed on
       // chrome for android)
       scrollShadow.style.setProperty(
         TOP_SCROLL_SHADOW_SIZER_PROPERTY,
-        `${clampToPositive(topShadowSizeToUse)}px`
+        `${toPositive(topShadowSize)}px`
       )
 
       scrollShadow.style.setProperty(
         BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY,
-        `${clampToPositive(bottomShadowSizeToUse)}px`
+        `${toPositive(bottomShadowSize)}px`
       )
 
-      thereAreUnrenderedFrames = false
+      scheduledFrame = null
     })
-
-    thereAreUnrenderedFrames = true
   }
-})()
+}
 
 /**
  * @param {Object} param0
@@ -89,35 +76,24 @@ const adjustScrollShadow = (() => {
  * @param {ScrollShadowMaxSizes} [param0.maxSizes]
  */
 export default function ScrollShadow({ observerConfig, children, maxSizes }) {
-  const scrollShadow = <div className={Styles.ScrollShadow} />
+  const scrollShadow = <div className={scrollShadowClasses.root} />
   const scrollableElement = children
-  const adjustAppropriateScrollShadow = adjustScrollShadow.bind(
-    null,
-    scrollableElement,
-    scrollShadow,
-    maxSizes
-  )
-
-  /* eslint-disable-next-line react/destructuring-assignment */
-  scrollableElement.addEventListener("scroll", adjustAppropriateScrollShadow)
-  new ResizeObserver(adjustAppropriateScrollShadow).observe(scrollableElement)
-
-  if (observerConfig) {
-    new MutationObserver(adjustAppropriateScrollShadow).observe(
-      scrollableElement,
-      observerConfig
-    )
+  const adjustShadow = () => {
+    createAdjustScrollShadow()(scrollableElement, scrollShadow, maxSizes)
   }
 
-  // Attempt to trigger scroll on element
-  setTimeout(() => {
-    /* eslint-disable no-param-reassign */
-    const prevScrollTop = scrollableElement.scrollTop
-    scrollableElement.scrollTop += 1
-    scrollableElement.scrollTop -= 1
-    scrollableElement.scrollTop = prevScrollTop
-    /* eslint-enable no-param-reassign */
-  }, 100)
+  /* eslint-disable-next-line react/destructuring-assignment */
+  scrollableElement.addEventListener("scroll", adjustShadow)
+  new ResizeObserver(adjustShadow).observe(scrollableElement)
+
+  if (observerConfig) {
+    const observer = new MutationObserver(adjustShadow)
+    observer.observe(scrollableElement, observerConfig)
+  }
+
+  // Attempt to set shadow before and after appending to dom
+  adjustShadow()
+  setTimeout(adjustShadow, 0)
 
   return (
     <>

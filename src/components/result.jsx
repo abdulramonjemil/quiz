@@ -60,7 +60,13 @@ const resultClasses = {
     Styles.Indicator__PercentSymbol
   ]),
   summaryRoot: cn("quiz-result-summary", Styles.Summary),
-  summaryText: cn("quiz-result-summary-text", Styles.Summary__Text),
+  summaryText: {
+    base: cn("quiz-result-summary-text", Styles.Summary__Text),
+    default: cn([
+      "quiz-result-summary-text--default",
+      Styles.Summary__Text_default
+    ])
+  },
   summaryButton: cn("quiz-result-summary-button", Styles.Summary__Button)
 }
 
@@ -171,7 +177,7 @@ function Indicator({ scoredPercentage }) {
  * @param {(event: MouseEvent) => void} param0.handleCTAButtonClick
  * @param {number} param0.questionsCount
  */
-function Remark({
+function Summary({
   answersGotten,
   questionsCount,
   getSummaryText,
@@ -189,7 +195,12 @@ function Remark({
 
   return (
     <div className={resultClasses.summaryRoot}>
-      <p className={resultClasses.summaryText}>
+      <p
+        className={cn([
+          resultClasses.summaryText.base,
+          [!getSummaryText, resultClasses.summaryText.default]
+        ])}
+      >
         {getSummaryText && (
           <span>
             {phraseToNode(getSummaryText(questionsCount, answersGotten))}
@@ -237,7 +248,7 @@ export default class Result extends Component {
               <ScrollShadow maxSizes={{ bottom: 25 }}>
                 <div className={resultClasses.root}>
                   <Indicator scoredPercentage={scoredPercentage} />
-                  <Remark
+                  <Summary
                     answersGotten={answersGotten}
                     getSummaryText={getSummaryText}
                     handleCTAButtonClick={handleCTAButtonClick}

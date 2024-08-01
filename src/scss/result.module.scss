@@ -212,9 +212,11 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     font-size: 1.4em;
     font-weight: 600;
 
-    em {
-      color: $result-secondary-color;
-      font-weight: 800;
+    &_default {
+      em {
+        color: $result-secondary-color;
+        font-weight: 800;
+      }
     }
   }
 
