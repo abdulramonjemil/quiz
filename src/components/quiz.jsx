@@ -64,7 +64,7 @@ import ControlPanel from "./control-panel"
  *   percentScored: number,
  *   elementsCount: number,
  *   elements: (FinalizedQuizInquiryElement)[]
- * }} QuizSubmissionCallbackData
+ * }} QuizFinalizationData
  *
  *
  * @typedef {({
@@ -86,7 +86,7 @@ import ControlPanel from "./control-panel"
  *   header: string,
  *   elements: (QuizInquiryElement | FinalizedQuizInquiryElement)[],
  *   finalized: boolean,
- *   onSubmit?: ((data: QuizSubmissionCallbackData) => void) | undefined,
+ *   onSubmit?: ((data: QuizFinalizationData) => void) | undefined,
  *   autosave?: {
  *     identifier: string,
  *     saveWithPathname: boolean
@@ -992,7 +992,7 @@ export default class Quiz extends Component {
         ((gottenAnswersCount / questionsCount) * 100).toFixed(2)
       )
 
-      /** @type {QuizSubmissionCallbackData} */
+      /** @type {QuizFinalizationData} */
       const submissionData = {
         codeboardsCount,
         questionsCount,
