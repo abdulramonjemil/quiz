@@ -1,4 +1,4 @@
-import { Component, Slot, rh } from "@/jsx"
+import { Component, Slot, ns, rh } from "@/jsx"
 import { phraseToNode } from "@/core/content-parser"
 import { addClasses, cn, css } from "@/lib/dom"
 import Styles from "@/scss/result.module.scss"
@@ -140,7 +140,7 @@ function Indicator({ scoredPercentage }) {
         version="1.1"
         viewBox="0 0 100 100"
         width="100"
-        xmlns="http://www.w3.org/2000/svg"
+        xmlns={ns.svg()}
       >
         <defs>
           <linearGradient id={Styles.INDICATOR_CIRCLE_GRADIENT_ID}>

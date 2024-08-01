@@ -1,6 +1,8 @@
-import { JSXElementType, RefHolder } from "@/jsx/base"
+import { JSXElementType } from "@/jsx/base"
+import { RefHolder } from "@/jsx/ref"
 
 declare global {
+  // @ts-expect-error
   module "*.scss" {
     const content: Record<string, string>
     export default content
@@ -26,7 +28,7 @@ declare global {
     }
 
     interface IntrinsicElements {
-      [x: string]: any
+      [x: string]: { [x: string]: any; refHolder?: RefHolder<Element> }
     }
   }
 }

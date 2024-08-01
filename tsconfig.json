@@ -14,9 +14,10 @@
     "noImplicitAny": false,
     "noUncheckedIndexedAccess": true,
     "paths": { "@/*": ["./src/*"] },
-    "skipLibCheck": true,
+    "skipLibCheck": false,
     "strict": true,
-    "target": "ESNext"
+    "target": "ESNext",
+    "typeRoots": []
   },
   "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.d.ts"]
 }
