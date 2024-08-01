@@ -1,39 +1,4 @@
-/**
- * @typedef {import("./component").default} Component
- */
-
-/**
- * @typedef {string} JSXIntrinsicElementType
- * @typedef {(props: any) => any} JSXFunctionElementType
- * @typedef {new (props: any) => Component} JSXClassElementType
- *
- * @typedef {(
- *   | JSXIntrinsicElementType
- *   | JSXFunctionElementType
- *   | JSXClassElementType
- * )} JSXElementType
- *
- * @typedef {{
- *   [x: string]: unknown
- *   children?: unknown,
- * }} ElementProps
- */
-
-/** @param {unknown} value */
-export function resolveToNode(value) {
-  if (value instanceof Node) return value
-  if (typeof value === "boolean" || value === null || value === undefined)
-    return document.createTextNode("")
-  if (Array.isArray(value)) {
-    const fragment = new DocumentFragment()
-    fragment.append(...value.map((val) => resolveToNode(val)))
-    return fragment
-  }
-  return document.createTextNode(String(value))
-}
-
 // Used to brand ref holders
-
 const REF_HOLER_BRAND_KEY_SYMBOL = Symbol("REF_HOLER_BRAND_KEY")
 const IMMUTABLE_REF_HOLDER_SYMBOL = Symbol("IMMUTABLE_REF_HOLDER")
 const MUTABLE_REF_HOLDER_SYMBOL = Symbol("MUTABLE_REF_HOLDER")

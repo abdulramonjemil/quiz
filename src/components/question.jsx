@@ -1,4 +1,4 @@
-import Component from "@/core/component"
+import { Component, rh } from "@/jsx"
 import { phraseToNode } from "@/core/content-parser"
 import {
   addClasses,
@@ -12,12 +12,11 @@ import {
 import { uniqueId } from "@/lib/id"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/question.module.scss"
-import { rh } from "@/core/base"
 import ScrollShadow from "./scroll-shadow"
 
 /**
  * @template {any} T
- * @typedef {import("@/core/base").RefHolder<T>} RefHolder
+ * @typedef {import("@/jsx/").RefHolder<T>} RefHolder
  */
 
 /**

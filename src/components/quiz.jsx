@@ -7,10 +7,9 @@ import {
   assertIsInstance,
   bind
 } from "@/lib/value"
-import { mrh, rh } from "@/core/base"
-import { Tabs } from "@/ui/tabs"
+import { mrh, rh, Component } from "@/jsx"
+import { Tabs } from "@/ui"
 
-import Component from "@/core/component"
 import Styles from "@/scss/quiz.module.scss"
 
 /* Must be imported after importing styles above to allow overrides */

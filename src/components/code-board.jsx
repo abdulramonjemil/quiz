@@ -4,7 +4,7 @@ import "prismjs/plugins/autoloader/prism-autoloader"
 
 import { phraseToNode } from "@/core/content-parser"
 import Styles from "@/scss/code-board.module.scss"
-import { rh } from "@/core/base"
+import { rh } from "@/jsx"
 import { cn } from "@/lib/dom"
 
 /**

@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import Component from "@/core/component"
+import { Component } from "@/jsx"
 import { addClasses, cn, hasClasses, removeClasses } from "@/lib/dom"
 import { assertIsDefined } from "@/lib/value"
 import Styles from "@/scss/presentation.module.scss"

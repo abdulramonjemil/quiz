@@ -1,5 +1,5 @@
 import { resolveToNode } from "./base"
-import Component from "./component"
+import { Component } from "./component"
 
 /**
  * @typedef {(...params: any[]) => any} SlotRevalidator

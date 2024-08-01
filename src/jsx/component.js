@@ -10,7 +10,7 @@ import { resolveToNode } from "./base"
  *
  * @template {ComponentProps} [Props=ComponentProps]
  */
-export default class Component {
+export class Component {
   /**
    * @param {Props} props
    * @param {any} node
@@ -34,7 +34,6 @@ export default class Component {
      * @protected
      * @type {Node} */
     this.$rootNode = resolveToNode(node)
-    // this.$rootNode = resolveToNode(this.$render())
   }
 
   rootNode() {

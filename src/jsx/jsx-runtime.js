@@ -1,5 +1,6 @@
 import { uniqueId } from "@/lib/id"
-import { isRH, resolveToNode } from "./base"
+import { resolveToNode } from "./base"
+import { isRH } from "./ref"
 
 /**
  * @typedef {import("./base").JSXIntrinsicElementType} JSXIntrinsicElementType
@@ -8,7 +9,7 @@ import { isRH, resolveToNode } from "./base"
  * @typedef {import("./base").JSXElementType} JSXElementType
  * @typedef {import("./base").ElementProps} ElementProps
  *
- * @typedef {import("./component").default} Component
+ * @typedef {import("./component").Component} Component
  * @typedef {import("./component").ComponentProps} ComponentProps
  */
 

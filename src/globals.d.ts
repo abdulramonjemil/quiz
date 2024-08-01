@@ -1,4 +1,4 @@
-import { JSXElementType, RefHolder } from "@/core/base"
+import { JSXElementType, RefHolder } from "@/jsx/base"
 
 declare global {
   module "*.scss" {

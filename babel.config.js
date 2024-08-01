@@ -3,7 +3,7 @@ module.exports = {
     [
       "@babel/plugin-transform-react-jsx",
       {
-        importSource: "@/core",
+        importSource: "@/jsx",
         runtime: "automatic"
       }
     ]

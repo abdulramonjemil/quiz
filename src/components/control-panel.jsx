@@ -1,5 +1,4 @@
-import { rh } from "@/core/base"
-import Component from "@/core/component"
+import { Component, rh } from "@/jsx"
 import { attemptElementFocus } from "@/lib/dom"
 import Styles from "@/scss/control-panel.module.scss"
 

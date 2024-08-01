@@ -1,7 +1,5 @@
-import Component from "@/core/component"
-import { rh } from "@/core/base"
+import { Component, Slot, rh } from "@/jsx"
 import { phraseToNode } from "@/core/content-parser"
-import { Slot } from "@/core/slot"
 import { addClasses, cn, css } from "@/lib/dom"
 import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
