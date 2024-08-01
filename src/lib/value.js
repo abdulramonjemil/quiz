@@ -11,6 +11,17 @@ export function tryJSONParse(value) {
   }
 }
 
+/**
+ * @param {boolean} condition
+ * @param {string} desc
+ * @returns {asserts condition}
+ */
+export function assertCondition(condition, desc) {
+  if (condition !== true) {
+    throw new Error(`Expected '${desc}' to be true`)
+  }
+}
+
 /** @type {<T>(value: T, desc: string) => asserts value is Exclude<T, undefined | null>} */
 export const assertIsDefined = (value, desc) => {
   if (value === undefined || value === null)

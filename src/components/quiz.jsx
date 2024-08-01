@@ -1,7 +1,12 @@
 import { uniqueId } from "@/lib/id"
 import { webStorageIsAvailable } from "@/lib/storage"
 import { attemptElementFocus, cn } from "@/lib/dom"
-import { assertIsDefined, assertIsInstance, bind } from "@/lib/value"
+import {
+  assertCondition,
+  assertIsDefined,
+  assertIsInstance,
+  bind
+} from "@/lib/value"
 import { mrh, rh } from "@/core/base"
 import { Tabs } from "@/ui/tabs"
 
@@ -94,7 +99,7 @@ import ControlPanel from "./control-panel"
  *   customRootClass?: string | null | undefined,
  *   headerLevel?: HeaderLevel | null | undefined,
  *   codeBoardTheme?: CodeBoardProps["theme"],
- *   getResultSummaryText?: ResultProps["getSummaryText"]
+ *   getResultSummaryText?: ((data: QuizFinalizationData) => string) | null | undefined
  * }} QuizProps
  *
  * @typedef {Question | Result | null} QuizElementInstance
@@ -105,6 +110,10 @@ import ControlPanel from "./control-panel"
  */
 
 const QUIZ_DATA_STORE = "localStorage"
+
+const quizClasses = {
+  root: cn("quiz", Styles.Quiz)
+}
 
 /**
  * @param {QuizInquiryElement | FinalizedQuizInquiryElement} element
@@ -334,6 +343,82 @@ function storedDataIsValidForQuiz(data, elements) {
         decodedElement.answerIndex === suppliedElement.answerIndex
     }
     return elementsMatch
+  })
+}
+
+/**
+ * @param {DecodedStoredQuizElement[]} decoded
+ * @param {QuizInquiryElement[]} elements
+ * @returns {FinalizedQuizInquiryElement[]}
+ */
+function decodedDataToFinalizedElement(decoded, elements) {
+  return elements.map((element, index) => {
+    if (element.type === "CODE_BOARD") return element
+    const d = decoded[index]
+    const msg = `decoded data at index: ${index} is question`
+    assertCondition(d?.type === "QUESTION", msg)
+    return { ...element, selectedOptionIndex: d.selectedOptionIndex }
+  })
+}
+
+/**
+ * @param {Object} param0
+ * @param {(QuizInquiryElement | FinalizedQuizInquiryElement)[]} param0.elements
+ * @param {QuizElementInstance[]} param0.elementInstances
+ * @param {boolean} param0.previouslyFinalized
+ * @param {QuizProps["autosave"]} param0.autoSaveConfig
+ * @returns {FinalizedQuizInquiryElement[] | null}
+ */
+function getAvailableFinalizedElements({
+  elements,
+  elementInstances,
+  previouslyFinalized,
+  autoSaveConfig
+}) {
+  if (previouslyFinalized) {
+    const filtered = elements.filter(isFinalizedQuizInquiryElement)
+    if (filtered.length !== elements.length) {
+      throw new Error("Expected all elements to be finalized")
+    }
+    return filtered
+  }
+
+  if (autoSaveConfig) {
+    const storageKey = getStorageKey(autoSaveConfig)
+    const storedData = getStoredQuizData(storageKey)
+    if (storedData) {
+      if (!storedDataIsValidForQuiz(storedData, elements)) {
+        // eslint-disable-next-line no-console
+        console.error(
+          "Unmatching quiz data read from storage:\n\n" +
+            `${JSON.stringify(storedData, null, 2)}\n\n` +
+            "This could be because there are multiple quizzes using the same storage key."
+        )
+
+        removeStoredQuizData(storageKey)
+        return null
+      }
+      return decodedDataToFinalizedElement(storedData.elements, elements)
+    }
+  }
+
+  const answerData = elementInstances
+    .filter(/** @returns {e is Question} */ (e) => e instanceof Question)
+    .map((q) => q.getAnswerSelectionData())
+  if (answerData.some((d) => d === null)) return null
+
+  let questionIndex = -1
+  return elements.map((element) => {
+    if (element.type === "CODE_BOARD") return element
+    questionIndex += 1
+    const d = answerData[questionIndex]
+    const msg = `answer selection data for question index: ${questionIndex}`
+    assertIsDefined(d, msg)
+    const { selectedOptionIndex } = d
+    return /** @satisfies {FinalizedQuizQuestionElement} */ {
+      ...element,
+      selectedOptionIndex
+    }
   })
 }
 
@@ -587,7 +672,10 @@ function revalidateQuiz({
   )
 }
 
-const createQuizShortcutHandlers = (() => {
+/**
+ * Important to not call this as an IIFE as there may be multiple quizzes
+ */
+const createQuizShortcutHandlersCreator = () => {
   /**
    * @typedef {{
    *   pressedNumber: number | null,
@@ -725,10 +813,54 @@ const createQuizShortcutHandlers = (() => {
       keyup: shortcutKeyUpHandler.bind(null, quizDataGetter, mutableData)
     }
   }
-})()
+}
 
-const quizClasses = {
-  root: cn("quiz", Styles.Quiz)
+/**
+ * @param {FinalizedQuizInquiryElement[]} finalizedElements
+ * @returns {QuizFinalizationData}
+ */
+function getQuizFinalizationData(finalizedElements) {
+  const questions = finalizedElements.filter(
+    /** @returns {e is FinalizedQuizQuestionElement} */ (e) =>
+      e.type === "QUESTION"
+  )
+  const questionsCount = questions.length
+  const codeboardsCount = finalizedElements.length - questions.length
+  const gottenAnswersCount = questions.filter(
+    (e) => e.selectedOptionIndex === e.answerIndex
+  ).length
+  const percentScored = Number(
+    ((gottenAnswersCount / questionsCount) * 100).toFixed(2)
+  )
+
+  return {
+    codeboardsCount,
+    questionsCount,
+    correctAnswers: gottenAnswersCount,
+    incorrectAnswers: questionsCount - gottenAnswersCount,
+    percentScored,
+    elementsCount: finalizedElements.length,
+    elements: finalizedElements
+  }
+}
+
+/**
+ * @param {FinalizedQuizInquiryElement[] | DecodedStoredQuizElement[]} elementConfigs
+ * @param {QuizElementInstance[]} elementInstances
+ */
+function finalizeQuiz(elementConfigs, elementInstances) {
+  elementInstances.forEach((instance, index) => {
+    if (instance instanceof Result) {
+      const { gottenAnswersCount } = getQuizResultData(elementInstances)
+      instance.finalize(gottenAnswersCount)
+    }
+
+    if (!(instance instanceof Question)) return
+    const elementData = elementConfigs[index]
+    assertIsDefined(elementData, `finalized quiz data at index: ${index}`)
+    if (elementData.type !== "QUESTION") return
+    instance.finalize(elementData.selectedOptionIndex)
+  })
 }
 
 /**
@@ -770,67 +902,48 @@ export default class Quiz extends Component {
     const fullQuizElements = [...elements, { type: "RESULT" }]
     const p = Quiz.prototype
     const quizRH = /** @type {typeof mrh<Quiz>} */ (mrh)(null)
-    const getThis = () => quizRH.ref
+    const instanceRH = /** @type {typeof mrh<QuizElementInstance[]>} */ (mrh)(
+      null
+    )
 
+    const proxiedGetSummaryText = () => {
+      const data = getAvailableFinalizedElements({
+        elements,
+        elementInstances: instanceRH.ref,
+        autoSaveConfig: autosave,
+        previouslyFinalized: finalized
+      })
+
+      const desc = "available finalized element when getting result summary"
+      assertIsDefined(data, desc)
+      assertIsDefined(getResultSummaryText, "getSummaryText in proxied version")
+      return getResultSummaryText(getQuizFinalizationData(data))
+    }
+
+    const getThis = () => quizRH.ref
     const { elementNodes, elementInstances } = buildQuizSlideElements({
       elements: fullQuizElements,
       codeBoardTheme,
-      getResultSummaryText,
+      getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
       handleQuestionOptionChange: bind(p.$handleQuestionOptionChange, getThis),
       handleResultCTAButtonClick: bind(p.$handleResultCTAButtonClick, getThis)
     })
+    instanceRH.ref = elementInstances
+
+    const finalizedElements = getAvailableFinalizedElements({
+      elements,
+      elementInstances,
+      autoSaveConfig: autosave,
+      previouslyFinalized: finalized
+    })
+
+    if (finalizedElements) {
+      finalizeQuiz(finalizedElements, elementInstances)
+    }
 
     const resultIndex = elementInstances.length - 1
     const resultInstance = elementInstances[resultIndex]
     assertIsInstance(resultInstance, Result)
-
-    if (finalized) {
-      const e = /** @type {((typeof elements)[number])[]} */ (elements)
-      const filtered = e.filter(isFinalizedQuizInquiryElement)
-      if (filtered.length !== elements.length) {
-        throw new Error("Invalid finalized quiz data.")
-      } else {
-        elementInstances.forEach((instance, index) => {
-          if (!(instance instanceof Question)) return
-          const elementData = filtered[index]
-          assertIsDefined(elementData, `finalized quiz data at index: ${index}`)
-          if (elementData.type !== "QUESTION") return
-          instance.finalize(elementData.selectedOptionIndex)
-        })
-
-        const { gottenAnswersCount } = getQuizResultData(elementInstances)
-        resultInstance.finalize(gottenAnswersCount)
-      }
-    } else if (autosave) {
-      const storageKey = getStorageKey(autosave)
-      const storedData = getStoredQuizData(storageKey)
-      if (storedData) {
-        if (!storedDataIsValidForQuiz(storedData, elements)) {
-          // eslint-disable-next-line no-console
-          console.error(
-            "Unmatching quiz data read from storage:\n\n" +
-              `${JSON.stringify(storedData, null, 2)}\n\n` +
-              "This could be because there are multiple quizzes using the same storage key."
-          )
-          removeStoredQuizData(storageKey)
-        } else {
-          elementInstances.forEach((instance, index) => {
-            if (!(instance instanceof Question)) return
-            const storedQData = storedData.elements[index]
-            assertIsDefined(
-              storedQData,
-              `decoded stored quiz element at index ${index}`
-            )
-
-            if (storedQData.type !== "QUESTION") return
-            instance.finalize(storedQData.selectedOptionIndex)
-          })
-
-          const { gottenAnswersCount } = getQuizResultData(elementInstances)
-          resultInstance.finalize(gottenAnswersCount)
-        }
-      }
-    }
 
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
@@ -840,6 +953,7 @@ export default class Quiz extends Component {
     const cPanelRH = /** @type {typeof rh<ControlPanel>} */ (rh)(null)
     let tabs = /** @type {Tabs | null} */ (null)
 
+    const createQuizShortcutHandlers = createQuizShortcutHandlersCreator()
     const shortcutHandlers = createQuizShortcutHandlers(() => {
       assertIsInstance(tabs, Tabs)
       return {
@@ -942,67 +1056,26 @@ export default class Quiz extends Component {
   }
 
   $handleCPanelSubmitCTAClick() {
-    const { $elementInstances, $metadata } = this
-    const { onSubmit } = this.$props
-
-    const resultIndex = $elementInstances.length - 1
-    const resultInstance = $elementInstances[$elementInstances.length - 1]
-    assertIsInstance(resultInstance, Result)
-
-    const { gottenAnswersCount } = getQuizResultData($elementInstances)
-    resultInstance.finalize(gottenAnswersCount)
-
-    const questionInstances = $elementInstances.filter(
-      /** @returns {element is Question} */ (element) =>
-        element instanceof Question
-    )
-
-    questionInstances.forEach((questionElement) => questionElement.finalize())
-    this.$revalidate(resultIndex)
-
-    const answerSelectionDataset = questionInstances.map((questionElement) => {
-      const data = questionElement.getAnswerSelectionData()
-      assertIsDefined(data, "answer selection data")
-      return data
+    const availableFinalizedElements = getAvailableFinalizedElements({
+      elements: this.$props.elements,
+      elementInstances: this.$elementInstances,
+      previouslyFinalized: this.$props.finalized,
+      autoSaveConfig: this.$props.autosave
     })
 
-    let questionIndex = -1
-    const finalizedElements = this.$props.elements.map((element) => {
-      if (element.type === "CODE_BOARD") return element
-      questionIndex += 1
-      const d = answerSelectionDataset[questionIndex]
-      assertIsDefined(d, `answer selection data at index: ${questionIndex}`)
-      const { selectedOptionIndex } = d
-      return /** @type {FinalizedQuizQuestionElement} */ ({
-        ...element,
-        selectedOptionIndex
-      })
-    })
+    const desc = "available finalized element when clicking submit"
+    assertIsDefined(availableFinalizedElements, desc)
 
-    assertIsDefined($metadata, "quiz metadata attribute")
-    if ($metadata.autoSave) {
-      storeQuizData(finalizedElements, $metadata.storageKey)
+    finalizeQuiz(availableFinalizedElements, this.$elementInstances)
+    this.$revalidate(this.$elementInstances.length - 1)
+
+    if (this.$metadata.autoSave) {
+      storeQuizData(availableFinalizedElements, this.$metadata.storageKey)
     }
 
-    if (typeof onSubmit === "function") {
-      const f = finalizedElements
-      const codeboardsCount = f.filter((e) => e.type === "CODE_BOARD").length
-      const questionsCount = f.filter((e) => e.type === "QUESTION").length
-      const percentScored = Number(
-        ((gottenAnswersCount / questionsCount) * 100).toFixed(2)
-      )
-
-      /** @type {QuizFinalizationData} */
-      const submissionData = {
-        codeboardsCount,
-        questionsCount,
-        correctAnswers: gottenAnswersCount,
-        incorrectAnswers: questionsCount - gottenAnswersCount,
-        percentScored,
-        elementsCount: finalizedElements.length,
-        elements: finalizedElements
-      }
-      onSubmit.call(this, submissionData)
+    if (typeof this.$props.onSubmit === "function") {
+      const data = getQuizFinalizationData(availableFinalizedElements)
+      this.$props.onSubmit.call(null, data)
     }
   }
 
