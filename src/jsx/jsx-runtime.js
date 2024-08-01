@@ -317,7 +317,7 @@ function Fragment({ children }) {
 
 const ns = {
   /** @param {string} namespace */
-  use: (namespace) => nspace.use(namespace),
+  url: (namespace) => nspace.use(namespace),
   svg: () => nspace.use(Namespaces.svg),
   mathml: () => nspace.use(Namespaces.mathml)
 }
