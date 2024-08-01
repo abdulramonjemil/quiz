@@ -82,7 +82,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   position: relative;
   width: $indicator-dimension;
 
-  &_transitionAnimated {
+  &_rendered {
     // Used to render the indicator animations
   }
 
@@ -155,7 +155,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     transition: stroke-dashoffset $indicator-circle-animation-duration
       ease-in-out;
 
-    .Indicator_transitionAnimated & {
+    .Indicator_rendered & {
       stroke-dashoffset: var(#{$indicator-circle-final-dashoffset-css-var});
     }
   }
@@ -197,7 +197,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     math.div(7, 9);
   transition-delay: $indicator-circle-animation-duration * math.div(2, 9);
 
-  .Indicator_transitionAnimated + & {
+  .Indicator_rendered + & {
     opacity: 1;
   }
 

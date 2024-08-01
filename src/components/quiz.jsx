@@ -98,6 +98,7 @@ import ControlPanel from "./control-panel"
  *   customRootClass?: string | null | undefined,
  *   headerLevel?: HeaderLevel | null | undefined,
  *   codeBoardTheme?: CodeBoardProps["theme"],
+ *   animateResultIndicator?: boolean | undefined,
  *   getResultSummaryText?: ((data: QuizFinalizationData) => string) | null | undefined
  * }} QuizProps
  *
@@ -150,6 +151,7 @@ function assertValidQuizPropsElementConfig(elements) {
  *   elements: QuizSlideElement[],
  *   codeBoardTheme: QuizProps["codeBoardTheme"]
  *   getResultSummaryText: ResultProps["getSummaryText"],
+ *   animateResultIndicator: QuizProps["animateResultIndicator"],
  *   handleQuestionOptionChange: () => void,
  *   handleResultCTAButtonClick: ResultProps["handleCTAButtonClick"]
  * }} param0
@@ -157,6 +159,7 @@ function assertValidQuizPropsElementConfig(elements) {
 function buildQuizSlideElements({
   elements,
   codeBoardTheme,
+  animateResultIndicator,
   getResultSummaryText,
   handleQuestionOptionChange,
   handleResultCTAButtonClick
@@ -204,6 +207,7 @@ function buildQuizSlideElements({
       slideNode = (
         <Result
           questionsCount={questionsCount}
+          animateIndicator={animateResultIndicator}
           getSummaryText={getResultSummaryText}
           handleCTAButtonClick={handleResultCTAButtonClick}
           instanceRefHolder={resultRH}
@@ -887,6 +891,7 @@ export default class Quiz extends Component {
   constructor(props) {
     const {
       autosave,
+      animateResultIndicator,
       customRootClass,
       elements,
       finalized,
@@ -923,6 +928,7 @@ export default class Quiz extends Component {
     const { elementNodes, elementInstances } = buildQuizSlideElements({
       elements: fullQuizElements,
       codeBoardTheme,
+      animateResultIndicator,
       getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
       handleQuestionOptionChange: bind(p.$handleQuestionOptionChange, getThis),
       handleResultCTAButtonClick: bind(p.$handleResultCTAButtonClick, getThis)

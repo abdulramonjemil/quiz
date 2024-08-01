@@ -8,6 +8,7 @@ import ScrollShadow from "./scroll-shadow"
  * @typedef {(questionsCount: number, answersGotten: number) => string} GetSummaryText
  * @typedef {{
  *   questionsCount: number,
+ *   animateIndicator?: boolean | undefined
  *   getSummaryText?: GetSummaryText | null | undefined,
  *   handleCTAButtonClick: (event: MouseEvent) => void,
  * }} ResultProps
@@ -34,10 +35,7 @@ const resultClasses = {
   root: cn("quiz-result", Styles.Result),
   indicatorRoot: {
     base: cn("quiz-result-indicator", Styles.Indicator),
-    transitionAnimated: cn(
-      "quiz-result-indicator--animated",
-      Styles.Indicator_transitionAnimated
-    )
+    rendered: cn("quiz-result-indicator--rendered", Styles.Indicator_rendered)
   },
   indicatorOuterShadow: cn([
     "quiz-result-indicator-outershadow",
@@ -73,39 +71,58 @@ const resultClasses = {
  * @param {HTMLElement} param0.indicator
  * @param {(value: number) => void} param0.setPercentValue
  * @param {number} param0.scoredPercentage
+ * @param {boolean | undefined} [param0.animate]
  */
-function animateIndicatorPercentValue({
+function renderResultIndicator({
   indicator,
   scoredPercentage,
-  setPercentValue
+  setPercentValue,
+  animate = false
 }) {
   const duration = INDICATOR_CIRCLE_ANIMATION_DURATION_MS
+  const minIncrement = 4
+
   let startTime = /** @type {DOMHighResTimeStamp | null} */ (null)
   let lastFrameTime = /** @type {DOMHighResTimeStamp | null} */ (0)
+  let lastPercentValue = 0
 
   /** @param {DOMHighResTimeStamp} time */
-  const animate = (time) => {
+  const renderFrame = (time) => {
     if (startTime === null) startTime = time
     const elapsedTime = time - startTime
     const animationShouldStop = elapsedTime >= duration
 
     if (time === lastFrameTime) {
-      if (!animationShouldStop) window.requestAnimationFrame(animate)
+      if (!animationShouldStop) window.requestAnimationFrame(renderFrame)
       return
     }
 
     const nextPercentValue = animationShouldStop
       ? scoredPercentage
       : Math.floor((elapsedTime / duration) * scoredPercentage)
-    setPercentValue(nextPercentValue)
+
+    if (
+      nextPercentValue - lastPercentValue >= minIncrement ||
+      nextPercentValue === scoredPercentage
+    ) {
+      setPercentValue(nextPercentValue)
+      lastPercentValue = nextPercentValue
+    }
+
     lastFrameTime = time
-    if (!animationShouldStop) window.requestAnimationFrame(animate)
+    if (!animationShouldStop) window.requestAnimationFrame(renderFrame)
   }
 
-  window.requestAnimationFrame(animate)
-  setTimeout(() => {
-    addClasses(indicator, resultClasses.indicatorRoot.transitionAnimated)
-  }, 0)
+  if (animate === true) {
+    setPercentValue(0)
+    window.requestAnimationFrame(renderFrame)
+    setTimeout(() => {
+      addClasses(indicator, resultClasses.indicatorRoot.rendered)
+    }, 0)
+  } else {
+    setPercentValue(scoredPercentage)
+    addClasses(indicator, resultClasses.indicatorRoot.rendered)
+  }
 }
 
 /** @param {number} scoredPercentage */
@@ -115,9 +132,10 @@ function getCircleDashoffset(scoredPercentage) {
 
 /**
  * @param {Object} param0
+ * @param {boolean | undefined} param0.animate
  * @param {number} param0.scoredPercentage
  */
-function Indicator({ scoredPercentage }) {
+function Indicator({ scoredPercentage, animate }) {
   const indicatorRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
   const percentValueRH = /** @type {typeof rh<HTMLElement>} */ (rh)(null)
   const dashoffset = getCircleDashoffset(scoredPercentage)
@@ -158,8 +176,9 @@ function Indicator({ scoredPercentage }) {
     </div>
   )
 
-  animateIndicatorPercentValue({
+  renderResultIndicator({
     scoredPercentage,
+    animate,
     indicator: indicatorRH.ref,
     setPercentValue: (value) => {
       percentValueRH.ref.innerText = `${value}`
@@ -233,7 +252,12 @@ export default class Result extends Component {
     /** @typedef {(answersGotten: number) => any} Finalizer */
     const RSlot = /** @type {typeof Slot<Finalizer>} */ (Slot)
     const slotRH = /** @type {typeof rh<Slot<Finalizer>>} */ (rh)(null)
-    const { getSummaryText, handleCTAButtonClick, questionsCount } = props
+    const {
+      getSummaryText,
+      handleCTAButtonClick,
+      animateIndicator,
+      questionsCount
+    } = props
 
     const resultNode = (
       <div className={resultClasses.wrapper}>
@@ -245,7 +269,10 @@ export default class Result extends Component {
             return (
               <ScrollShadow maxSizes={{ bottom: 25 }}>
                 <div className={resultClasses.root}>
-                  <Indicator scoredPercentage={scoredPercentage} />
+                  <Indicator
+                    animate={animateIndicator}
+                    scoredPercentage={scoredPercentage}
+                  />
                   <Summary
                     answersGotten={answersGotten}
                     getSummaryText={getSummaryText}
