@@ -69,8 +69,8 @@ $option-letter-span: 30px;
   }
 
   $selected-option-dark-color: utils.get-color(mid-dark);
-  $correct-option-color: rgb(15 90 40);
-  $incorrect-option-color: rgb(90 13 13);
+  $correct-option-color: utils.get-color(success);
+  $incorrect-option-color: utils.get-color(failure);
 
   &__Content {
     border: 2px solid utils.get-color(soft-dark);
