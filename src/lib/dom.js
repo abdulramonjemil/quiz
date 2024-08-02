@@ -110,20 +110,6 @@ export function css(config) {
 }
 
 /**
- * @returns {DocumentFragment}
- */
-export function htmlStringToFragment(htmlString) {
-  if (typeof htmlString !== "string")
-    throw new TypeError("'htmlString' is not a string")
-
-  const div = document.createElement("div")
-  div.innerHTML = htmlString
-  const fragment = new DocumentFragment()
-  fragment.append(...div.childNodes)
-  return fragment
-}
-
-/**
  * Focus helpers
  */
 

@@ -2,11 +2,11 @@
 export const SAMPLE_QUIZ_DATA = [
   {
     type: "QUESTION",
-    title: "What method can you use to add an item to the end of an array?",
+    title: "What *method* can you use to add an item to the end of an array?",
     answerIndex: 1,
     options: ["unshift()", "push()", "pop()", "shift()"],
     explanation:
-      "The push() method can be used to add one or more items to the end of an array, as demonstrated in the lesson content."
+      "The `push()` method can be used to add one or more items to the end of an array, as demonstrated in the lesson content."
   },
   {
     type: "CODE_BOARD",
@@ -22,11 +22,11 @@ export const SAMPLE_QUIZ_DATA = [
     options: [
       "It's not a big thing",
       "I won't really care about it",
-      "~~I love it since you used `webpack`",
+      "fmt:I love it since you used `webpack`",
       "Whatever"
     ],
     explanation:
-      "~~There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
+      "fmt:There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
   },
   {
     type: "QUESTION",
@@ -34,18 +34,18 @@ export const SAMPLE_QUIZ_DATA = [
     answerIndex: 3,
     options: [
       "Yes",
-      "<>I know for a fact that you don't <b>hate</b>food",
-      "~~I love it since you used `webpack`",
+      "html:I know for a fact that you don't <b>hate</b>food",
+      "fmt:I love it since you used `webpack`",
       "Whatever"
     ],
     explanation:
-      "~~There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
+      "fmt:There's absolutely no reason whatsoever to use `webpack`. Come to think of it, if `webpack` was really a good thing, why does a lot of people not like it at all. It just doesn't sense. So, just don't use `yaml` of `js-yaml`.\n"
   },
   {
     type: "QUESTION",
     title: "Do you think I hate food?",
     answerIndex: 2,
-    options: ["Yes", "~~I love it since you used `webpack`", "Whatever"]
+    options: ["Yes", "fmt:I love it since you used `webpack`", "Whatever"]
   },
   {
     type: "CODE_BOARD",

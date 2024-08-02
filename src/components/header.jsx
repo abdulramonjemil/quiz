@@ -1,4 +1,4 @@
-import { phraseToNode } from "@/core/content-parser"
+import { contentNode } from "@/core"
 import { cn } from "@/lib/dom"
 import Styles from "@/scss/header.module.scss"
 
@@ -22,7 +22,7 @@ export default function Header({ labellingId, children, level }) {
   return (
     <header className={headerClasses.root}>
       <HeadingLevel className={headerClasses.element} id={labellingId}>
-        {phraseToNode(children)}
+        {contentNode(children)}
       </HeadingLevel>
     </header>
   )

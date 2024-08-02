@@ -1,5 +1,5 @@
 import { Component, rh } from "@/jsx"
-import { phraseToNode } from "@/core/content-parser"
+import { contentNode } from "@/core"
 import {
   addClasses,
   attemptElementFocus,
@@ -184,7 +184,7 @@ function Option({ handleOptionChange, index, name, text }) {
       <div className={questionClasses.optionContent}>
         <div className={questionClasses.optionLetter}>{letter}</div>
         <div className={questionClasses.optionText}>
-          <span>{phraseToNode(text)}</span>
+          <span>{contentNode(text)}</span>
         </div>
       </div>
     </label>
@@ -213,7 +213,7 @@ function Explanation({ content }) {
         Toggle Explanations
       </button>
       <hr className={questionClasses.explDivider} />
-      <div className={questionClasses.explContent}>{phraseToNode(content)}</div>
+      <div className={questionClasses.explContent}>{contentNode(content)}</div>
     </div>
   )
 }
@@ -254,7 +254,7 @@ export default class Question extends Component {
           <div className={questionClasses.root} refHolder={questionRH}>
             <fieldset refHolder={fieldSetRH}>
               <legend className={questionClasses.title}>
-                {phraseToNode(title)}
+                {contentNode(title)}
               </legend>
               <div className={questionClasses.optionsContainer}>
                 {optionNodes}

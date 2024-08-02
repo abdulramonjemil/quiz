@@ -1,5 +1,5 @@
 import { Component, Slot, ns, rh } from "@/jsx"
-import { phraseToNode } from "@/core/content-parser"
+import { contentNode } from "@/core"
 import { addClasses, cn, css } from "@/lib/dom"
 import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
@@ -220,7 +220,7 @@ function Summary({
       >
         {getSummaryText && (
           <span>
-            {phraseToNode(getSummaryText(questionsCount, answersGotten))}
+            {contentNode(getSummaryText(questionsCount, answersGotten))}
           </span>
         )}
         {!getSummaryText && (

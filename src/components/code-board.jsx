@@ -2,7 +2,7 @@
 import Prism from "prismjs"
 import "prismjs/plugins/autoloader/prism-autoloader"
 
-import { phraseToNode } from "@/core/content-parser"
+import { contentNode } from "@/core"
 import Styles from "@/scss/code-board.module.scss"
 import { rh } from "@/jsx"
 import { cn } from "@/lib/dom"
@@ -64,7 +64,7 @@ export default function CodeBoard({ title, language, snippet, theme }) {
 
   const codeBoardNode = (
     <div className={codeClasses.root}>
-      <p className={codeClasses.title}>{phraseToNode(title)}</p>
+      <p className={codeClasses.title}>{contentNode(title)}</p>
       <div className={codeClasses.preWrapper}>
         <pre
           className={cn([
