@@ -1,5 +1,5 @@
 @use "partials/number";
-@use "partials/utils";
+@use "partials/theme";
 
 $bottom-scroll-shadow-size-css-var: --bottom-scroll-shadow-size;
 $top-scroll-shadow-size-css-var: --top-scroll-shadow-size;
@@ -23,9 +23,9 @@ $scroll-shadow-suitable-max-size: 15px;
   position: absolute;
   top: 0;
   width: 100%;
-  background: linear-gradient(utils.get-color(deep-dark), transparent) center
+  background: linear-gradient(theme.get-color(deep-dark), transparent) center
       top,
-    linear-gradient(transparent, utils.get-color(deep-dark)) center bottom;
+    linear-gradient(transparent, theme.get-color(deep-dark)) center bottom;
   background-repeat: no-repeat;
   background-size: 100% var($top-scroll-shadow-size-css-var),
     100% var($bottom-scroll-shadow-size-css-var);

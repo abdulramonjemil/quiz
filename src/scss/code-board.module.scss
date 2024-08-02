@@ -1,5 +1,5 @@
 @use "sass:math";
-@use "partials/utils";
+@use "partials/theme";
 @use "partials/element";
 
 $code-board-scrollbar-main-size: 8px;
@@ -38,15 +38,15 @@ $code-board-vertical-padding: 10px;
 }
 
 .Pre {
-  border-radius: utils.get-constant(border-radius);
+  border-radius: theme.get-constant(border-radius);
   height: max-content;
   max-height: 100%;
   overflow: auto;
-  scrollbar-color: utils.get-color(deep-light) transparent;
+  scrollbar-color: theme.get-color(deep-light) transparent;
   scrollbar-width: thin;
 
   &:focus {
-    outline: 2px solid utils.get-color(deep-light);
+    outline: 2px solid theme.get-color(deep-light);
   }
 
   &::-webkit-scrollbar {
@@ -66,7 +66,7 @@ $code-board-vertical-padding: 10px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: utils.get-color(deep-light);
+    background-color: theme.get-color(deep-light);
   }
 
   // `[class*="language-"]` is required to overwrite theme styles
@@ -75,18 +75,18 @@ $code-board-vertical-padding: 10px;
   }
 
   @at-root %internal-themed {
-    background: utils.get-color(dark-grey);
-    line-height: utils.get-constant(line-height);
+    background: theme.get-color(dark-grey);
+    line-height: theme.get-constant(line-height);
     padding: $code-board-vertical-padding $code-board-horizontal-padding;
 
     code {
-      background: utils.get-color(dark-grey);
+      background: theme.get-color(dark-grey);
     }
   }
 
   &_basicThemed[class*="language-"] {
     @extend %internal-themed;
-    color: utils.get-color(deep-light);
+    color: theme.get-color(deep-light);
   }
 
   &_defaultThemed[class*="language-"] {

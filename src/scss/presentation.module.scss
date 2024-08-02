@@ -1,5 +1,5 @@
 @use "partials/element";
-@use "partials/utils";
+@use "partials/theme";
 
 .Presentation {
   @include element.root-container-element;
@@ -11,7 +11,7 @@
     margin-top: 20px;
 
     &:focus-visible {
-      outline: 2px solid utils.get-color(deep-light);
+      outline: 2px solid theme.get-color(deep-light);
     }
 
     &_shown {

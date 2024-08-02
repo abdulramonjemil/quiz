@@ -1,8 +1,8 @@
 @use "sass:math";
 @use "partials/element";
-@use "partials/utils";
+@use "partials/theme";
 
-$gap-between-question-elements: utils.get-constant(element-spacing);
+$gap-between-question-elements: theme.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
@@ -68,13 +68,13 @@ $option-letter-span: 30px;
     top: 0;
   }
 
-  $selected-option-dark-color: utils.get-color(mid-dark);
-  $correct-option-color: utils.get-color(success);
-  $incorrect-option-color: utils.get-color(failure);
+  $selected-option-dark-color: theme.get-color(mid-dark);
+  $correct-option-color: theme.get-color(success);
+  $incorrect-option-color: theme.get-color(failure);
 
   &__Content {
-    border: 2px solid utils.get-color(soft-dark);
-    border-radius: utils.get-constant(border-radius);
+    border: 2px solid theme.get-color(soft-dark);
+    border-radius: theme.get-constant(border-radius);
     cursor: pointer;
     display: grid;
     gap: $option-spacing-length;
@@ -83,8 +83,8 @@ $option-letter-span: 30px;
     padding: $option-spacing-length;
 
     &:hover {
-      background-color: utils.get-color(soft-dark);
-      border-color: utils.get-color(soft-dark);
+      background-color: theme.get-color(soft-dark);
+      border-color: theme.get-color(soft-dark);
     }
 
     .Option_correct & {
@@ -98,7 +98,7 @@ $option-letter-span: 30px;
     }
 
     .Option__Input:focus + & {
-      outline: 2px solid utils.get-color(deep-light);
+      outline: 2px solid theme.get-color(deep-light);
       outline-offset: -2px;
     }
 
@@ -114,30 +114,30 @@ $option-letter-span: 30px;
 
   &__Letter {
     align-items: center;
-    background-color: utils.get-color(soft-dark);
-    border-radius: utils.get-constant(border-radius);
+    background-color: theme.get-color(soft-dark);
+    border-radius: theme.get-constant(border-radius);
     display: flex;
     font-weight: 500;
     justify-content: center;
     line-height: $option-letter-span;
 
     .Option_correct & {
-      background-color: utils.get-color(deep-light);
+      background-color: theme.get-color(deep-light);
       color: $correct-option-color;
     }
 
     .Option_incorrect & {
-      background-color: utils.get-color(deep-light);
+      background-color: theme.get-color(deep-light);
       color: $incorrect-option-color;
     }
 
     .Option__Content:hover & {
-      background-color: utils.get-color(deep-light);
-      color: utils.get-color(soft-dark);
+      background-color: theme.get-color(deep-light);
+      color: theme.get-color(soft-dark);
     }
 
     .Option__Input:checked + .Option__Content & {
-      background-color: utils.get-color(deep-light);
+      background-color: theme.get-color(deep-light);
       color: $selected-option-dark-color;
     }
   }
@@ -150,8 +150,8 @@ $option-letter-span: 30px;
 }
 
 .Explanation {
-  background-color: utils.get-color(soft-dark);
-  border-radius: utils.get-constant(border-radius);
+  background-color: theme.get-color(soft-dark);
+  border-radius: theme.get-constant(border-radius);
   display: none;
   margin-top: $gap-between-question-elements;
   padding: 10px;
@@ -167,9 +167,9 @@ $option-letter-span: 30px;
 
   &__Button {
     background-color: transparent;
-    border: 2px solid utils.get-color(deep-light);
-    border-radius: utils.get-constant(border-radius);
-    color: utils.get-color(deep-light);
+    border: 2px solid theme.get-color(deep-light);
+    border-radius: theme.get-constant(border-radius);
+    color: theme.get-color(deep-light);
     cursor: pointer;
     font-size: 1em;
     font-weight: 500;
@@ -177,16 +177,16 @@ $option-letter-span: 30px;
     transition: background-color linear 0.1s;
 
     &:focus {
-      background-color: utils.get-color(mid-dark);
+      background-color: theme.get-color(mid-dark);
     }
 
     &:focus-visible {
-      outline: 2px solid utils.get-color(deep-light);
+      outline: 2px solid theme.get-color(deep-light);
       outline-offset: 2px;
     }
 
     &:hover {
-      background-color: utils.get-color(mid-dark);
+      background-color: theme.get-color(mid-dark);
     }
   }
 
@@ -199,7 +199,7 @@ $option-letter-span: 30px;
   }
 
   &__Divider {
-    background-color: utils.get-color(deep-dark);
+    background-color: theme.get-color(deep-dark);
     height: 1px;
     margin-top: $gap-between-question-elements;
     width: 100%;
@@ -208,8 +208,8 @@ $option-letter-span: 30px;
   }
 
   &__Content {
-    background-color: utils.get-color(mid-dark);
-    border-radius: utils.get-constant(border-radius);
+    background-color: theme.get-color(mid-dark);
+    border-radius: theme.get-constant(border-radius);
     margin-top: $gap-between-question-elements;
     padding: 8px;
 

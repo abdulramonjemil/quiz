@@ -1,4 +1,4 @@
-@use "partials/utils";
+@use "partials/theme";
 
 .ControlPanelContainer {
   container-type: inline-size;
@@ -6,10 +6,10 @@
 
 .ControlPanel {
   display: grid;
-  gap: utils.get-constant(element-spacing);
+  gap: theme.get-constant(element-spacing);
   grid-template-columns: repeat(2, max-content) 1fr max-content;
   grid-template-areas: "prev next . submit";
-  margin-top: utils.get-constant(element-spacing);
+  margin-top: theme.get-constant(element-spacing);
 
   @container (width <= 420px) {
     grid-template-columns: repeat(2, 1fr);
@@ -18,7 +18,7 @@
 }
 
 %control-button {
-  border-radius: utils.get-constant(border-radius);
+  border-radius: theme.get-constant(border-radius);
   cursor: pointer;
   font-weight: 500;
   outline-offset: 2px;
@@ -26,7 +26,7 @@
   transition: opacity linear 0.1s;
 
   &:focus-visible {
-    outline: 2px solid utils.get-color(deep-light);
+    outline: 2px solid theme.get-color(deep-light);
   }
 
   &:disabled {
@@ -43,14 +43,14 @@
 .Next {
   @extend %control-button;
 
-  background-color: utils.get-color(soft-dark);
-  color: utils.get-color(deep-light);
+  background-color: theme.get-color(soft-dark);
+  color: theme.get-color(deep-light);
 }
 
 .Cta {
   @extend %control-button;
 
-  background-color: utils.get-color("purple");
-  color: utils.get-color(deep-light);
+  background-color: theme.get-color("purple");
+  color: theme.get-color(deep-light);
   grid-area: submit;
 }

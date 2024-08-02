@@ -1,11 +1,11 @@
 @use "sass:math";
-@use "partials/utils";
+@use "partials/theme";
 
 $progress-number-span: 30px;
 $progress-element-thickness: 2px;
 $progress-element-transition-duration: 0.4s;
-$reached-progress-element-color: utils.get-color(deep-light);
-$unreached-progress-element-color: utils.get-color(soft-dark);
+$reached-progress-element-color: theme.get-color(deep-light);
+$unreached-progress-element-color: theme.get-color(soft-dark);
 
 .Progress {
   margin: auto;
@@ -78,7 +78,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
         background: linear-gradient(
           to right,
           $reached-progress-element-color,
-          utils.get-color("light-purple")
+          theme.get-color("light-purple")
         );
       }
 
@@ -91,7 +91,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
   &__LevelButton {
     background-color: transparent;
     border: $progress-element-thickness dotted $unreached-progress-element-color;
-    border-radius: utils.get-constant(border-radius);
+    border-radius: theme.get-constant(border-radius);
     height: $progress-number-span;
 
     display: flex;
@@ -113,7 +113,7 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
     }
 
     &:focus-visible {
-      outline: 2px solid utils.get-color("deep-light");
+      outline: 2px solid theme.get-color("deep-light");
       outline-offset: 2px;
     }
 
@@ -129,8 +129,8 @@ $unreached-progress-element-color: utils.get-color(soft-dark);
       font-weight: 700;
 
       &:not(:disabled) {
-        border-color: utils.get-color("light-purple");
-        color: utils.get-color("light-purple");
+        border-color: theme.get-color("light-purple");
+        color: theme.get-color("light-purple");
       }
     }
 

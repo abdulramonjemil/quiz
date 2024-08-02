@@ -2,15 +2,15 @@
 @use "sass:string";
 @use "partials/number";
 @use "partials/element";
-@use "partials/utils";
+@use "partials/theme";
 
 $indicator-circle-animation-duration: 1.5s;
 $indicator-circle-gradient-id: string.unique-id();
 $indicator-circle-final-dashoffset-css-var: --indicator-circle-final-dashoffset;
 $result-percentage-css-var: --result-percentage;
 
-$result-primary-color: utils.get-color("light-green");
-$result-secondary-color: utils.get-color("light-pink");
+$result-primary-color: theme.get-color("light-green");
+$result-secondary-color: theme.get-color("light-pink");
 
 $indicator-svg-viewbox-width: 100;
 $indicator-circle-radius: 50;
@@ -222,7 +222,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 
   &__Button {
     background-color: transparent;
-    border-radius: utils.get-constant(border-radius);
+    border-radius: theme.get-constant(border-radius);
     color: $result-secondary-color;
     cursor: pointer;
     font-weight: 500;
@@ -236,7 +236,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     }
 
     &:focus-visible {
-      outline: 2px solid utils.get-color(deep-light);
+      outline: 2px solid theme.get-color(deep-light);
     }
 
     &:hover {

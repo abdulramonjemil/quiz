@@ -1,5 +1,5 @@
 @use "sass:string";
-@use "utils";
+@use "theme";
 
 @mixin root-container-element {
   container-type: inline-size;
@@ -13,8 +13,8 @@
   }
 }
 
-$scrollbar-thumb-color: utils.get-color(deeper-light);
-$scrollbar-track-color: utils.get-color(dark-grey);
+$scrollbar-thumb-color: theme.get-color(deeper-light);
+$scrollbar-track-color: theme.get-color(dark-grey);
 $scrollbar-width: 8px;
 
 @mixin scrollbar {
