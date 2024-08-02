@@ -80,7 +80,7 @@ function renderResultIndicator({
   animate = false
 }) {
   const duration = INDICATOR_CIRCLE_ANIMATION_DURATION_MS
-  const minIncrement = 4
+  const minIncrement = scoredPercentage >= 50 ? 4 : 2
 
   let startTime = /** @type {DOMHighResTimeStamp | null} */ (null)
   let lastFrameTime = /** @type {DOMHighResTimeStamp | null} */ (0)

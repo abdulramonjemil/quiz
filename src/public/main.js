@@ -75,7 +75,8 @@ Quiz.create({
       saveWithPathname: false
     },
     customRootClass: "sample-quiz-2",
-    elements: SAMPLE_QUIZ_DATA.slice(0, 5),
+    animateResultIndicator: true,
+    elements: SAMPLE_QUIZ_DATA.slice(11, 13),
     finalized: false,
     onSubmit: (data) => {
       // eslint-disable-next-line no-console
@@ -90,7 +91,6 @@ Quiz.create({
     header: "Test quiz 3",
     autosave: null,
     customRootClass: "sample-quiz-3",
-    animateResultIndicator: true,
     elements: createFinalizedInquiryElements(SAMPLE_QUIZ_DATA.slice(9, 14)),
     finalized: true
   }
