@@ -1,8 +1,6 @@
 @use "partials/utils";
 
 %reset-element {
-  font-family: inherit;
-
   border: none;
   box-sizing: border-box;
 
@@ -32,6 +30,10 @@
 
   * {
     @extend %reset-element;
+
+    &:not(pre, code) {
+      font-family: inherit;
+    }
   }
 
   code:not(pre code) {
