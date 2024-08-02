@@ -180,7 +180,7 @@ export default class Progress extends Component {
 
     const listRootRH = /** @type {typeof rh<HTMLUListElement>} */ (rh)(null)
     const progressNode = (
-      <div className={progressClasses.root} aria-hidden="true">
+      <div className={progressClasses.root}>
         <ul className={progressClasses.list} refHolder={listRootRH}>
           {[...progressLevels]}
         </ul>
