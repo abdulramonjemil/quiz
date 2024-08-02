@@ -77,7 +77,7 @@ function renderResultIndicator({
   indicator,
   scoredPercentage,
   setPercentValue,
-  animate = false
+  animate = true
 }) {
   const duration = INDICATOR_CIRCLE_ANIMATION_DURATION_MS
   const minIncrement = scoredPercentage >= 50 ? 4 : 2
