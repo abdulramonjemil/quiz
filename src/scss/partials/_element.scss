@@ -1,11 +1,10 @@
-@use "sass:color";
 @use "sass:string";
 @use "utils";
 
 /* stylelint-disable-next-line value-keyword-case */
-$container-name: slide_container_id-HHZr5QNtu7kaUpxBvMDs1f0ld9cn3s;
+$container-name: slide-container-id\:\:#{string.unique-id()};
 
-$scrollbar-thumb-color: color.change(utils.get-color(deep-light), $alpha: 0.8);
+$scrollbar-thumb-color: utils.get-color(deeper-light);
 $scrollbar-track-color: utils.get-color(dark-grey);
 $scrollbar-width: 8px;
 

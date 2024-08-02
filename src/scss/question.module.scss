@@ -1,4 +1,3 @@
-@use "sass:color";
 @use "sass:math";
 @use "partials/element";
 @use "partials/utils";
@@ -54,6 +53,14 @@ $option-letter-span: 30px;
     opacity: 0.8;
   }
 
+  &_correct {
+    // Used to style correct selected options
+  }
+
+  &_incorrect {
+    // Used to style incorrect selected options
+  }
+
   &__Input {
     left: 0;
     opacity: 0.001;
@@ -61,10 +68,7 @@ $option-letter-span: 30px;
     top: 0;
   }
 
-  $selected-option-dark-color: color.scale(
-    utils.get-color(soft-dark),
-    $lightness: -25%
-  );
+  $selected-option-dark-color: utils.get-color(mid-dark);
   $correct-option-color: rgb(15 90 40);
   $incorrect-option-color: rgb(90 13 13);
 
@@ -153,21 +157,16 @@ $option-letter-span: 30px;
   padding: 10px;
 
   &_enabled {
+    // Used to show or hide explanation (button and content)
     display: block;
   }
 
+  &_shown {
+    // Used to show or hide explanation content (not button)
+  }
+
   &__Button {
-    $toggler-default-bg-color: color.change(
-      utils.get-color(deep-dark),
-      $alpha: 0.3
-    );
-
-    $toggler-interaction-bg-color: color.change(
-      utils.get-color(deep-dark),
-      $alpha: 0.7
-    );
-
-    background-color: $toggler-default-bg-color;
+    background-color: transparent;
     border: 2px solid utils.get-color(deep-light);
     border-radius: utils.get-constant(border-radius);
     color: utils.get-color(deep-light);
@@ -178,7 +177,7 @@ $option-letter-span: 30px;
     transition: background-color linear 0.1s;
 
     &:focus {
-      background-color: $toggler-interaction-bg-color;
+      background-color: utils.get-color(mid-dark);
     }
 
     &:focus-visible {
@@ -187,11 +186,11 @@ $option-letter-span: 30px;
     }
 
     &:hover {
-      background-color: $toggler-interaction-bg-color;
+      background-color: utils.get-color(mid-dark);
     }
   }
 
-  @mixin explanation-part-hidden-by-default {
+  @mixin shown-and-hidden-with-explanation-root {
     display: none;
 
     .Explanation_shown & {
@@ -205,15 +204,15 @@ $option-letter-span: 30px;
     margin-top: $gap-between-question-elements;
     width: 100%;
 
-    @include explanation-part-hidden-by-default;
+    @include shown-and-hidden-with-explanation-root;
   }
 
   &__Content {
-    background-color: color.change(utils.get-color(deep-dark), $alpha: 0.7);
+    background-color: utils.get-color(mid-dark);
     border-radius: utils.get-constant(border-radius);
     margin-top: $gap-between-question-elements;
     padding: 8px;
 
-    @include explanation-part-hidden-by-default;
+    @include shown-and-hidden-with-explanation-root;
   }
 }

@@ -1,5 +1,3 @@
-@use "sass:color";
-@use "sass:string";
 @use "partials/utils";
 
 .ControlPanelContainer {
@@ -25,7 +23,7 @@
   font-weight: 500;
   outline-offset: 2px;
   padding: 8px 35px;
-  transition: background-color linear 0.1s;
+  transition: opacity linear 0.1s;
 
   &:focus-visible {
     outline: 2px solid utils.get-color(deep-light);
@@ -35,6 +33,10 @@
     opacity: 0.6;
     cursor: not-allowed;
   }
+
+  &:not(:disabled):hover {
+    opacity: 0.8;
+  }
 }
 
 .Prev,
@@ -43,23 +45,12 @@
 
   background-color: utils.get-color(soft-dark);
   color: utils.get-color(deep-light);
-
-  &:not(:disabled):hover {
-    background-color: color.change(utils.get-color(soft-dark), $alpha: 0.8);
-  }
 }
 
 .Cta {
   @extend %control-button;
 
-  $submit-button-color: utils.get-color("purple");
-  $interaction-color: color.change($submit-button-color, $alpha: 0.8);
-
-  background-color: $submit-button-color;
+  background-color: utils.get-color("purple");
   color: utils.get-color(deep-light);
   grid-area: submit;
-
-  &:not(:disabled):hover {
-    background-color: $interaction-color;
-  }
 }

@@ -7,13 +7,13 @@ import Styles from "@/scss/scroll-shadow.module.scss"
  */
 
 // eslint-disable-next-line prefer-destructuring
-const BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY = /** @type {string} */ (
-  Styles.BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY
+const BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR = /** @type {string} */ (
+  Styles.BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR
 )
 
 // eslint-disable-next-line prefer-destructuring
-const TOP_SCROLL_SHADOW_SIZER_PROPERTY = /** @type {string} */ (
-  Styles.TOP_SCROLL_SHADOW_SIZER_PROPERTY
+const TOP_SCROLL_SHADOW_SIZE_CSS_VAR = /** @type {string} */ (
+  Styles.TOP_SCROLL_SHADOW_SIZE_CSS_VAR
 )
 
 const SCROLL_SHADOW_SUITABLE_MAX_SIZE = Number(
@@ -56,12 +56,12 @@ const createAdjustScrollShadow = () => {
       // Numbers are clamped because they're sometimes negative (as noticed on
       // chrome for android)
       scrollShadow.style.setProperty(
-        TOP_SCROLL_SHADOW_SIZER_PROPERTY,
+        TOP_SCROLL_SHADOW_SIZE_CSS_VAR,
         `${toPositive(topShadowSize)}px`
       )
 
       scrollShadow.style.setProperty(
-        BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY,
+        BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR,
         `${toPositive(bottomShadowSize)}px`
       )
 

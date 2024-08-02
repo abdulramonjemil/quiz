@@ -1,4 +1,3 @@
-@use "sass:color";
 @use "partials/number";
 @use "partials/utils";
 
@@ -7,18 +6,14 @@ $top-scroll-shadow-size-css-var: --top-scroll-shadow-size;
 $scroll-shadow-suitable-max-size: 15px;
 
 :export {
-  BOTTOM_SCROLL_SHADOW_SIZER_PROPERTY: $bottom-scroll-shadow-size-css-var;
-  TOP_SCROLL_SHADOW_SIZER_PROPERTY: $top-scroll-shadow-size-css-var;
+  BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR: $bottom-scroll-shadow-size-css-var;
+  TOP_SCROLL_SHADOW_SIZE_CSS_VAR: $top-scroll-shadow-size-css-var;
   SCROLL_SHADOW_SUITABLE_MAX_SIZE: number.unitless(
     $scroll-shadow-suitable-max-size
   );
 }
 
 .ScrollShadow {
-  $overlay-shadow-color: rgb(0 0 0 / 50%);
-  $overlay-shadow-color: color.change(utils.get-color(deep-dark), $alpha: 0.9);
-  $overlay-shadow-color: utils.get-color(dark-grey);
-
   #{$bottom-scroll-shadow-size-css-var}: 0;
   #{$top-scroll-shadow-size-css-var}: 0;
 
