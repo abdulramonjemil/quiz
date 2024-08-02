@@ -1,6 +1,6 @@
 export function uniqueId() {
-  const timeStamp = String(performance.now()).replace(".", "-")
-  const randomNumberWithoutDot = String(Math.random()).slice(2)
+  const timeStamp = performance.now().toString(36).replace(".", "-")
+  const randomNumberWithoutDot = Math.random().toString(36).slice(2)
   const finalUniqueId = `:id:-${timeStamp}:-${randomNumberWithoutDot}`
   return finalUniqueId
 }
