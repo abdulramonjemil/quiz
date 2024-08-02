@@ -1,3 +1,6 @@
+import { JSXClassElementType, JSXElementType } from "./base"
+import { RefHolder } from "./ref"
+
 export type {
   JSXClassElementType,
   JSXElementType,
@@ -19,3 +22,29 @@ export {
 } from "./ref"
 
 export { Slot, type SlotProps, type SlotRevalidator } from "./slot"
+
+export namespace CustomJSX {
+  type Element = Node
+  type ElementType = JSXElementType
+  type ElementClass = InstanceType<JSXClassElementType>
+
+  interface ElementAttributesProperty {
+    $props: {}
+  }
+
+  interface ElementChildrenAttribute {
+    children: {}
+  }
+
+  interface IntrinsicAttributes {
+    nodeRefHolder?: RefHolder<Node>
+  }
+
+  interface IntrinsicClassAttributes<T> {
+    instanceRefHolder?: RefHolder<T>
+  }
+
+  interface IntrinsicElements {
+    [x: string]: { [x: string]: any; refHolder?: RefHolder<Element> }
+  }
+}

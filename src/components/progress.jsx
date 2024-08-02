@@ -166,7 +166,7 @@ export default class Progress extends Component {
       const isCompletionLevel = lastAsCompletionLevel && i === levelsCount - 1
       const isSecondToLastLevel = i === levelsCount - 2
 
-      progressLevels.push(
+      const level = (
         <ProgressLevel
           buttonContent={
             isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
@@ -175,6 +175,7 @@ export default class Progress extends Component {
           isCompletionLevel={isCompletionLevel}
         />
       )
+      progressLevels.push(/** @type {HTMLElement} */ (level))
     }
 
     const listRootRH = /** @type {typeof rh<HTMLUListElement>} */ (rh)(null)

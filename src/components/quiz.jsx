@@ -176,7 +176,7 @@ function buildQuizSlideElements({
     let slideInstance
 
     if (element.type === "CODE_BOARD") {
-      slideNode = (
+      const node = (
         <CodeBoard
           title={element.title}
           language={element.language}
@@ -184,10 +184,11 @@ function buildQuizSlideElements({
           theme={codeBoardTheme}
         />
       )
+      slideNode = /** @type {HTMLElement} */ (node)
       slideInstance = null
     } else if (element.type === "QUESTION") {
       const questionInstanceRH = /** @type {typeof rh<Question>} */ (rh)(null)
-      slideNode = (
+      const node = (
         <Question
           title={element.title}
           options={element.options}
@@ -197,14 +198,14 @@ function buildQuizSlideElements({
           instanceRefHolder={questionInstanceRH}
         />
       )
+      slideNode = /** @type {HTMLElement} */ (node)
       slideInstance = questionInstanceRH.ref
     } else {
       const resultRH = /** @type {typeof rh<Result>} */ (rh)(null)
       const questionsCount = elements.filter(
         (elem) => elem.type === "QUESTION"
       ).length
-
-      slideNode = (
+      const node = (
         <Result
           questionsCount={questionsCount}
           animateIndicator={animateResultIndicator}
@@ -213,6 +214,7 @@ function buildQuizSlideElements({
           instanceRefHolder={resultRH}
         />
       )
+      slideNode = /** @type {HTMLElement} */ (node)
       slideInstance = resultRH.ref
     }
 

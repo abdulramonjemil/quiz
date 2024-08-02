@@ -1,4 +1,5 @@
 import { cn } from "@/lib/dom"
+import { assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/scroll-shadow.module.scss"
 
 /**
@@ -72,11 +73,15 @@ const createAdjustScrollShadow = () => {
 /**
  * @param {Object} param0
  * @param {MutationObserverInit} [param0.observerConfig]
- * @param {HTMLElement} param0.children
+ * @param {Node} param0.children
  * @param {ScrollShadowMaxSizes} [param0.maxSizes]
  */
 export default function ScrollShadow({ observerConfig, children, maxSizes }) {
-  const scrollShadow = <div className={scrollShadowClasses.root} />
+  const scrollShadow = /** @type {HTMLElement} */ (
+    <div className={scrollShadowClasses.root} />
+  )
+
+  assertIsInstance(children, HTMLElement)
   const scrollableElement = children
   const adjustShadow = () => {
     createAdjustScrollShadow()(scrollableElement, scrollShadow, maxSizes)

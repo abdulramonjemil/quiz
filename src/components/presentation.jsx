@@ -93,12 +93,14 @@ export default class Presentation extends Component {
     const { id, slides } = props
 
     const slideContents = Array.from(new Set(slides))
-    const slideNodes = slideContents.map((slideContent) => (
-      <Slide content={slideContent} />
-    ))
+    const slideNodes = /** @type {HTMLElement[]} */ (
+      slideContents.map((slideContent) => <Slide content={slideContent} />)
+    )
 
     const indexOfSlideToShow = 0
     const slideNodeToShow = slideNodes[indexOfSlideToShow]
+    const desc = `slide node to show index: ${indexOfSlideToShow}`
+    assertIsDefined(slideNodeToShow, desc)
     setSlideState(slideNodeToShow, "shown")
 
     const presentationNode = (
