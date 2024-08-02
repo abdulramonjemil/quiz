@@ -16,8 +16,8 @@ const TOP_SCROLL_SHADOW_SIZER_PROPERTY = /** @type {string} */ (
   Styles.TOP_SCROLL_SHADOW_SIZER_PROPERTY
 )
 
-const SCROLL_SHADOW_MAX_SUITABLE_SIZE = Number(
-  Styles.MAX_SUITABLE_SCROLL_SHADOW_SIZE
+const SCROLL_SHADOW_SUITABLE_MAX_SIZE = Number(
+  Styles.SCROLL_SHADOW_SUITABLE_MAX_SIZE
 )
 
 const scrollShadowClasses = {
@@ -46,8 +46,8 @@ const createAdjustScrollShadow = () => {
       const { clientHeight, scrollHeight, scrollTop } = scrollableElement
       const scrollBottom = scrollHeight - scrollTop - clientHeight
 
-      const maxTop = maxSizes?.top ?? SCROLL_SHADOW_MAX_SUITABLE_SIZE
-      const maxBottom = maxSizes?.bottom ?? SCROLL_SHADOW_MAX_SUITABLE_SIZE
+      const maxTop = maxSizes?.top ?? SCROLL_SHADOW_SUITABLE_MAX_SIZE
+      const maxBottom = maxSizes?.bottom ?? SCROLL_SHADOW_SUITABLE_MAX_SIZE
 
       const topShadowSize = scrollTop / 2 > maxTop ? maxTop : scrollTop / 2
       const bottomShadowSize =
