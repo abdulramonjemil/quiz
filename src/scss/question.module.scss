@@ -7,7 +7,7 @@ $min-option-width: 50px;
 $option-letter-span: 30px;
 
 .QuestionWrapper {
-  @include element.height-config;
+  @include element.contained-element;
 
   display: flex;
   flex-direction: column;

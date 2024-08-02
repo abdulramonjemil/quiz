@@ -2,23 +2,20 @@
 @use "partials/utils";
 
 .Presentation {
-  width: 100%;
-}
+  @include element.root-container-element;
 
-.Slide {
-  container: element.$container-name / inline-size;
-  display: none;
-  margin-top: 20px;
+  &_Slide {
+    @include element.contained-element;
 
-  &:focus-visible {
-    outline: 2px solid utils.get-color(deep-light);
-  }
+    display: none;
+    margin-top: 20px;
 
-  &_shown {
-    display: block;
-  }
+    &:focus-visible {
+      outline: 2px solid utils.get-color(deep-light);
+    }
 
-  &__Content {
-    @include element.height-config;
+    &_shown {
+      display: block;
+    }
   }
 }

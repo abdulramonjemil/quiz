@@ -7,7 +7,7 @@ $code-board-horizontal-padding: 12px;
 $code-board-vertical-padding: 10px;
 
 .CodeBoard {
-  @include element.height-config;
+  @include element.contained-element;
 
   display: flex;
   flex-direction: column;

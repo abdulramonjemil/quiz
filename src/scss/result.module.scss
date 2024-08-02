@@ -29,7 +29,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 }
 
 .ResultWrapper {
-  @include element.height-config;
+  @include element.contained-element;
 
   display: flex;
   flex-direction: column;

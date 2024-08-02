@@ -1,23 +1,21 @@
 @use "sass:string";
 @use "utils";
 
-/* stylelint-disable-next-line value-keyword-case */
-$container-name: slide-container-id\:\:#{string.unique-id()};
+@mixin root-container-element {
+  container-type: inline-size;
+}
+
+@mixin contained-element {
+  height: 280px;
+
+  @container (width <= 500px) {
+    height: 350px;
+  }
+}
 
 $scrollbar-thumb-color: utils.get-color(deeper-light);
 $scrollbar-track-color: utils.get-color(dark-grey);
 $scrollbar-width: 8px;
-
-@mixin height-config {
-  $slide-height-property: --#{string.unique-id()};
-  #{$slide-height-property}: 280px;
-
-  height: var($slide-height-property);
-
-  @container #{$container-name} (width <= 500px) {
-    #{$slide-height-property}: 350px;
-  }
-}
 
 @mixin scrollbar {
   @media only screen and (min-width: 500px) {

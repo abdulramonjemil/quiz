@@ -12,10 +12,9 @@ import Styles from "@/scss/presentation.module.scss"
 const presentationClasses = {
   root: cn("quiz-presentation", Styles.Presentation),
   slide: {
-    base: cn("quiz-presentation-slide", Styles.Slide),
-    shown: cn("quiz-presentation-slide--shown", Styles.Slide_shown)
-  },
-  slideContent: cn("quiz-presentation-slide-content", Styles.Slide__Content)
+    base: cn("quiz-presentation-slide", Styles.Presentation_Slide),
+    shown: cn("quiz-presentation-slide--shown", Styles.Presentation_Slide_shown)
+  }
 }
 
 /**
@@ -72,18 +71,6 @@ function showSlide(slideNodes, slideIndex) {
 }
 
 /**
- * @param {Object} param0
- * @param {unknown} param0.content
- */
-function Slide({ content }) {
-  return (
-    <div className={presentationClasses.slide.base}>
-      <div className={presentationClasses.slideContent}>{content}</div>
-    </div>
-  )
-}
-
-/**
  * @template {PresentationProps} [Props=PresentationProps]
  * @extends {Component<Props>}
  */
@@ -94,7 +81,9 @@ export default class Presentation extends Component {
 
     const slideContents = Array.from(new Set(slides))
     const slideNodes = /** @type {HTMLElement[]} */ (
-      slideContents.map((slideContent) => <Slide content={slideContent} />)
+      slideContents.map((slideContent) => (
+        <div className={presentationClasses.slide.base}>{slideContent}</div>
+      ))
     )
 
     const indexOfSlideToShow = 0
