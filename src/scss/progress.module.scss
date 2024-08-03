@@ -26,7 +26,6 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
     cursor: default;
     display: block;
     flex-grow: 1;
-    min-width: 34px;
     max-width: 200px;
     position: relative;
 
@@ -41,10 +40,6 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
 
     &_completion {
       // Placeholder for the ".Progress__Level_completion" class
-    }
-
-    &_precedingCompletion {
-      // Used for the level just before the completion level
     }
 
     $progress-bridge-full-width: calc(100% - $progress-number-span);
@@ -73,14 +68,6 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
       width: 0;
       z-index: 1;
       transition: width $progress-element-transition-duration;
-
-      @at-root .Progress__Level_precedingCompletion#{&} {
-        background: linear-gradient(
-          to right,
-          $reached-progress-element-color,
-          theme.get-color("light-purple")
-        );
-      }
 
       @at-root :not(.Progress__Level_active, .Progress__Level_active ~ *)#{&} {
         width: $progress-bridge-full-width;
@@ -113,7 +100,7 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
     }
 
     &:focus-visible {
-      outline: 2px solid theme.get-color("deep-light");
+      outline: 2px solid theme.get-color(deep-light);
       outline-offset: 2px;
     }
 
@@ -127,11 +114,6 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
     .Progress__Level_completion & {
       border-radius: 50%;
       font-weight: 700;
-
-      &:not(:disabled) {
-        border-color: theme.get-color("light-purple");
-        color: theme.get-color("light-purple");
-      }
     }
 
     .Progress__Level:not(.Progress__Level_active ~ *) & {

@@ -81,6 +81,7 @@ $code-board-vertical-padding: 10px;
 
     code {
       background: theme.get-color(dark-grey);
+      line-height: theme.get-constant(line-height);
     }
   }
 

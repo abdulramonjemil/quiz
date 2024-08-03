@@ -56,14 +56,12 @@ const resultClasses = {
     Styles.Indicator__PercentSymbol
   ]),
   summaryRoot: cn("quiz-result-summary", Styles.Summary),
-  summaryText: {
-    base: cn("quiz-result-summary-text", Styles.Summary__Text),
-    default: cn([
-      "quiz-result-summary-text--default",
-      Styles.Summary__Text_default
-    ])
-  },
-  summaryButton: cn("quiz-result-summary-button", Styles.Summary__Button)
+  summaryText: cn("quiz-result-summary-text", Styles.Summary__Text),
+  summaryCTA: cn(["quiz-result-summary-cta", Styles.Summary__Cta]),
+  summaryCTAArrow: cn([
+    "quiz-result-summary-cta-arrow",
+    Styles.Summary__CtaArrow
+  ])
 }
 
 /**
@@ -212,12 +210,7 @@ function Summary({
 
   return (
     <div className={resultClasses.summaryRoot}>
-      <p
-        className={cn([
-          resultClasses.summaryText.base,
-          [!getSummaryText, resultClasses.summaryText.default]
-        ])}
-      >
+      <p className={resultClasses.summaryText}>
         {getSummaryText && (
           <span>
             {contentNode(getSummaryText(questionsCount, answersGotten))}
@@ -232,11 +225,11 @@ function Summary({
         )}
       </p>
       <button
-        className={resultClasses.summaryButton}
+        className={resultClasses.summaryCTA}
         onClick={handleCTAButtonClick}
         type="submit"
       >
-        Review Answers
+        Review Answers <span className={resultClasses.summaryCTAArrow}>⟶</span>
       </button>
     </div>
   )

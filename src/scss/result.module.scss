@@ -56,7 +56,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 
   @container (width <= 720px) {
     gap: 20px;
-    padding: 10px;
+    padding: 20px;
   }
 
   @container (width <= 560px) {
@@ -194,11 +194,13 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   flex-direction: column;
   flex: 0 1 max-content;
   justify-content: center;
-
   opacity: 0;
-  transition: opacity linear $indicator-circle-animation-duration *
-    math.div(7, 9);
-  transition-delay: $indicator-circle-animation-duration * math.div(2, 9);
+
+  $transition-delay: $indicator-circle-animation-duration * math.div(2, 9);
+  $transition-duration: $indicator-circle-animation-duration - $transition-delay;
+
+  transition: opacity linear $transition-duration;
+  transition-delay: $transition-delay;
 
   .Indicator_rendered + & {
     opacity: 1;
@@ -212,26 +214,17 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   }
 
   &__Text {
-    font-size: 1.4em;
-    font-weight: 600;
-
-    &_default {
-      em {
-        color: $result-secondary-color;
-        font-weight: 800;
-      }
-    }
+    font-size: 1.2em;
   }
 
-  &__Button {
+  &__Cta {
     background-color: transparent;
-    border-radius: theme.get-constant(border-radius);
-    color: $result-secondary-color;
+    color: theme.get-color(light-purple);
+
     cursor: pointer;
-    font-weight: 500;
+    border-radius: theme.get-constant(border-radius);
+
     margin-top: 20px;
-    text-decoration: underline;
-    transition: opacity linear 0.1s;
     width: max-content;
 
     @container (width <= 720px) {
@@ -241,9 +234,14 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     &:focus-visible {
       outline: 2px solid theme.get-color(deep-light);
     }
+  }
 
-    &:hover {
-      opacity: 0.8;
+  &__CtaArrow {
+    display: inline-block;
+    transition: transform ease-in 0.1s;
+
+    .Summary__Cta:hover & {
+      transform: translateX(50%);
     }
   }
 }

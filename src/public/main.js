@@ -55,7 +55,7 @@ Quiz.create({
   container: container1,
   props: {
     header: "Test quiz 1",
-    elements: SAMPLE_QUIZ_DATA.slice(0, 5),
+    elements: SAMPLE_QUIZ_DATA.slice(2, 5),
     autosave: null,
     finalized: false,
     customRootClass: "sample-quiz-1",

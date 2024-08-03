@@ -37,8 +37,11 @@
   }
 
   code:not(pre code) {
-    background-color: theme.get-color(light-grey);
-    border-radius: 0.25em;
-    padding: 0.05em 0.3em;
+    padding: 0 0.2em;
+
+    &::before,
+    &::after {
+      content: "`";
+    }
   }
 }

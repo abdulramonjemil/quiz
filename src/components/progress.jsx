@@ -33,10 +33,6 @@ const progressClasses = {
     completion: cn([
       "quiz-progress-level--completion",
       Styles.Progress__Level_completion
-    ]),
-    precedingCompletion: cn([
-      "quiz-progress-level--preceding-completion",
-      Styles.Progress__Level_precedingCompletion
     ])
   },
   levelButton: cn("quiz-progress-level-button", Styles.Progress__LevelButton)
@@ -127,19 +123,13 @@ function setActiveLevel(progressLevels, levelIndex) {
 /**
  * @param {Object} param0
  * @param {string | number} param0.buttonContent
- * @param {boolean} param0.precedesCompletionLevel
  * @param {boolean} param0.isCompletionLevel
  */
-function ProgressLevel({
-  buttonContent,
-  precedesCompletionLevel,
-  isCompletionLevel
-}) {
+function ProgressLevel({ buttonContent, isCompletionLevel }) {
   return (
     <li
       className={cn([
         progressClasses.level.base,
-        [precedesCompletionLevel, progressClasses.level.precedingCompletion],
         [isCompletionLevel, progressClasses.level.completion]
       ])}
     >
@@ -164,14 +154,12 @@ export default class Progress extends Component {
 
     for (let i = 0; i < levelsCount; i += 1) {
       const isCompletionLevel = lastAsCompletionLevel && i === levelsCount - 1
-      const isSecondToLastLevel = i === levelsCount - 2
 
       const level = (
         <ProgressLevel
           buttonContent={
             isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
           }
-          precedesCompletionLevel={lastAsCompletionLevel && isSecondToLastLevel}
           isCompletionLevel={isCompletionLevel}
         />
       )

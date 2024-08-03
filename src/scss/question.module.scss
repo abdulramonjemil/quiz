@@ -158,7 +158,7 @@ $option-letter-span: 30px;
   border-radius: theme.get-constant(border-radius);
   display: none;
   margin-top: $gap-between-question-elements;
-  padding: 10px;
+  padding: $gap-between-question-elements;
 
   &_enabled {
     // Used to show or hide explanation (button and content)
