@@ -9,7 +9,7 @@ import {
   toggleClasses
 } from "@/lib/dom"
 
-import { uniqueId } from "@/lib/id"
+import { uniqueId } from "@/lib/factory"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/question.module.scss"
 import ScrollShadow from "./scroll-shadow"

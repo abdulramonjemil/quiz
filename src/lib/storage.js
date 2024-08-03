@@ -1,4 +1,4 @@
-import { uniqueId } from "./id"
+import { uniqueId } from "./factory"
 
 export function webStorageIsAvailable(type) {
   if (type !== "localStorage" && type !== "sessionStorage")

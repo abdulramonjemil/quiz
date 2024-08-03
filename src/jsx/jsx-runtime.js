@@ -1,4 +1,4 @@
-import { uniqueId } from "@/lib/id"
+import { uniqueId } from "@/lib/factory"
 import { resolveToNode } from "./base"
 import { isRH } from "./ref"
 
