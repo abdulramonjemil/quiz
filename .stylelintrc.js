@@ -10,6 +10,7 @@ module.exports = {
       }
     ],
     "scss/at-if-no-null": null,
+    "scss/at-mixin-argumentless-call-parentheses": "always",
     "scss/at-use-no-unnamespaced": true,
     "scss/dollar-variable-empty-line-before": null,
     "scss/double-slash-comment-empty-line-before": null,

@@ -1,0 +1,11 @@
+@mixin container {
+  container-type: inline-size;
+}
+
+@mixin contained {
+  height: 280px;
+
+  @container (width <= 500px) {
+    height: 350px;
+  }
+}

@@ -1,17 +1,17 @@
 @use "sass:math";
-@use "partials/theme";
-@use "partials/element";
+@use "core/theme";
+@use "elements/containment";
 
 $code-board-scrollbar-main-size: 8px;
 $code-board-horizontal-padding: 12px;
 $code-board-vertical-padding: 10px;
 
 .CodeBoard {
-  @include element.contained-element;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
+
+  @include containment.contained();
 
   &__Title {
     flex: 0 0 max-content;

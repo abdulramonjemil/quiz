@@ -1,8 +1,10 @@
 @use "sass:math";
 @use "sass:string";
-@use "partials/number";
-@use "partials/element";
-@use "partials/theme";
+@use "core/custom";
+@use "core/theme";
+@use "elements/scroll-shadow";
+@use "elements/containment";
+@use "lib/number";
 
 $indicator-circle-animation-duration: 1.5s;
 $indicator-circle-gradient-id: string.unique-id();
@@ -29,13 +31,13 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 }
 
 .ResultWrapper {
-  @include element.contained-element;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative;
+
+  @include containment.contained();
+  @include scroll-shadow.root($position: relative);
 }
 
 .Result {
@@ -49,7 +51,8 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   overflow-y: auto;
   padding: 20px 40px;
 
-  @include element.scrollbar;
+  @include custom.scrollbar();
+  @include scroll-shadow.scrollable();
 
   @container (width <= 720px) {
     gap: 20px;

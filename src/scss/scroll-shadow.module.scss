@@ -1,32 +1,15 @@
-@use "partials/number";
-@use "partials/theme";
-
-$bottom-scroll-shadow-size-css-var: --bottom-scroll-shadow-size;
-$top-scroll-shadow-size-css-var: --top-scroll-shadow-size;
-$scroll-shadow-suitable-max-size: 15px;
+@use "core/theme";
+@use "lib/number";
+@use "elements/scroll-shadow";
 
 :export {
-  BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR: $bottom-scroll-shadow-size-css-var;
-  TOP_SCROLL_SHADOW_SIZE_CSS_VAR: $top-scroll-shadow-size-css-var;
+  BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR: scroll-shadow.$bottom-scroll-shadow-size-css-var;
+  TOP_SCROLL_SHADOW_SIZE_CSS_VAR: scroll-shadow.$top-scroll-shadow-size-css-var;
   SCROLL_SHADOW_SUITABLE_MAX_SIZE: number.unitless(
-    $scroll-shadow-suitable-max-size
+    scroll-shadow.$scroll-shadow-suitable-max-size
   );
 }
 
 .ScrollShadow {
-  #{$bottom-scroll-shadow-size-css-var}: 0;
-  #{$top-scroll-shadow-size-css-var}: 0;
-
-  height: 100%;
-  left: 0;
-  pointer-events: none;
-  position: absolute;
-  top: 0;
-  width: 100%;
-  background: linear-gradient(theme.get-color(deep-dark), transparent) center
-      top,
-    linear-gradient(transparent, theme.get-color(deep-dark)) center bottom;
-  background-repeat: no-repeat;
-  background-size: 100% var($top-scroll-shadow-size-css-var),
-    100% var($bottom-scroll-shadow-size-css-var);
+  @include scroll-shadow.shadow();
 }

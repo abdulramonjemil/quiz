@@ -1,19 +1,22 @@
 @use "sass:math";
-@use "partials/element";
-@use "partials/theme";
+@use "core/custom";
+@use "core/theme";
+@use "elements/containment";
+@use "elements/scroll-shadow";
 
 $gap-between-question-elements: theme.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
 .QuestionWrapper {
-  @include element.contained-element;
-
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
+
+  @include containment.contained();
+  @include scroll-shadow.root($position: relative);
 }
 
 .Question {
@@ -22,7 +25,8 @@ $option-letter-span: 30px;
   overflow-y: auto;
   width: 100%;
 
-  @include element.scrollbar;
+  @include custom.scrollbar();
+  @include scroll-shadow.scrollable();
 
   &__Title {
     display: block;
@@ -204,7 +208,7 @@ $option-letter-span: 30px;
     margin-top: $gap-between-question-elements;
     width: 100%;
 
-    @include shown-and-hidden-with-explanation-root;
+    @include shown-and-hidden-with-explanation-root();
   }
 
   &__Content {
@@ -213,6 +217,6 @@ $option-letter-span: 30px;
     margin-top: $gap-between-question-elements;
     padding: 8px;
 
-    @include shown-and-hidden-with-explanation-root;
+    @include shown-and-hidden-with-explanation-root();
   }
 }

@@ -1,0 +1,44 @@
+@use "sass:list";
+@use "../core/theme";
+
+$bottom-scroll-shadow-size-css-var: --bottom-scroll-shadow-size;
+$top-scroll-shadow-size-css-var: --top-scroll-shadow-size;
+$scroll-shadow-suitable-max-size: 15px;
+
+$absolute-element-ancestor-positions: [absolute, fixed, relative, sticky];
+
+@mixin root($position) {
+  @if list.index($absolute-element-ancestor-positions, $position) == null {
+    @error "Expected '#{$position}' to be one of '#{$absolute-element-ancestor-positions}'";
+  }
+
+  position: $position;
+}
+
+@mixin scrollable {
+  // For use with the scrollable that determines scroll shadow
+}
+
+@mixin shadow {
+  #{$top-scroll-shadow-size-css-var}: 0;
+  #{$bottom-scroll-shadow-size-css-var}: 0;
+
+  position: absolute;
+  pointer-events: none;
+
+  left: 0;
+  top: 0;
+
+  height: 100%;
+  width: 100%;
+
+  $shadow-color: theme.get-color(deep-dark);
+  $shadow-1: linear-gradient($shadow-color, transparent) center top;
+  $shadow-2: linear-gradient(transparent, $shadow-color) center bottom;
+  $shadow-size-1: 100% var($top-scroll-shadow-size-css-var);
+  $shadow-size-2: 100% var($bottom-scroll-shadow-size-css-var);
+
+  background: $shadow-1, $shadow-2;
+  background-size: $shadow-size-1, $shadow-size-2;
+  background-repeat: no-repeat;
+}

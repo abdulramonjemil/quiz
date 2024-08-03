@@ -3,7 +3,7 @@
 @use "sass:math";
 @use "sass:meta";
 @use "sass:string";
-@use "library";
+@use "scale";
 
 @function raw-unit($value) {
   @if meta.type-of($value) != "number" {
@@ -35,8 +35,8 @@
 
   @for $i from if($value-is-negative, 2, 1) through string.length($value) {
     $character: string.slice($value, $i, $i);
-    $character-as-number: map.get(library.$digits, $character);
-    $character-is-a-digit: list.index(library.$digits-as-strings, $character) !=
+    $character-as-number: map.get(scale.$digits, $character);
+    $character-is-a-digit: list.index(scale.$digits-strings, $character) !=
       null;
     $character-is-period: $character == ".";
 
@@ -68,7 +68,7 @@
   $last-char-in-value: string.slice($value, -1);
 
   $index-of-value-last-char-in-digits: list.index(
-    library.$digits-as-strings,
+    scale.$digits-strings,
     $last-char-in-value
   );
   $value-has-a-unit: $index-of-value-last-char-in-digits == null;
@@ -79,7 +79,7 @@
     $unit-of-value: null;
     $index-of-next-unit: 1;
 
-    $number-of-units-available: list.length(library.$units);
+    $number-of-units-available: list.length(scale.$units);
     $final-number-as-string: #{$final-number};
 
     @while $unit-of-value ==
@@ -87,7 +87,7 @@
       $index-of-next-unit <=
       $number-of-units-available
     {
-      $current-unit: list.nth(library.$units, $index-of-next-unit);
+      $current-unit: list.nth(scale.$units, $index-of-next-unit);
       $length-of-current-unit: string.length($current-unit);
 
       $index-of-next-unit: $index-of-next-unit + 1;
@@ -106,7 +106,7 @@
       );
 
       $current-unit-is-last-set-of-letters: list.index(
-          library.$digits-as-strings,
+          scale.$digits-strings,
           $char-before-current-unit-at-end
         ) !=
         null;
@@ -123,8 +123,7 @@
       @error "Unable to resolve unit in '#{$value}'";
     }
 
-    $final-number: $final-number *
-      map.get(library.$singled-units, $unit-of-value);
+    $final-number: $final-number * map.get(scale.$unit-values, $unit-of-value);
   }
 
   @return $final-number;

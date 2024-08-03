@@ -1,11 +1,11 @@
-@use "partials/element";
-@use "partials/theme";
+@use "core/theme";
+@use "elements/containment";
 
 .Presentation {
-  @include element.root-container-element;
+  @include containment.container();
 
   &_Slide {
-    @include element.contained-element;
+    @include containment.contained();
 
     display: none;
     margin-top: 20px;

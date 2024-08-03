@@ -13,7 +13,7 @@ $digits: (
   "9": 9
 );
 
-$singled-units: (
+$unit-values: (
   "px": 1px,
   "%": 1%,
   "rem": 1rem,
@@ -49,5 +49,5 @@ $singled-units: (
   "vi": 1vi
 );
 
-$digits-as-strings: map.keys($digits);
-$units: map.keys($singled-units);
+$digits-strings: map.keys($digits);
+$units: map.keys($unit-values);

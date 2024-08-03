@@ -1,17 +1,4 @@
-@use "sass:string";
 @use "theme";
-
-@mixin root-container-element {
-  container-type: inline-size;
-}
-
-@mixin contained-element {
-  height: 280px;
-
-  @container (width <= 500px) {
-    height: 350px;
-  }
-}
 
 $scrollbar-thumb-color: theme.get-color(deeper-light);
 $scrollbar-track-color: theme.get-color(dark-grey);
