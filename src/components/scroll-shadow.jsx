@@ -25,7 +25,7 @@ const scrollShadowClasses = {
 }
 
 /** @param {number} number  */
-function toPositive(number) {
+function nonNegative(number) {
   return number < 0 ? 0 : number
 }
 
@@ -57,12 +57,12 @@ const createAdjustScrollShadow = () => {
       // chrome for android)
       scrollShadow.style.setProperty(
         TOP_SCROLL_SHADOW_SIZE_CSS_VAR,
-        `${toPositive(topShadowSize)}px`
+        `${nonNegative(topShadowSize)}px`
       )
 
       scrollShadow.style.setProperty(
         BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR,
-        `${toPositive(bottomShadowSize)}px`
+        `${nonNegative(bottomShadowSize)}px`
       )
 
       scheduledFrame = null
@@ -83,9 +83,12 @@ export default function ScrollShadow({ observerConfig, children, maxSizes }) {
 
   assertIsInstance(children, HTMLElement)
   const scrollableElement = children
-  const adjustShadow = () => {
-    createAdjustScrollShadow()(scrollableElement, scrollShadow, maxSizes)
-  }
+  const adjustShadow = createAdjustScrollShadow().bind(
+    null,
+    scrollableElement,
+    scrollShadow,
+    maxSizes
+  )
 
   /* eslint-disable-next-line react/destructuring-assignment */
   scrollableElement.addEventListener("scroll", adjustShadow)
