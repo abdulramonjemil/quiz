@@ -37,11 +37,11 @@ $containment-configurable-variables-map: utils.create-variable-map(
 // ============ OTHER STYLES ==============
 // ========================================
 
-@mixin container-element {
+@mixin container {
   container-type: inline-size;
 }
 
-@mixin contained-element {
+@mixin content {
   height: variable("content-default-height");
 
   @container (width >= 400px) {

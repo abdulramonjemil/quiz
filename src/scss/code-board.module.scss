@@ -10,7 +10,7 @@ $code-board-scrollbar-main-size: 8px;
   flex-direction: column;
   justify-content: center;
 
-  @include containment.contained-element();
+  @include containment.content();
 
   &__Title {
     flex: 0 0 max-content;

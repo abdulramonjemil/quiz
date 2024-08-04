@@ -2,10 +2,10 @@
 @use "elements/containment";
 
 .Presentation {
-  @include containment.container-element();
+  @include containment.container();
 
   &_Slide {
-    @include containment.contained-element();
+    @include containment.content();
 
     display: none;
     margin-top: 20px;
