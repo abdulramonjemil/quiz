@@ -1,5 +1,6 @@
 @use "core/custom";
 @use "core/theme";
+@use "elements/containment";
 @use "elements/scroll-shadow";
 
 %reset-element {
@@ -15,6 +16,7 @@
   @include theme.variables-declarations();
   @include scroll-shadow.configurable-variables-declarations();
   @include custom.scrollbar-configurable-variables-declarations();
+  @include containment.configurable-variables-declarations();
 
   &__Inner {
     @extend %reset-element;

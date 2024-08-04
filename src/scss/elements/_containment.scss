@@ -1,11 +1,62 @@
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$containment-configurable-variables: (
+  "content-default-height": 350px,
+  "content-height-400": 350px,
+  "content-height-500": 280px,
+  "content-height-600": 280px,
+  "content-height-800": 280px
+);
+
+$containment-configurable-variables-prefix: "containment";
+$containment-configurable-variables-map: utils.create-variable-map(
+  $containment-configurable-variables,
+  $containment-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $containment-configurable-variables,
+    $containment-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $containment-configurable-variables-map,
+    $variable,
+    "containment variable"
+  );
+}
+
+// ========================================
+// ============ OTHER STYLES ==============
+// ========================================
+
 @mixin container-element {
   container-type: inline-size;
 }
 
 @mixin contained-element {
-  height: 280px;
+  height: variable("content-default-height");
 
-  @container (width <= 500px) {
-    height: 350px;
+  @container (width >= 400px) {
+    height: variable("content-height-400");
+  }
+
+  @container (width >= 500px) {
+    height: variable("content-height-500");
+  }
+
+  @container (width >= 600px) {
+    height: variable("content-height-600");
+  }
+
+  @container (width >= 800px) {
+    height: variable("content-height-800");
   }
 }
