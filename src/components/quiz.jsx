@@ -112,7 +112,8 @@ import ControlPanel from "./control-panel"
 const QUIZ_DATA_STORE = "localStorage"
 
 const quizClasses = {
-  root: cn("quiz", Styles.Quiz)
+  root: cn("quiz", Styles.Quiz),
+  inner: cn("quiz-inner", Styles.Quiz__Inner)
 }
 
 /**
@@ -725,7 +726,8 @@ const createQuizShortcutHandlersCreator = () => {
 
     // Shortcut to go to next/prev quiz element
     if (["p", "n"].includes(event.key.toLowerCase())) {
-      const button = { p: "prev", n: "next" }[event.key.toLowerCase()]
+      const key = /** @type {"p" | "n"} */ (event.key.toLowerCase())
+      const button = /** @type {const} */ ({ p: "prev", n: "next" })[key]
       const focused = controlPanel.simulateClick(button)
       if (focused) attemptElementFocus(tabs.activeTab().content)
       return
@@ -973,41 +975,51 @@ export default class Quiz extends Component {
     })
 
     const quizNode = (
-      <section
-        aria-labelledby={quizLabellingId}
-        className={cn(customRootClass, quizClasses.root)}
-        tabIndex={-1}
-        onKeyDownCapture={shortcutHandlers.keydown}
-        onKeyUpCapture={shortcutHandlers.keyup}
-      >
-        <Header labellingId={quizLabellingId} level={headerLevel}>
-          {header}
-        </Header>
-        <Progress
-          levelsCount={elementInstances.length}
-          lastAsCompletionLevel
-          instanceRefHolder={progressRH}
-        />
-        <Presentation
-          id={presentationControllingId}
-          instanceRefHolder={presentationRH}
-          slides={elementNodes}
-        />
-        <ControlPanel
-          controlledElementId={presentationControllingId}
-          getAlternateFocusable={() => {
-            assertIsInstance(tabs, Tabs)
-            return tabs.activeTab().content
-          }}
-          handlePrevButtonClick={bind(p.$handleCPanelBtnClick, getThis, "prev")}
-          handleNextButtonClick={bind(p.$handleCPanelBtnClick, getThis, "next")}
-          handleCTAButtonClick={() => {
-            const shouldJumpToResult = resultInstance.isFinalized()
-            if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
-            else this.$handleCPanelSubmitCTAClick()
-          }}
-          instanceRefHolder={cPanelRH}
-        />
+      <section className={cn(customRootClass, quizClasses.root)}>
+        <div
+          aria-labelledby={quizLabellingId}
+          tabIndex={-1}
+          onKeyDownCapture={shortcutHandlers.keydown}
+          onKeyUpCapture={shortcutHandlers.keyup}
+          className={quizClasses.inner}
+        >
+          <Header labellingId={quizLabellingId} level={headerLevel}>
+            {header}
+          </Header>
+          <Progress
+            levelsCount={elementInstances.length}
+            lastAsCompletionLevel
+            instanceRefHolder={progressRH}
+          />
+          <Presentation
+            id={presentationControllingId}
+            instanceRefHolder={presentationRH}
+            slides={elementNodes}
+          />
+          <ControlPanel
+            controlledElementId={presentationControllingId}
+            getAlternateFocusable={() => {
+              assertIsInstance(tabs, Tabs)
+              return tabs.activeTab().content
+            }}
+            handlePrevButtonClick={bind(
+              p.$handleCPanelBtnClick,
+              getThis,
+              "prev"
+            )}
+            handleNextButtonClick={bind(
+              p.$handleCPanelBtnClick,
+              getThis,
+              "next"
+            )}
+            handleCTAButtonClick={() => {
+              const shouldJumpToResult = resultInstance.isFinalized()
+              if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
+              else this.$handleCPanelSubmitCTAClick()
+            }}
+            instanceRefHolder={cPanelRH}
+          />
+        </div>
       </section>
     )
 

@@ -1,23 +1,24 @@
 @use "theme";
 
-$scrollbar-thumb-color: theme.get-color(deep-light);
-$scrollbar-track-color: theme.get-color(dark-grey);
+$scrollbar-track-color: theme.color("tertiary");
+$scrollbar-thumb-color: theme.color("tertiary-foreground");
 $scrollbar-width: 8px;
 
 @mixin scrollbar(
   $track-color: $scrollbar-track-color,
-  $thumb-color: $scrollbar-thumb-color
+  $thumb-color: $scrollbar-thumb-color,
+  $width: $scrollbar-width
 ) {
   @media only screen and (min-width: 500px) {
-    scrollbar-color: $scrollbar-thumb-color $scrollbar-track-color;
+    scrollbar-color: $thumb-color $track-color;
     scrollbar-width: thin;
 
     &::-webkit-scrollbar {
-      width: $scrollbar-width;
+      width: $width;
     }
 
     &::-webkit-scrollbar:horizontal {
-      height: $scrollbar-width;
+      height: $width;
     }
 
     &::-webkit-scrollbar-corner {

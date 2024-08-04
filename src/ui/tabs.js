@@ -46,7 +46,7 @@ function throwInvalidTabNameError(tabName) {
 }
 
 /**
- * @template {TabsConfig} Config
+ * @template {TabsConfig} [Config=TabsConfig]
  * @extends {UIComponent<Config, TabsState>}
  */
 export class Tabs extends UIComponent {

@@ -1,9 +1,7 @@
 import { uniqueId } from "./factory"
 
+/** @param {"localStorage" | "sessionStorage"} type */
 export function webStorageIsAvailable(type) {
-  if (type !== "localStorage" && type !== "sessionStorage")
-    throw new TypeError(`Unknown web storage type: ${type}`)
-
   try {
     const storage = window[type]
     if (!(storage instanceof Storage)) return false

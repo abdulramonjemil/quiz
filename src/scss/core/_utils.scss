@@ -1,0 +1,43 @@
+@use "sass:map";
+@use "sass:meta";
+@use "sass:string";
+
+@function create-variable-map($map, $prefix) {
+  @if meta.type-of($map) != "map" {
+    @error "Expected a map of names to css values";
+  }
+
+  @if meta.type-of($prefix) != "string" or string.length($prefix) < 1 {
+    @error "Expected a non-empty string prefix";
+  }
+
+  $variable-map: ();
+
+  @each $key, $value in $map {
+    $variable-map: map.set($variable-map, $key, "var(--#{$prefix}-#{$key})");
+  }
+
+  @return $variable-map;
+}
+
+@mixin variable-declarations($map, $prefix) {
+  @if meta.type-of($map) != "map" {
+    @error "Expected a map of names to css values";
+  }
+
+  @if meta.type-of($prefix) != "string" or string.length($prefix) < 1 {
+    @error "Expected a non-empty string prefix";
+  }
+
+  @each $key, $value in $map {
+    --#{$prefix}-#{$key}: #{$value};
+  }
+}
+
+@function get-variable($variable-map, $key, $type) {
+  @if not map-has-key($variable-map, $key) {
+    @error "Unknown #{$type} variable with key: '#{$key}'";
+  }
+
+  @return string.unquote(map.get($variable-map, $key));
+}

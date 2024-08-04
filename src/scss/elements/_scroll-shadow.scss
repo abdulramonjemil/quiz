@@ -32,7 +32,7 @@ $absolute-element-ancestor-positions: [absolute, fixed, relative, sticky];
   height: 100%;
   width: 100%;
 
-  $shadow-color: theme.get-color(deep-dark);
+  $shadow-color: theme.color("surface");
   $shadow-1: linear-gradient($shadow-color, transparent) center top;
   $shadow-2: linear-gradient(transparent, $shadow-color) center bottom;
   $shadow-size-1: 100% var($top-scroll-shadow-size-css-var);

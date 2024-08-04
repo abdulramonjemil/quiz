@@ -27,40 +27,38 @@ $code-board-scrollbar-main-size: 8px;
 }
 
 .Pre {
-  border-radius: theme.get-constant(border-radius);
+  border-radius: theme.constant("border-radius");
   height: max-content;
   max-height: 100%;
   overflow: auto;
-  scrollbar-color: theme.get-color(deep-light) transparent;
-  scrollbar-width: thin;
 
   @include custom.scrollbar($track-color: transparent);
 
   &:focus {
-    outline: 2px solid theme.get-color(deep-light);
+    outline: 2px solid theme.color("surface-foreground");
   }
 
   &[class*="language-"] {
-    background: theme.get-color(dark-grey);
+    background: theme.color("tertiary");
     margin: 0;
 
     code {
-      background: theme.get-color(dark-grey);
+      background: theme.color("tertiary");
     }
   }
 
   @at-root %internal-themed {
-    line-height: theme.get-constant(line-height);
+    line-height: theme.constant("line-height");
     padding: 10px 12px;
 
     code {
-      line-height: theme.get-constant(line-height);
+      line-height: theme.constant("line-height");
     }
   }
 
   &_basicThemed[class*="language-"] {
     @extend %internal-themed;
-    color: theme.get-color(deep-light);
+    color: theme.color("tertiary-foreground");
   }
 
   &_defaultThemed[class*="language-"] {

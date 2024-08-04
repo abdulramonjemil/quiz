@@ -165,6 +165,7 @@ function assignIntrinsicElementAttrs(element, props, derivedNS) {
   Object.entries(attrProps).forEach(([key, value]) => {
     if (typeof value === "string" || typeof value === "number") {
       if (propertyAPIAttrSet.has(key)) {
+        // @ts-expect-error
         element[key] = value // eslint-disable-line no-param-reassign
       } else {
         element.setAttribute(key, String(value))

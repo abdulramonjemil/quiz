@@ -11,8 +11,8 @@ $indicator-circle-gradient-id: string.unique-id();
 $indicator-circle-final-dashoffset-css-var: --indicator-circle-final-dashoffset;
 $result-percentage-css-var: --result-percentage;
 
-$result-primary-color: theme.get-color("light-green");
-$result-secondary-color: theme.get-color("light-pink");
+$result-primary-color: hsl(180deg 25% 65%);
+$result-secondary-color: hsl(311deg 20% 63%);
 
 $indicator-svg-viewbox-width: 100;
 $indicator-circle-radius: 50;
@@ -219,10 +219,10 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 
   &__Cta {
     background-color: transparent;
-    color: theme.get-color(light-purple);
+    color: theme.color("surface-foreground-vibrant");
 
     cursor: pointer;
-    border-radius: theme.get-constant(border-radius);
+    border-radius: theme.constant("border-radius");
 
     margin-top: 20px;
     width: max-content;
@@ -232,7 +232,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     }
 
     &:focus-visible {
-      outline: 2px solid theme.get-color(deep-light);
+      outline: 2px solid theme.color("surface-foreground");
     }
   }
 

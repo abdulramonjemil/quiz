@@ -4,8 +4,8 @@
 $progress-number-span: 30px;
 $progress-element-thickness: 2px;
 $progress-element-transition-duration: 0.4s;
-$reached-progress-element-color: theme.get-color(deep-light);
-$unreached-progress-element-color: theme.get-color(soft-dark);
+$reached-progress-element-color: theme.color("surface-foreground");
+$unreached-progress-element-color: theme.color("surface-foreground-muted");
 
 .Progress {
   margin: auto;
@@ -78,7 +78,7 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
   &__LevelButton {
     background-color: transparent;
     border: $progress-element-thickness dotted $unreached-progress-element-color;
-    border-radius: theme.get-constant(border-radius);
+    border-radius: theme.constant("border-radius");
     height: $progress-number-span;
 
     display: flex;
@@ -100,7 +100,7 @@ $unreached-progress-element-color: theme.get-color(soft-dark);
     }
 
     &:focus-visible {
-      outline: 2px solid theme.get-color(deep-light);
+      outline: 2px solid theme.color("surface-foreground");
       outline-offset: 2px;
     }
 
