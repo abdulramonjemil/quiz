@@ -41,16 +41,19 @@ $code-board-scrollbar-main-size: 8px;
   }
 
   &[class*="language-"] {
+    background: theme.get-color(dark-grey);
     margin: 0;
+
+    code {
+      background: theme.get-color(dark-grey);
+    }
   }
 
   @at-root %internal-themed {
-    background: theme.get-color(dark-grey);
     line-height: theme.get-constant(line-height);
     padding: 10px 12px;
 
     code {
-      background: theme.get-color(dark-grey);
       line-height: theme.get-constant(line-height);
     }
   }

@@ -74,6 +74,8 @@ Quiz.create({
       identifier: "sample-quiz-2",
       saveWithPathname: false
     },
+    codeBoardTheme:
+      "https://cdn.jsdelivr.net/gh/PrismJS/prism-themes/themes/prism-gruvbox-dark.css",
     customRootClass: "sample-quiz-2",
     animateResultIndicator: true,
     elements: SAMPLE_QUIZ_DATA.slice(11, 13),
