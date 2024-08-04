@@ -25,7 +25,7 @@ $scrollbar-configurable-variables-map: utils.create-variable-map(
   );
 }
 
-@function variable($variable) {
+@function scrollbar-variable($variable) {
   @return utils.get-variable(
     $scrollbar-configurable-variables-map,
     $variable,
@@ -37,10 +37,10 @@ $scrollbar-configurable-variables-map: utils.create-variable-map(
 // ============ OTHER STYLES ==============
 // ========================================
 
-$scrollbar-track-color: variable("track-color");
-$scrollbar-thumb-color: variable("thumb-color");
-$scrollbar-width: variable("width");
-$scrollbar-webkit-width: variable("webkit-width");
+$scrollbar-track-color: scrollbar-variable("track-color");
+$scrollbar-thumb-color: scrollbar-variable("thumb-color");
+$scrollbar-width: scrollbar-variable("width");
+$scrollbar-webkit-width: scrollbar-variable("webkit-width");
 
 @mixin scrollbar(
   $track-color: $scrollbar-track-color,
