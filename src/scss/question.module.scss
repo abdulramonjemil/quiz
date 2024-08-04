@@ -15,7 +15,7 @@ $option-letter-span: 30px;
   align-items: center;
   position: relative;
 
-  @include containment.contained();
+  @include containment.contained-element();
   @include scroll-shadow.root($position: relative);
 }
 

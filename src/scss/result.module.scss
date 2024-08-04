@@ -36,7 +36,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   justify-content: center;
   align-items: center;
 
-  @include containment.contained();
+  @include containment.contained-element();
   @include scroll-shadow.root($position: relative);
 }
 

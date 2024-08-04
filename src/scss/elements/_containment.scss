@@ -1,8 +1,8 @@
-@mixin container {
+@mixin container-element {
   container-type: inline-size;
 }
 
-@mixin contained {
+@mixin contained-element {
   height: 280px;
 
   @container (width <= 500px) {
