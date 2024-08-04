@@ -4,7 +4,10 @@ $scrollbar-thumb-color: theme.get-color(deep-light);
 $scrollbar-track-color: theme.get-color(dark-grey);
 $scrollbar-width: 8px;
 
-@mixin scrollbar {
+@mixin scrollbar(
+  $track-color: $scrollbar-track-color,
+  $thumb-color: $scrollbar-thumb-color
+) {
   @media only screen and (min-width: 500px) {
     scrollbar-color: $scrollbar-thumb-color $scrollbar-track-color;
     scrollbar-width: thin;
@@ -13,16 +16,20 @@ $scrollbar-width: 8px;
       width: $scrollbar-width;
     }
 
+    &::-webkit-scrollbar:horizontal {
+      height: $scrollbar-width;
+    }
+
     &::-webkit-scrollbar-corner {
       background: transparent;
     }
 
     &::-webkit-scrollbar-track {
-      background: $scrollbar-track-color;
+      background: $track-color;
     }
 
     &::-webkit-scrollbar-thumb {
-      background-color: $scrollbar-thumb-color;
+      background-color: $thumb-color;
     }
   }
 }

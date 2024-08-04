@@ -1,10 +1,9 @@
 @use "sass:math";
+@use "core/custom";
 @use "core/theme";
 @use "elements/containment";
 
 $code-board-scrollbar-main-size: 8px;
-$code-board-horizontal-padding: 12px;
-$code-board-vertical-padding: 10px;
 
 .CodeBoard {
   display: flex;
@@ -25,16 +24,6 @@ $code-board-vertical-padding: 10px;
   margin-top: 10px;
   position: relative;
   width: 100%;
-
-  $mid-transitioning-horizontal-position: math.div(
-    $code-board-horizontal-padding,
-    2
-  );
-
-  $mid-transitioning-vertical-position: math.div(
-    $code-board-vertical-padding,
-    2
-  );
 }
 
 .Pre {
@@ -45,31 +34,12 @@ $code-board-vertical-padding: 10px;
   scrollbar-color: theme.get-color(deep-light) transparent;
   scrollbar-width: thin;
 
+  @include custom.scrollbar($track-color: transparent);
+
   &:focus {
     outline: 2px solid theme.get-color(deep-light);
   }
 
-  &::-webkit-scrollbar {
-    width: $code-board-scrollbar-main-size;
-  }
-
-  &::-webkit-scrollbar:horizontal {
-    height: $code-board-scrollbar-main-size;
-  }
-
-  &::-webkit-scrollbar-corner {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: theme.get-color(deep-light);
-  }
-
-  // `[class*="language-"]` is required to overwrite theme styles
   &[class*="language-"] {
     margin: 0;
   }
@@ -77,7 +47,7 @@ $code-board-vertical-padding: 10px;
   @at-root %internal-themed {
     background: theme.get-color(dark-grey);
     line-height: theme.get-constant(line-height);
-    padding: $code-board-vertical-padding $code-board-horizontal-padding;
+    padding: 10px 12px;
 
     code {
       background: theme.get-color(dark-grey);
