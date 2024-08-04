@@ -1,8 +1,9 @@
 @use "core/custom";
 @use "core/theme";
-@use "elements/containment";
 @use "elements/quiz";
+@use "elements/header";
 @use "elements/scroll-shadow";
+@use "elements/containment";
 
 %reset-element {
   border: none;
@@ -16,6 +17,7 @@
 .Quiz {
   @include theme.variables-declarations();
   @include quiz.configurable-variables-declarations();
+  @include header.configurable-variables-declarations();
   @include scroll-shadow.configurable-variables-declarations();
   @include custom.scrollbar-configurable-variables-declarations();
   @include containment.configurable-variables-declarations();

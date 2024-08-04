@@ -1,0 +1,31 @@
+@use "../core/theme";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$header-configurable-variables: (
+  "color": theme.color("surface-foreground")
+);
+
+$header-configurable-variables-prefix: "header";
+$header-configurable-variables-map: utils.create-variable-map(
+  $header-configurable-variables,
+  $header-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $header-configurable-variables,
+    $header-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $header-configurable-variables-map,
+    $variable,
+    "header variable"
+  );
+}

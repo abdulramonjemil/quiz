@@ -1,7 +1,10 @@
+@use "elements/header";
+
 .Header {
   container-type: inline-size;
 
   &__Element {
+    color: header.variable("color");
     font-size: 30px;
     font-weight: 700;
     line-height: 1.2em;
