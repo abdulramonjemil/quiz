@@ -1,11 +1,14 @@
 @use "sass:math";
 @use "core/theme";
+@use "elements/progress";
 
 $progress-number-span: 30px;
 $progress-element-thickness: 2px;
 $progress-element-transition-duration: 0.4s;
-$reached-progress-element-color: theme.color("surface-foreground");
-$unreached-progress-element-color: theme.color("surface-foreground-muted");
+$muted-progress-element-color: progress.variable("muted-element-color");
+$operational-progress-element-color: progress.variable(
+  "operational-element-color"
+);
 
 .Progress {
   margin: auto;
@@ -57,14 +60,14 @@ $unreached-progress-element-color: theme.color("surface-foreground-muted");
     &:not(:last-child)::before {
       @extend %progress-bridge;
 
-      background-color: $unreached-progress-element-color;
+      background-color: $muted-progress-element-color;
       width: $progress-bridge-full-width;
     }
 
     &:not(:last-child)::after {
       @extend %progress-bridge;
 
-      background-color: $reached-progress-element-color;
+      background-color: $operational-progress-element-color;
       width: 0;
       z-index: 1;
       transition: width $progress-element-transition-duration;
@@ -77,7 +80,7 @@ $unreached-progress-element-color: theme.color("surface-foreground-muted");
 
   &__LevelButton {
     background-color: transparent;
-    border: $progress-element-thickness dotted $unreached-progress-element-color;
+    border: $progress-element-thickness dotted $muted-progress-element-color;
     border-radius: theme.constant("border-radius");
     height: $progress-number-span;
 
@@ -95,20 +98,20 @@ $unreached-progress-element-color: theme.color("surface-foreground-muted");
       color $progress-element-transition-duration;
 
     &:disabled {
-      color: $unreached-progress-element-color;
+      color: $muted-progress-element-color;
       cursor: not-allowed;
     }
 
     &:focus-visible {
-      outline: 2px solid theme.color("surface-foreground");
+      outline: 2px solid $operational-progress-element-color;
       outline-offset: 2px;
     }
 
     &:not(:disabled) {
       cursor: pointer;
 
-      border-color: $reached-progress-element-color;
-      color: $reached-progress-element-color;
+      border-color: $operational-progress-element-color;
+      color: $operational-progress-element-color;
     }
 
     .Progress__Level_completion & {

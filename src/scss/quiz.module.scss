@@ -2,6 +2,7 @@
 @use "core/theme";
 @use "elements/quiz";
 @use "elements/header";
+@use "elements/progress";
 @use "elements/scroll-shadow";
 @use "elements/containment";
 
@@ -18,6 +19,7 @@
   @include theme.variables-declarations();
   @include quiz.configurable-variables-declarations();
   @include header.configurable-variables-declarations();
+  @include progress.configurable-variables-declarations();
   @include scroll-shadow.configurable-variables-declarations();
   @include custom.scrollbar-configurable-variables-declarations();
   @include containment.configurable-variables-declarations();

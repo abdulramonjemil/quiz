@@ -1,0 +1,32 @@
+@use "../core/theme";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$progress-configurable-variables: (
+  "muted-element-color": theme.color("surface-foreground-muted"),
+  "operational-element-color": theme.color("surface-foreground")
+);
+
+$progress-configurable-variables-prefix: "progress";
+$progress-configurable-variables-map: utils.create-variable-map(
+  $progress-configurable-variables,
+  $progress-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $progress-configurable-variables,
+    $progress-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $progress-configurable-variables-map,
+    $variable,
+    "progress variable"
+  );
+}
