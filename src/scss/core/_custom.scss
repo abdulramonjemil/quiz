@@ -1,24 +1,63 @@
 @use "theme";
+@use "utils";
 
-$scrollbar-track-color: theme.color("tertiary");
-$scrollbar-thumb-color: theme.color("tertiary-foreground");
-$scrollbar-width: 8px;
+// ========================================================
+// ======== SCROLLBAR CONFIGURABLE VARIABLES ==============
+// ========================================================
+
+$scrollbar-configurable-variables: (
+  "track-color": theme.color("tertiary"),
+  "thumb-color": theme.color("tertiary-foreground"),
+  "width": thin,
+  "webkit-width": 8px
+);
+
+$scrollbar-configurable-variables-prefix: "custom-scrollbar";
+$scrollbar-configurable-variables-map: utils.create-variable-map(
+  $scrollbar-configurable-variables,
+  $scrollbar-configurable-variables-prefix
+);
+
+@mixin scrollbar-configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $scrollbar-configurable-variables,
+    $scrollbar-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $scrollbar-configurable-variables-map,
+    $variable,
+    "custom scrollbar variable"
+  );
+}
+
+// ========================================
+// ============ OTHER STYLES ==============
+// ========================================
+
+$scrollbar-track-color: variable("track-color");
+$scrollbar-thumb-color: variable("thumb-color");
+$scrollbar-width: variable("width");
+$scrollbar-webkit-width: variable("webkit-width");
 
 @mixin scrollbar(
   $track-color: $scrollbar-track-color,
   $thumb-color: $scrollbar-thumb-color,
-  $width: $scrollbar-width
+  $width: $scrollbar-width,
+  $webkit-width: $scrollbar-webkit-width
 ) {
   @media only screen and (min-width: 500px) {
     scrollbar-color: $thumb-color $track-color;
-    scrollbar-width: thin;
+    scrollbar-width: $width;
 
     &::-webkit-scrollbar {
-      width: $width;
+      width: $webkit-width;
     }
 
     &::-webkit-scrollbar:horizontal {
-      height: $width;
+      height: $webkit-width;
     }
 
     &::-webkit-scrollbar-corner {

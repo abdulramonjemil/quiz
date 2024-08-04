@@ -1,3 +1,4 @@
+@use "core/custom";
 @use "core/theme";
 @use "elements/scroll-shadow";
 
@@ -13,6 +14,7 @@
 .Quiz {
   @include theme.variables-declarations();
   @include scroll-shadow.configurable-variables-declarations();
+  @include custom.scrollbar-configurable-variables-declarations();
 
   &__Inner {
     @extend %reset-element;
