@@ -23,7 +23,7 @@
   &__Inner {
     @extend %reset-element;
 
-    background-color: theme.color("surface");
+    background-color: quiz.variable("background");
     color: theme.color("surface-foreground");
 
     font-size: 14px;
