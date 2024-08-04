@@ -37,8 +37,8 @@ import ScrollShadow from "./scroll-shadow"
 const LETTERS_FOR_ANSWER_CHOICES = ["A", "B", "C", "D"]
 
 const questionClasses = {
-  wrapper: cn("quiz-question-wrapper", Styles.QuestionWrapper),
   root: cn("quiz-question", Styles.Question),
+  inner: cn("quiz-question-inner", Styles.Question__Inner),
   title: cn("quiz-question-title", Styles.Question__Title),
   optionsContainer: cn([
     "quiz-question-options-container",
@@ -243,7 +243,7 @@ export default class Question extends Component {
     ))
 
     const questionNode = (
-      <div className={questionClasses.wrapper}>
+      <div className={questionClasses.root}>
         <ScrollShadow
           observerConfig={{
             attributes: true,
@@ -251,7 +251,7 @@ export default class Question extends Component {
             subtree: true
           }}
         >
-          <div className={questionClasses.root} refHolder={questionRH}>
+          <div className={questionClasses.inner} refHolder={questionRH}>
             <fieldset refHolder={fieldSetRH}>
               <legend className={questionClasses.title}>
                 {contentNode(title)}

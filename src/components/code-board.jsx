@@ -19,7 +19,7 @@ import { cn } from "@/lib/dom"
 const codeClasses = {
   root: cn("quiz-cboard", Styles.CodeBoard),
   title: cn("quiz-cboard-title", Styles.CodeBoard__Title),
-  preWrapper: cn("quiz-cboard-pre-wrapper", Styles.PreWrapper),
+  content: cn("quiz-cboard-content", Styles.CodeBoard__Content),
   pre: {
     base: cn("quiz-cboard-pre", Styles.Pre),
     basicThemed: cn("quiz-cboard-pre--basic", Styles.Pre_basicThemed),
@@ -65,7 +65,7 @@ export default function CodeBoard({ title, language, snippet, theme }) {
   const codeBoardNode = (
     <div className={codeClasses.root}>
       <p className={codeClasses.title}>{contentNode(title)}</p>
-      <div className={codeClasses.preWrapper}>
+      <div className={codeClasses.content}>
         <pre
           className={cn([
             codeClasses.pre.base,

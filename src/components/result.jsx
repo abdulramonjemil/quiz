@@ -31,8 +31,8 @@ const RESULT_PERCENTAGE_CSS_VAR = /** @type {string} */ (
 )
 
 const resultClasses = {
-  wrapper: cn("quiz-result-wrapper", Styles.ResultWrapper),
   root: cn("quiz-result", Styles.Result),
+  inner: cn("quiz-result-inner", Styles.Result__Inner),
   indicatorRoot: {
     base: cn("quiz-result-indicator", Styles.Indicator),
     rendered: cn("quiz-result-indicator--rendered", Styles.Indicator_rendered)
@@ -253,7 +253,7 @@ export default class Result extends Component {
     } = props
 
     const resultNode = (
-      <div className={resultClasses.wrapper}>
+      <div className={resultClasses.root}>
         <RSlot instanceRefHolder={slotRH} placeholder={<div />}>
           {(answersGotten) => {
             const scoredPercentage = Math.floor(
@@ -261,7 +261,7 @@ export default class Result extends Component {
             )
             return (
               <ScrollShadow maxSizes={{ bottom: 25 }}>
-                <div className={resultClasses.root}>
+                <div className={resultClasses.inner}>
                   <Indicator
                     animate={animateIndicator}
                     scoredPercentage={scoredPercentage}

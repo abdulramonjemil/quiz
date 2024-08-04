@@ -8,7 +8,7 @@ $gap-between-question-elements: theme.get-constant(element-spacing);
 $min-option-width: 50px;
 $option-letter-span: 30px;
 
-.QuestionWrapper {
+.Question {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -17,16 +17,16 @@ $option-letter-span: 30px;
 
   @include containment.contained-element();
   @include scroll-shadow.root($position: relative);
-}
 
-.Question {
-  height: max-content;
-  max-height: 100%;
-  overflow-y: auto;
-  width: 100%;
+  &__Inner {
+    height: max-content;
+    max-height: 100%;
+    overflow-y: auto;
+    width: 100%;
 
-  @include custom.scrollbar();
-  @include scroll-shadow.scrollable();
+    @include custom.scrollbar();
+    @include scroll-shadow.scrollable();
+  }
 
   &__Title {
     display: block;
