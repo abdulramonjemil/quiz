@@ -1,0 +1,30 @@
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$quiz-configurable-variables: (
+  "max-width": 1000px
+);
+
+$quiz-configurable-variables-prefix: "quiz";
+$quiz-configurable-variables-map: utils.create-variable-map(
+  $quiz-configurable-variables,
+  $quiz-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $quiz-configurable-variables,
+    $quiz-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $quiz-configurable-variables-map,
+    $variable,
+    "quiz variable"
+  );
+}
