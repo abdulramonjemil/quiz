@@ -2,22 +2,14 @@ import { cn } from "@/lib/dom"
 import { assertIsInstance } from "@/lib/value"
 import Styles from "@/scss/scroll-shadow.module.scss"
 
-/**
- * @typedef {{ top?: number, bottom?: number }} ScrollShadowMaxSizes
- */
-
 // eslint-disable-next-line prefer-destructuring
-const BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR = /** @type {string} */ (
-  Styles.BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR
+const SCROLLABLE_ELEMENT_SCROLL_BOTTOM = /** @type {string} */ (
+  Styles.SCROLLABLE_ELEMENT_SCROLL_BOTTOM
 )
 
 // eslint-disable-next-line prefer-destructuring
-const TOP_SCROLL_SHADOW_SIZE_CSS_VAR = /** @type {string} */ (
-  Styles.TOP_SCROLL_SHADOW_SIZE_CSS_VAR
-)
-
-const SCROLL_SHADOW_SUITABLE_MAX_SIZE = Number(
-  Styles.SCROLL_SHADOW_SUITABLE_MAX_SIZE
+const SCROLLABLE_ELEMENT_SCROLL_TOP = /** @type {string} */ (
+  Styles.SCROLLABLE_ELEMENT_SCROLL_TOP
 )
 
 const scrollShadowClasses = {
@@ -35,9 +27,8 @@ const createAdjustScrollShadow = () => {
   /**
    * @param {HTMLElement} scrollableElement
    * @param {HTMLElement} scrollShadow
-   * @param {ScrollShadowMaxSizes | undefined} [maxSizes]
    */
-  return (scrollableElement, scrollShadow, maxSizes) => {
+  return (scrollableElement, scrollShadow) => {
     if (scheduledFrame !== null) {
       window.cancelAnimationFrame(scheduledFrame)
     }
@@ -46,23 +37,16 @@ const createAdjustScrollShadow = () => {
       const { clientHeight, scrollHeight, scrollTop } = scrollableElement
       const scrollBottom = scrollHeight - scrollTop - clientHeight
 
-      const maxTop = maxSizes?.top ?? SCROLL_SHADOW_SUITABLE_MAX_SIZE
-      const maxBottom = maxSizes?.bottom ?? SCROLL_SHADOW_SUITABLE_MAX_SIZE
-
-      const topShadowSize = scrollTop / 2 > maxTop ? maxTop : scrollTop / 2
-      const bottomShadowSize =
-        scrollBottom / 2 > maxBottom ? maxBottom : scrollBottom / 2
-
       // Numbers are clamped because they're sometimes negative (as noticed on
       // chrome for android)
       scrollShadow.style.setProperty(
-        TOP_SCROLL_SHADOW_SIZE_CSS_VAR,
-        `${nonNegative(topShadowSize)}px`
+        SCROLLABLE_ELEMENT_SCROLL_TOP,
+        `${nonNegative(scrollTop)}px`
       )
 
       scrollShadow.style.setProperty(
-        BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR,
-        `${nonNegative(bottomShadowSize)}px`
+        SCROLLABLE_ELEMENT_SCROLL_BOTTOM,
+        `${nonNegative(scrollBottom)}px`
       )
 
       scheduledFrame = null
@@ -74,9 +58,8 @@ const createAdjustScrollShadow = () => {
  * @param {Object} param0
  * @param {MutationObserverInit} [param0.observerConfig]
  * @param {Node} param0.children
- * @param {ScrollShadowMaxSizes} [param0.maxSizes]
  */
-export default function ScrollShadow({ observerConfig, children, maxSizes }) {
+export default function ScrollShadow({ observerConfig, children }) {
   const scrollShadow = /** @type {HTMLElement} */ (
     <div className={scrollShadowClasses.root} />
   )
@@ -86,8 +69,7 @@ export default function ScrollShadow({ observerConfig, children, maxSizes }) {
   const adjustShadow = createAdjustScrollShadow().bind(
     null,
     scrollableElement,
-    scrollShadow,
-    maxSizes
+    scrollShadow
   )
 
   /* eslint-disable-next-line react/destructuring-assignment */

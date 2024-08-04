@@ -260,7 +260,7 @@ export default class Result extends Component {
               (answersGotten / questionsCount) * 100
             )
             return (
-              <ScrollShadow maxSizes={{ bottom: 25 }}>
+              <ScrollShadow>
                 <div className={resultClasses.inner}>
                   <Indicator
                     animate={animateIndicator}

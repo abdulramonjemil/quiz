@@ -56,7 +56,7 @@ $constants-variables-map: utils.create-variable-map(
 }
 
 @function color($color) {
-  @return utils.get-variable($colors-variables-map, $color, "color");
+  @return utils.get-variable($colors-variables-map, $color, "theme color");
 }
 
 @function constant($constant) {

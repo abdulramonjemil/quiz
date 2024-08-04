@@ -36,7 +36,7 @@
 
 @function get-variable($variable-map, $key, $type) {
   @if not map-has-key($variable-map, $key) {
-    @error "Unknown #{$type} variable with key: '#{$key}'";
+    @error "Unknown #{$type} with key: '#{$key}'";
   }
 
   @return string.unquote(map.get($variable-map, $key));

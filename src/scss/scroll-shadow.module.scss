@@ -3,11 +3,8 @@
 @use "elements/scroll-shadow";
 
 :export {
-  BOTTOM_SCROLL_SHADOW_SIZE_CSS_VAR: scroll-shadow.$bottom-scroll-shadow-size-css-var;
-  TOP_SCROLL_SHADOW_SIZE_CSS_VAR: scroll-shadow.$top-scroll-shadow-size-css-var;
-  SCROLL_SHADOW_SUITABLE_MAX_SIZE: number.unitless(
-    scroll-shadow.$scroll-shadow-suitable-max-size
-  );
+  SCROLLABLE_ELEMENT_SCROLL_TOP: scroll-shadow.$scrollable-element-scroll-top-css-var;
+  SCROLLABLE_ELEMENT_SCROLL_BOTTOM: scroll-shadow.$scrollable-element-scroll-bottom-css-var;
 }
 
 .ScrollShadow {

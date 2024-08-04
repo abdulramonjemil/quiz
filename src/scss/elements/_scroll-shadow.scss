@@ -1,13 +1,48 @@
 @use "sass:list";
 @use "../core/theme";
+@use "../core/utils";
 
-$bottom-scroll-shadow-size-css-var: --bottom-scroll-shadow-size;
-$top-scroll-shadow-size-css-var: --top-scroll-shadow-size;
-$scroll-shadow-suitable-max-size: 20px;
+// ==============================================
+// ======== CONFIGURABLE VARIABLES ==============
+// ==============================================
 
-$absolute-element-ancestor-positions: [absolute, fixed, relative, sticky];
+$scroll-shadow-configurable-variables: (
+  "max-size": 20px,
+  "shadow-color": theme.color("surface")
+);
+
+$scroll-shadow-configurable-variables-prefix: "scroll-shadow";
+$scroll-shadow-configurable-variables-map: utils.create-variable-map(
+  $scroll-shadow-configurable-variables,
+  $scroll-shadow-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $scroll-shadow-configurable-variables,
+    $scroll-shadow-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $scroll-shadow-configurable-variables-map,
+    $variable,
+    "scroll shadow variable"
+  );
+}
+
+// ==============================================
+// ======== OTHER SCROLL SHADOW STYLES ==========
+// ==============================================
+
+$scrollable-element-scroll-top-css-var: --scrollable-element-scroll-top;
+$scrollable-element-scroll-bottom-css-var: --scrollable-element-scroll-bottom;
 
 @mixin root($position) {
+  // Ancestor should have one of these since shadow is absolutely positioned
+  $absolute-element-ancestor-positions: [absolute, fixed, relative, sticky];
+
   @if list.index($absolute-element-ancestor-positions, $position) == null {
     @error "Expected '#{$position}' to be one of '#{$absolute-element-ancestor-positions}'";
   }
@@ -16,12 +51,12 @@ $absolute-element-ancestor-positions: [absolute, fixed, relative, sticky];
 }
 
 @mixin scrollable {
-  // For use with the scrollable that determines scroll shadow
+  // Scrollable that determines scroll shadow (no requirements)
 }
 
 @mixin shadow {
-  #{$top-scroll-shadow-size-css-var}: 0;
-  #{$bottom-scroll-shadow-size-css-var}: 0;
+  #{$scrollable-element-scroll-top-css-var}: 0;
+  #{$scrollable-element-scroll-bottom-css-var}: 0;
 
   position: absolute;
   pointer-events: none;
@@ -32,11 +67,15 @@ $absolute-element-ancestor-positions: [absolute, fixed, relative, sticky];
   height: 100%;
   width: 100%;
 
-  $shadow-color: theme.color("surface");
+  $shadow-color: variable("shadow-color");
+  $shadow-max-size: variable("max-size");
+  $scroll-top: $scrollable-element-scroll-top-css-var;
+  $scroll-bottom: $scrollable-element-scroll-bottom-css-var;
+
   $shadow-1: linear-gradient($shadow-color, transparent) center top;
   $shadow-2: linear-gradient(transparent, $shadow-color) center bottom;
-  $shadow-size-1: 100% var($top-scroll-shadow-size-css-var);
-  $shadow-size-2: 100% var($bottom-scroll-shadow-size-css-var);
+  $shadow-size-1: 100% min(calc(var($scroll-top) / 2), $shadow-max-size);
+  $shadow-size-2: 100% min(calc(var($scroll-bottom) / 2), $shadow-max-size);
 
   background: $shadow-1, $shadow-2;
   background-size: $shadow-size-1, $shadow-size-2;
