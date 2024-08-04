@@ -1,7 +1,7 @@
 @use "sass:math";
 @use "core/custom";
 @use "core/theme";
-@use "elements/containment";
+@use "elements/presentation";
 
 $code-board-scrollbar-main-size: 8px;
 
@@ -10,7 +10,7 @@ $code-board-scrollbar-main-size: 8px;
   flex-direction: column;
   justify-content: center;
 
-  @include containment.content();
+  @include presentation.contained-content();
 
   &__Title {
     flex: 0 0 max-content;

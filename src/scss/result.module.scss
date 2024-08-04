@@ -3,7 +3,7 @@
 @use "core/custom";
 @use "core/theme";
 @use "elements/scroll-shadow";
-@use "elements/containment";
+@use "elements/presentation";
 @use "lib/number";
 
 $indicator-circle-animation-duration: 1.5s;
@@ -36,7 +36,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   justify-content: center;
   align-items: center;
 
-  @include containment.content();
+  @include presentation.contained-content();
   @include scroll-shadow.root($position: relative);
 
   &__Inner {

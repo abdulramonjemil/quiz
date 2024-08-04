@@ -3,8 +3,8 @@
 @use "elements/quiz";
 @use "elements/header";
 @use "elements/progress";
+@use "elements/presentation";
 @use "elements/scroll-shadow";
-@use "elements/containment";
 
 %reset-element {
   border: none;
@@ -20,9 +20,9 @@
   @include quiz.configurable-variables-declarations();
   @include header.configurable-variables-declarations();
   @include progress.configurable-variables-declarations();
+  @include presentation.configurable-variables-declarations();
   @include scroll-shadow.configurable-variables-declarations();
   @include custom.scrollbar-configurable-variables-declarations();
-  @include containment.configurable-variables-declarations();
 
   &__Inner {
     @extend %reset-element;

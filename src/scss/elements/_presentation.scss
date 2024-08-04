@@ -1,0 +1,64 @@
+@use "../core/theme";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$presentation-configurable-variables: (
+  "contained-content-default-height": 350px,
+  "contained-content-height-400": 350px,
+  "contained-content-height-500": 280px,
+  "contained-content-height-600": 280px,
+  "contained-content-height-800": 280px,
+  "focus-color": theme.color("surface-foreground")
+);
+
+$presentation-configurable-variables-prefix: "presentation";
+$presentation-configurable-variables-map: utils.create-variable-map(
+  $presentation-configurable-variables,
+  $presentation-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $presentation-configurable-variables,
+    $presentation-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $presentation-configurable-variables-map,
+    $variable,
+    "presentation variable"
+  );
+}
+
+// ========================================
+// ============ OTHER STYLES ==============
+// ========================================
+
+@mixin container {
+  container-type: inline-size;
+}
+
+@mixin contained-content {
+  height: variable("contained-content-default-height");
+
+  @container (width >= 400px) {
+    height: variable("contained-content-height-400");
+  }
+
+  @container (width >= 500px) {
+    height: variable("contained-content-height-500");
+  }
+
+  @container (width >= 600px) {
+    height: variable("contained-content-height-600");
+  }
+
+  @container (width >= 800px) {
+    height: variable("contained-content-height-800");
+  }
+}
