@@ -7,7 +7,8 @@
 
 $progress-configurable-variables: (
   "muted-element-color": theme.color("surface-foreground-muted"),
-  "operational-element-color": theme.color("surface-foreground")
+  "operational-element-color": theme.color("surface-foreground"),
+  "focus-color": theme.color("surface-foreground")
 );
 
 $progress-configurable-variables-prefix: "progress";

@@ -10,7 +10,8 @@ $presentation-configurable-variables: (
   "contained-content-height-400": 350px,
   "contained-content-height-500": 280px,
   "contained-content-height-600": 280px,
-  "contained-content-height-800": 280px
+  "contained-content-height-800": 280px,
+  "slide-focus-color": theme.color("surface-foreground")
 );
 
 $presentation-configurable-variables-prefix: "presentation";

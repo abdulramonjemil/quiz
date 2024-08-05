@@ -6,7 +6,8 @@
 // ========================================================
 
 $quiz-configurable-variables: (
-  "background": theme.color("surface"),
+  "background-color": theme.color("surface"),
+  "focus-color": theme.color("surface"),
   "max-width": 1000px
 );
 

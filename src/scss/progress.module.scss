@@ -5,6 +5,8 @@
 $progress-number-span: 30px;
 $progress-element-thickness: 2px;
 $progress-element-transition-duration: 0.4s;
+
+$progress-focus-color: progress.variable("focus-color");
 $muted-progress-element-color: progress.variable("muted-element-color");
 $operational-progress-element-color: progress.variable(
   "operational-element-color"
@@ -103,7 +105,7 @@ $operational-progress-element-color: progress.variable(
     }
 
     &:focus-visible {
-      outline: 2px solid theme.color("surface-foreground");
+      outline: 2px solid $progress-focus-color;
       outline-offset: 2px;
     }
 
