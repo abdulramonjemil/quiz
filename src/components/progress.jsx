@@ -20,7 +20,8 @@ const COMPLETION_LEVEL_BUTTON_CONTENT = "✓"
  *
  * @typedef {{
  *   activeLevelIndex: number,
- *   highestEnabledLevelIndex: number | null
+ *   highestEnabledLevelIndex: number | null,
+ *   resolvedLevelIndices: number[]
  * }} ProgressRevalidationOptions
  */
 
@@ -30,9 +31,9 @@ const progressClasses = {
   level: {
     base: cn("quiz-progress-level", Styles.Progress__Level),
     active: cn("quiz-progress-level--active", Styles.Progress__Level_active),
-    completion: cn([
-      "quiz-progress-level--completion",
-      Styles.Progress__Level_completion
+    resolved: cn([
+      "quiz-progress-level--resolved",
+      Styles.Progress__Level_resolved
     ])
   },
   levelButton: cn("quiz-progress-level-button", Styles.Progress__LevelButton)
@@ -89,6 +90,18 @@ function setProgressLevelState(progressLevel, state) {
 }
 
 /**
+ * @param {HTMLElement[]} progressLevels
+ * @param {number[]} resolvedLevelIndices
+ */
+function setResolvedLevels(progressLevels, resolvedLevelIndices) {
+  const set = new Set(resolvedLevelIndices)
+  progressLevels.forEach((level, index) => {
+    if (set.has(index)) addClasses(level, progressClasses.level.resolved)
+    else removeClasses(level, progressClasses.level.resolved)
+  })
+}
+
+/**
  * Sets the highest enabled progress level. Other levels at indexes higher than
  * the passed level index are disabled. If `null` is passed, all levels are enabled.
  *
@@ -123,16 +136,10 @@ function setActiveLevel(progressLevels, levelIndex) {
 /**
  * @param {Object} param0
  * @param {string | number} param0.buttonContent
- * @param {boolean} param0.isCompletionLevel
  */
-function ProgressLevel({ buttonContent, isCompletionLevel }) {
+function ProgressLevel({ buttonContent }) {
   return (
-    <li
-      className={cn([
-        progressClasses.level.base,
-        [isCompletionLevel, progressClasses.level.completion]
-      ])}
-    >
+    <li className={progressClasses.level.base}>
       <button className={cn(progressClasses.levelButton)} type="button">
         {buttonContent}
       </button>
@@ -160,7 +167,6 @@ export default class Progress extends Component {
           buttonContent={
             isCompletionLevel ? COMPLETION_LEVEL_BUTTON_CONTENT : i + 1
           }
-          isCompletionLevel={isCompletionLevel}
         />
       )
       progressLevels.push(/** @type {HTMLElement} */ (level))
@@ -207,9 +213,11 @@ export default class Progress extends Component {
 
   /** @param {ProgressRevalidationOptions} options */
   revalidate(options) {
-    const { activeLevelIndex, highestEnabledLevelIndex } = options
+    const { activeLevelIndex, highestEnabledLevelIndex, resolvedLevelIndices } =
+      options
     setActiveLevel(this.$progressLevels, activeLevelIndex)
     setHigestEnabledLevelIndex(this.$progressLevels, highestEnabledLevelIndex)
+    setResolvedLevels(this.$progressLevels, resolvedLevelIndices)
   }
 
   /**

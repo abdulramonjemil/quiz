@@ -1,10 +1,9 @@
 @use "sass:math";
-@use "core/theme";
 @use "elements/progress";
 
-$progress-number-span: 30px;
+$progress-number-span: 32px;
 $progress-element-thickness: 2px;
-$progress-element-transition-duration: 0.4s;
+$progress-bridge-transition-duration: 0.4s;
 
 $progress-focus-color: progress.variable("focus-color");
 $muted-progress-element-color: progress.variable("muted-element-color");
@@ -43,8 +42,8 @@ $operational-progress-element-color: progress.variable(
       // Placeholder for the ".Progress__Level_active" class
     }
 
-    &_completion {
-      // Placeholder for the ".Progress__Level_completion" class
+    &_resolved {
+      // For resolved progress levels
     }
 
     $progress-bridge-full-width: calc(100% - $progress-number-span);
@@ -72,7 +71,7 @@ $operational-progress-element-color: progress.variable(
       background-color: $operational-progress-element-color;
       width: 0;
       z-index: 1;
-      transition: width $progress-element-transition-duration;
+      transition: width $progress-bridge-transition-duration;
 
       @at-root :not(.Progress__Level_active, .Progress__Level_active ~ *)#{&} {
         width: $progress-bridge-full-width;
@@ -82,9 +81,10 @@ $operational-progress-element-color: progress.variable(
 
   &__LevelButton {
     background-color: transparent;
-    border: $progress-element-thickness dotted $muted-progress-element-color;
-    border-radius: theme.constant("border-radius");
+    border: $progress-element-thickness dashed $muted-progress-element-color;
+    border-radius: 50%;
     height: $progress-number-span;
+    position: relative;
 
     display: flex;
     justify-content: center;
@@ -96,8 +96,7 @@ $operational-progress-element-color: progress.variable(
     line-height: $content-height;
     text-align: center;
     width: $progress-number-span;
-    transition: border-color $progress-element-transition-duration,
-      color $progress-element-transition-duration;
+    transition: border-color 0.1, color 0.1;
 
     &:disabled {
       color: $muted-progress-element-color;
@@ -116,12 +115,25 @@ $operational-progress-element-color: progress.variable(
       color: $operational-progress-element-color;
     }
 
-    .Progress__Level_completion & {
-      border-radius: 50%;
-      font-weight: 700;
+    .Progress__Level_active & {
+      border-style: solid;
+      color: transparent;
+
+      &::after {
+        display: block;
+        content: "";
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: $operational-progress-element-color;
+        border-radius: 50%;
+      }
     }
 
-    .Progress__Level:not(.Progress__Level_active ~ *) & {
+    .Progress__Level_resolved & {
       border-style: solid;
     }
   }

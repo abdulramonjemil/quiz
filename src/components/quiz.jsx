@@ -471,9 +471,19 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
   const slideIsQuestion = slide instanceof Question
   const slideIsAnsweredQuestion = slideIsQuestion && slide.isAnswered()
 
-  const indexOfNextQuizQuestion = elementInstances.findIndex(
-    (element) => element instanceof Question && !element.isAnswered()
+  const questionInstances = elementInstances.filter(
+    /** @returns {element is Question} */ (element) =>
+      element instanceof Question
   )
+
+  const answeredQuestionIndices = /** @type {number[]} */ ([])
+  const unansweredQuestionIndices = /** @type {number[]} */ ([])
+
+  questionInstances.forEach((element, index) => {
+    if (!(element instanceof Question)) return
+    if (element.isAnswered()) answeredQuestionIndices.push(index)
+    else unansweredQuestionIndices.push(index)
+  })
 
   return {
     slide: {
@@ -486,9 +496,11 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
       ref: slide
     },
     quiz: {
-      indexOfNextQuestion:
-        indexOfNextQuizQuestion < 0 ? null : indexOfNextQuizQuestion,
+      answeredQuestionIndices,
+      unansweredQuestionIndices,
+      firstUnansweredQuestionIndex: unansweredQuestionIndices[0] ?? null,
       isFinalized: quizIsFinalized,
+      lastElementIndex: elementInstances.length - 1,
       resultIndex
     }
   }
@@ -502,7 +514,7 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
 function getControlPanelRevalidationOptions(slideQuizData, indices) {
   const {
     isFinalized: quizIsFinalized,
-    indexOfNextQuestion: indexOfNextQuizQuestion
+    firstUnansweredQuestionIndex: firstUnansweredQuizQuestionIndex
   } = slideQuizData.quiz
 
   return {
@@ -511,7 +523,7 @@ function getControlPanelRevalidationOptions(slideQuizData, indices) {
     cta: {
       isSubmit: !quizIsFinalized,
       isEnabled:
-        (!quizIsFinalized && indexOfNextQuizQuestion === null) ||
+        (!quizIsFinalized && firstUnansweredQuizQuestionIndex === null) ||
         (quizIsFinalized && !slideQuizData.slide.isResult)
     }
   }
@@ -525,17 +537,30 @@ function getProgressRevalidationOptions(slideQuizData) {
   const {
     slide: { index: slideIndex },
     quiz: {
-      indexOfNextQuestion: indexOfNextQuizQuestion,
+      firstUnansweredQuestionIndex,
+      lastElementIndex,
+      unansweredQuestionIndices: unresolvedIndices,
       isFinalized: quizIsFinalized,
       resultIndex
     }
   } = slideQuizData
 
+  const resolvedLevelIndices = /** @type {number[]} */ ([])
+  const unresolvedSet = new Set(unresolvedIndices)
+
+  for (let i = 0; i <= lastElementIndex; i += 1) {
+    if (unresolvedSet.has(i)) continue // eslint-disable-line no-continue
+    if (i !== resultIndex || quizIsFinalized) {
+      resolvedLevelIndices.push(i)
+    }
+  }
+
   return {
     activeLevelIndex: slideIndex,
+    resolvedLevelIndices,
     highestEnabledLevelIndex: quizIsFinalized
       ? null
-      : indexOfNextQuizQuestion ?? resultIndex - 1
+      : firstUnansweredQuestionIndex ?? resultIndex - 1
   }
 }
 
@@ -545,7 +570,8 @@ function getProgressRevalidationOptions(slideQuizData) {
  */
 function getSlidePrevNextIndices(slideQuizData) {
   const { index, isFirst, isLast } = slideQuizData.slide
-  const { isFinalized, resultIndex, indexOfNextQuestion } = slideQuizData.quiz
+  const { isFinalized, resultIndex, firstUnansweredQuestionIndex } =
+    slideQuizData.quiz
   const precedesUnrenderedResult = !isFinalized && index === resultIndex - 1
 
   return {
@@ -553,7 +579,8 @@ function getSlidePrevNextIndices(slideQuizData) {
     next:
       isLast ||
       precedesUnrenderedResult ||
-      (indexOfNextQuestion !== null && indexOfNextQuestion <= index)
+      (firstUnansweredQuestionIndex !== null &&
+        firstUnansweredQuestionIndex <= index)
         ? null
         : index + 1
   }
@@ -888,7 +915,7 @@ export default class Quiz extends Component {
       <Quiz {...props} instanceRefHolder={instanceRefHolder} />
     )
     if (containerIsElementInstance) container.replaceChildren(quizElement)
-    return [quizElement, instanceRefHolder.ref]
+    return /** @type {const} */ ([quizElement, instanceRefHolder.ref])
   }
 
   /** @param {Props} props */
