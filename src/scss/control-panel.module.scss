@@ -1,57 +1,63 @@
 @use "core/theme";
 @use "elements/control-panel";
 
-.ControlPanelContainer {
-  container-type: inline-size;
-}
+$nav-color: control-panel.variable("nav-color");
+$nav-color-fg: control-panel.variable("nav-color-foreground");
+$cta-color: control-panel.variable("cta-color");
+$cta-color-fg: control-panel.variable("cta-color-foreground");
+$focus-color: control-panel.variable("focus-color");
 
 .ControlPanel {
-  display: grid;
-  gap: theme.constant("element-spacing");
-  grid-template-columns: repeat(2, max-content) 1fr max-content;
-  grid-template-areas: "prev next . submit";
-  margin-top: theme.constant("element-spacing");
+  container-type: inline-size;
 
-  @container (width <= 420px) {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-areas: "prev next" "submit submit";
-  }
-}
+  &__Inner {
+    display: grid;
+    gap: theme.constant("element-spacing");
+    grid-template-columns: repeat(2, max-content) 1fr max-content;
+    grid-template-areas: "prev next . submit";
+    margin-top: theme.constant("element-spacing");
 
-%control-button {
-  border-radius: theme.constant("border-radius");
-  cursor: pointer;
-  font-weight: 500;
-  outline-offset: 2px;
-  padding: 8px 35px;
-  transition: opacity linear 0.1s;
-
-  &:focus-visible {
-    outline: 2px solid control-panel.variable("focus-color");
+    @container (width <= 420px) {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-areas: "prev next" "submit submit";
+    }
   }
 
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  @at-root %control-button {
+    border-radius: theme.constant("border-radius");
+    cursor: pointer;
+    font-weight: 500;
+    outline-offset: 2px;
+    padding: 8px 35px;
+    transition: opacity linear 0.1s;
+
+    &:focus-visible {
+      outline: 2px solid $focus-color;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    &:not(:disabled):hover {
+      opacity: 0.8;
+    }
   }
 
-  &:not(:disabled):hover {
-    opacity: 0.8;
+  &__Prev,
+  &__Next {
+    @extend %control-button;
+
+    background-color: $nav-color;
+    color: $nav-color-fg;
   }
-}
 
-.Prev,
-.Next {
-  @extend %control-button;
+  &__Cta {
+    @extend %control-button;
 
-  background-color: control-panel.variable("nav-color");
-  color: control-panel.variable("nav-color-foreground");
-}
-
-.Cta {
-  @extend %control-button;
-
-  background-color: control-panel.variable("cta-color");
-  color: control-panel.variable("cta-color-foreground");
-  grid-area: submit;
+    background-color: $cta-color;
+    color: $cta-color-fg;
+    grid-area: submit;
+  }
 }

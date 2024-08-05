@@ -1,5 +1,5 @@
 import { Component, rh } from "@/jsx"
-import { attemptElementFocus } from "@/lib/dom"
+import { attemptElementFocus, cn } from "@/lib/dom"
 import Styles from "@/scss/control-panel.module.scss"
 
 /**
@@ -22,6 +22,14 @@ import Styles from "@/scss/control-panel.module.scss"
  * }} ControlPanelProps
  */
 
+const cpanelClasses = {
+  root: cn("quiz-cpanel", Styles.ControlPanel),
+  inner: cn("quiz-cpanel-inner", Styles.ControlPanel__Inner),
+  prevButton: cn("quiz-cpanel-prev-button", Styles.ControlPanel__Prev),
+  nextButton: cn("quiz-cpanel-next-button", Styles.ControlPanel__Next),
+  ctaButton: cn("quiz-cpanel-cta-button", Styles.ControlPanel__Cta)
+}
+
 /**
  * @template {ControlPanelProps} [Props=ControlPanelProps]
  * @extends {Component<Props>}
@@ -42,11 +50,11 @@ export default class ControlPanel extends Component {
     const ctaButtonRH = /** @type {typeof rh<HTMLButtonElement>} */ (rh)(null)
 
     const controlPanelNode = (
-      <div className={Styles.ControlPanelContainer}>
-        <div className={Styles.ControlPanel}>
+      <div className={cpanelClasses.root}>
+        <div className={cpanelClasses.inner}>
           <button
             aria-controls={controlledElementId}
-            className={Styles.Prev}
+            className={cpanelClasses.prevButton}
             onClick={handlePrevButtonClick}
             refHolder={prevButtonRH}
             type="button"
@@ -55,7 +63,7 @@ export default class ControlPanel extends Component {
           </button>
           <button
             aria-controls={controlledElementId}
-            className={Styles.Next}
+            className={cpanelClasses.nextButton}
             onClick={handleNextButtonClick}
             refHolder={nextButtonRH}
             type="button"
@@ -64,7 +72,7 @@ export default class ControlPanel extends Component {
           </button>
           <button
             aria-controls={controlledElementId}
-            className={Styles.Cta}
+            className={cpanelClasses.ctaButton}
             onClick={handleCTAButtonClick}
             refHolder={ctaButtonRH}
             type="button"
