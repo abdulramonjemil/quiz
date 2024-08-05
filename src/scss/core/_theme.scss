@@ -60,5 +60,9 @@ $constants-variables-map: utils.create-variable-map(
 }
 
 @function constant($constant) {
-  @return utils.get-variable($constants-variables-map, $constant, "constant");
+  @return utils.get-variable(
+    $constants-variables-map,
+    $constant,
+    "theme constant"
+  );
 }

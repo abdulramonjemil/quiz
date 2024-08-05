@@ -57,12 +57,8 @@
     }
   }
 
-  code:not(pre code) {
-    padding: 0 0.2em;
-
-    &::before,
-    &::after {
-      content: "`";
-    }
+  code:not(pre code)::before,
+  code:not(pre code)::after {
+    content: "`";
   }
 }
