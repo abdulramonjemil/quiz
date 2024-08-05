@@ -6,6 +6,7 @@
 @use "elements/presentation";
 @use "elements/question";
 @use "elements/code-board";
+@use "elements/control-panel";
 @use "elements/scroll-shadow";
 
 %reset-element {
@@ -25,6 +26,7 @@
   @include presentation.configurable-variables-declarations();
   @include question.configurable-variables-declarations();
   @include code-board.configurable-variables-declarations();
+  @include control-panel.configurable-variables-declarations();
   @include scroll-shadow.configurable-variables-declarations();
   @include custom.scrollbar-configurable-variables-declarations();
 

@@ -1,0 +1,35 @@
+@use "../core/theme";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$control-panel-configurable-variables: (
+  "nav-color": theme.color("primary"),
+  "nav-color-foreground": theme.color("primary-foreground"),
+  "cta-color": theme.color("secondary"),
+  "cta-color-foreground": theme.color("secondary-foreground"),
+  "focus-color": theme.color("surface-foreground")
+);
+
+$control-panel-configurable-variables-prefix: "control-panel";
+$control-panel-configurable-variables-map: utils.create-variable-map(
+  $control-panel-configurable-variables,
+  $control-panel-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $control-panel-configurable-variables,
+    $control-panel-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $control-panel-configurable-variables-map,
+    $variable,
+    "control panel variable"
+  );
+}

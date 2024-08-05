@@ -1,4 +1,5 @@
 @use "core/theme";
+@use "elements/control-panel";
 
 .ControlPanelContainer {
   container-type: inline-size;
@@ -26,7 +27,7 @@
   transition: opacity linear 0.1s;
 
   &:focus-visible {
-    outline: 2px solid theme.color("surface-foreground");
+    outline: 2px solid control-panel.variable("focus-color");
   }
 
   &:disabled {
@@ -43,14 +44,14 @@
 .Next {
   @extend %control-button;
 
-  background-color: theme.color("primary");
-  color: theme.color("primary-foreground");
+  background-color: control-panel.variable("nav-color");
+  color: control-panel.variable("nav-color-foreground");
 }
 
 .Cta {
   @extend %control-button;
 
-  background-color: theme.color("secondary");
-  color: theme.color("secondary-foreground");
+  background-color: control-panel.variable("cta-color");
+  color: control-panel.variable("cta-color-foreground");
   grid-area: submit;
 }
