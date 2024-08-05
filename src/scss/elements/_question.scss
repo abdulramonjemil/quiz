@@ -23,6 +23,7 @@ $question-configurable-variables: (
   "expl-secondary-color": theme.color("container-bolder"),
   "expl-secondary-color-foreground": theme.color("container-bolder-foreground"),
   "expl-button-focus-color": theme.color("container-foreground"),
+  "expl-button-hover-color": theme.color("container-foreground-muted"),
   "scrollbar-track-color": custom.scrollbar-variable("track-color"),
   "scrollbar-thumb-color": custom.scrollbar-variable("thumb-color"),
   "scrollbar-webkit-width": custom.scrollbar-variable("webkit-width"),

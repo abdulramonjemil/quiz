@@ -200,6 +200,7 @@ $expl-primary-color-fg: question.variable("expl-primary-color-foreground");
 $expl-secondary-color: question.variable("expl-secondary-color");
 $expl-secondary-color-fg: question.variable("expl-secondary-color-foreground");
 $expl-button-focus-color: question.variable("expl-button-focus-color");
+$expl-button-hover-color: question.variable("expl-button-hover-color");
 
 .Explanation {
   background-color: $expl-primary-color;
@@ -226,6 +227,7 @@ $expl-button-focus-color: question.variable("expl-button-focus-color");
     font-size: 1em;
     font-weight: 500;
     padding: 6px 10px;
+    transition: background-color linear 0.1s;
 
     &:focus-visible {
       outline: 2px solid $expl-button-focus-color;
@@ -233,7 +235,7 @@ $expl-button-focus-color: question.variable("expl-button-focus-color");
     }
 
     &:hover {
-      text-decoration: underline;
+      background-color: $expl-button-hover-color;
     }
   }
 
