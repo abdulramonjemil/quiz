@@ -195,15 +195,13 @@ $option-focus-color: question.variable("option-focus-color");
   }
 }
 
-$expl-primary-color: question.variable("expl-primary-color");
-$expl-primary-color-fg: question.variable("expl-primary-color-foreground");
-$expl-secondary-color: question.variable("expl-secondary-color");
-$expl-secondary-color-fg: question.variable("expl-secondary-color-foreground");
+$expl-color: question.variable("expl-color");
+$expl-color-fg: question.variable("expl-color-foreground");
+$expl-color-fg-muted: question.variable("expl-color-foreground-muted");
 $expl-button-focus-color: question.variable("expl-button-focus-color");
-$expl-button-hover-color: question.variable("expl-button-hover-color");
 
 .Explanation {
-  background-color: $expl-primary-color;
+  background-color: $expl-color;
   border-radius: theme.constant("border-radius");
   display: none;
   margin-top: $elements-gap;
@@ -220,9 +218,9 @@ $expl-button-hover-color: question.variable("expl-button-hover-color");
 
   &__Button {
     background-color: transparent;
-    border: 2px solid $expl-primary-color-fg;
+    border: 2px solid $expl-color-fg;
     border-radius: theme.constant("border-radius");
-    color: $expl-primary-color-fg;
+    color: $expl-color-fg;
     cursor: pointer;
     font-size: 1em;
     font-weight: 500;
@@ -235,7 +233,7 @@ $expl-button-hover-color: question.variable("expl-button-hover-color");
     }
 
     &:hover {
-      background-color: $expl-button-hover-color;
+      background-color: $expl-color-fg-muted;
     }
   }
 
@@ -248,7 +246,7 @@ $expl-button-hover-color: question.variable("expl-button-hover-color");
   }
 
   &__Divider {
-    background-color: $expl-secondary-color;
+    background-color: $expl-color-fg-muted;
     height: 1px;
     margin-top: $elements-gap;
     width: 100%;
@@ -257,8 +255,8 @@ $expl-button-hover-color: question.variable("expl-button-hover-color");
   }
 
   &__Content {
-    background-color: $expl-secondary-color;
-    color: $expl-secondary-color-fg;
+    background-color: $expl-color-fg-muted;
+    color: $expl-color-fg;
 
     border-radius: theme.constant("border-radius");
     margin-top: $elements-gap;
