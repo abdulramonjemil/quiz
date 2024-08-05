@@ -1,6 +1,6 @@
-@use "sass:math";
 @use "core/custom";
 @use "core/theme";
+@use "elements/code-board";
 @use "elements/presentation";
 
 $code-board-scrollbar-main-size: 8px;
@@ -32,18 +32,25 @@ $code-board-scrollbar-main-size: 8px;
   max-height: 100%;
   overflow: auto;
 
-  @include custom.scrollbar($track-color: transparent);
+  @include custom.scrollbar(
+    $track-color: code-board.variable("scrollbar-track-color"),
+    $thumb-color: code-board.variable("scrollbar-thumb-color"),
+    $width: code-board.variable("scrollbar-width"),
+    $webkit-width: code-board.variable("scrollbar-webkit-width")
+  );
 
-  &:focus {
-    outline: 2px solid theme.color("surface-foreground");
+  &:focus-visible {
+    outline: 2px solid code-board.variable("focus-color");
   }
 
   &[class*="language-"] {
-    background: theme.color("tertiary");
+    $background-color: code-board.variable("background-color");
+
+    background: $background-color;
     margin: 0;
 
     code {
-      background: theme.color("tertiary");
+      background: $background-color;
     }
   }
 
@@ -58,7 +65,7 @@ $code-board-scrollbar-main-size: 8px;
 
   &_basicThemed[class*="language-"] {
     @extend %internal-themed;
-    color: theme.color("tertiary-foreground");
+    color: code-board.variable("code-color");
   }
 
   &_defaultThemed[class*="language-"] {

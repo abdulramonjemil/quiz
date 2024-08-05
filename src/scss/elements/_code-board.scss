@@ -1,0 +1,38 @@
+@use "../core/custom";
+@use "../core/theme";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$code-board-configurable-variables: (
+  "background-color": theme.color("tertiary"),
+  "code-color": theme.color("tertiary"),
+  "focus-color": theme.color("surface-foreground"),
+  "scrollbar-track-color": transparent,
+  "scrollbar-thumb-color": custom.scrollbar-variable("thumb-color"),
+  "scrollbar-webkit-width": custom.scrollbar-variable("webkit-width"),
+  "scrollbar-width": custom.scrollbar-variable("width")
+);
+
+$code-board-configurable-variables-prefix: "code-board";
+$code-board-configurable-variables-map: utils.create-variable-map(
+  $code-board-configurable-variables,
+  $code-board-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $code-board-configurable-variables,
+    $code-board-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $code-board-configurable-variables-map,
+    $variable,
+    "code board variable"
+  );
+}
