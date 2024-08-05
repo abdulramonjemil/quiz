@@ -46,6 +46,14 @@ const resultClasses = {
     Styles.Indicator__InnerShadow
   ]),
   indicatorSVG: cn("quiz-result-indicator-svg", Styles.Indicator__SVG),
+  indicatorGradientStop1: cn([
+    "quiz-result-indicator-gradient-stop-1",
+    Styles.Indicator__GradientStop1
+  ]),
+  indicatorGradientStop2: cn([
+    "quiz-result-indicator-gradient-stop-2",
+    Styles.Indicator__GradientStop2
+  ]),
   indicatorCircle: cn("quiz-result-indicator-circle", Styles.Indicator__Circle),
   indicatorPercent: cn([
     "quiz-result-indicator-percent",
@@ -160,8 +168,8 @@ function Indicator({ scoredPercentage, animate }) {
       >
         <defs>
           <linearGradient id={Styles.INDICATOR_CIRCLE_GRADIENT_ID}>
-            <stop offset="0%" stop-color={Styles.RESULT_PRIMARY_COLOR} />
-            <stop offset="100%" stop-color={Styles.RESULT_SECONDARY_COLOR} />
+            <stop offset="0%" class={resultClasses.indicatorGradientStop1} />
+            <stop offset="100%" class={resultClasses.indicatorGradientStop2} />
           </linearGradient>
         </defs>
         <circle class={resultClasses.indicatorCircle} cx="50" cy="50" r="50" />

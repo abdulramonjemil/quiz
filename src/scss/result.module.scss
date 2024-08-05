@@ -2,6 +2,7 @@
 @use "sass:string";
 @use "core/custom";
 @use "core/theme";
+@use "elements/result";
 @use "elements/scroll-shadow";
 @use "elements/presentation";
 @use "lib/number";
@@ -11,8 +12,9 @@ $indicator-circle-gradient-id: string.unique-id();
 $indicator-circle-final-dashoffset-css-var: --indicator-circle-final-dashoffset;
 $result-percentage-css-var: --result-percentage;
 
-$result-primary-color: hsl(180deg 25% 65%);
-$result-secondary-color: hsl(311deg 20% 63%);
+$indicator-shadow-color: result.variable("indicator-shadow-color");
+$indicator-gradient-color-1: result.variable("indicator-gradient-color-1");
+$indicator-gradient-color-2: result.variable("indicator-gradient-color-2");
 
 $indicator-svg-viewbox-width: 100;
 $indicator-circle-radius: 50;
@@ -26,8 +28,6 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   );
   INDICATOR_CIRCLE_FINAL_DASHOFFSET_CSS_VAR: $indicator-circle-final-dashoffset-css-var;
   RESULT_PERCENTAGE_CSS_VAR: $result-percentage-css-var;
-  RESULT_PRIMARY_COLOR: $result-primary-color;
-  RESULT_SECONDARY_COLOR: $result-secondary-color;
 }
 
 .Result {
@@ -50,8 +50,13 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     overflow-y: auto;
     padding: 20px 40px;
 
-    @include custom.scrollbar();
     @include scroll-shadow.scrollable();
+    @include custom.scrollbar(
+      $track-color: result.variable("scrollbar-track-color"),
+      $thumb-color: result.variable("scrollbar-thumb-color"),
+      $width: result.variable("scrollbar-width"),
+      $webkit-width: result.variable("scrollbar-webkit-width")
+    );
 
     @container (width <= 720px) {
       gap: 20px;
@@ -112,7 +117,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 
   &__OuterShadow {
     border-radius: 50%;
-    box-shadow: 0 0 7px -4px $result-secondary-color;
+    box-shadow: 0 0 7px -4px $indicator-shadow-color;
     height: 100%;
     width: 100%;
   }
@@ -123,7 +128,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     );
 
     border-radius: 50%;
-    box-shadow: inset 0 0 7px -4px $result-secondary-color;
+    box-shadow: inset 0 0 7px -4px $indicator-shadow-color;
     height: $indicator-inner-shadow-dimension;
     position: absolute;
     width: $indicator-inner-shadow-dimension;
@@ -139,6 +144,14 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     position: absolute;
     transform: rotate(-90deg);
     width: $indicator-svg-dimension;
+  }
+
+  &__GradientStop1 {
+    stop-color: $indicator-gradient-color-1;
+  }
+
+  &__GradientStop2 {
+    stop-color: $indicator-gradient-color-2;
   }
 
   &__Circle {
@@ -173,8 +186,8 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
 
     background-image: linear-gradient(
       to top,
-      $result-primary-color,
-      $result-secondary-color
+      $indicator-gradient-color-1,
+      $indicator-gradient-color-2
     );
     background-clip: text;
     -webkit-background-clip: text; /* stylelint-disable-line */
@@ -188,6 +201,10 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     font-size: calc($indicator-dimension / 8);
   }
 }
+
+$text-color: result.variable("text-color");
+$cta-color: result.variable("cta-color");
+$cta-focus-color: result.variable("cta-focus-color");
 
 .Summary {
   display: flex;
@@ -214,12 +231,13 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   }
 
   &__Text {
+    color: $text-color;
     font-size: 1.2em;
   }
 
   &__Cta {
     background-color: transparent;
-    color: theme.color("surface-foreground-vibrant");
+    color: $cta-color;
 
     cursor: pointer;
     border-radius: theme.constant("border-radius");
@@ -232,7 +250,7 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
     }
 
     &:focus-visible {
-      outline: 2px solid theme.color("surface-foreground");
+      outline: 2px solid $cta-focus-color;
     }
   }
 

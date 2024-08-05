@@ -1,0 +1,41 @@
+@use "../core/custom";
+@use "../core/theme";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$result-configurable-variables: (
+  "indicator-gradient-color-1": hsl(180deg 25% 65%),
+  "indicator-gradient-color-2": hsl(311deg 20% 63%),
+  "indicator-shadow-color": theme.color("surface-foreground"),
+  "text-color": theme.color("surface-foreground"),
+  "cta-color": theme.color("surface-foreground-vibrant"),
+  "cta-focus-color": theme.color("surface-foreground"),
+  "scrollbar-track-color": custom.scrollbar-variable("track-color"),
+  "scrollbar-thumb-color": custom.scrollbar-variable("thumb-color"),
+  "scrollbar-webkit-width": custom.scrollbar-variable("webkit-width"),
+  "scrollbar-width": custom.scrollbar-variable("width")
+);
+
+$result-configurable-variables-prefix: "result";
+$result-configurable-variables-map: utils.create-variable-map(
+  $result-configurable-variables,
+  $result-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $result-configurable-variables,
+    $result-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $result-configurable-variables-map,
+    $variable,
+    "result variable"
+  );
+}
