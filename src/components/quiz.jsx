@@ -485,6 +485,18 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
     else unansweredQuestionIndices.push(index)
   })
 
+  const firstUnansweredQuestionIndex = unansweredQuestionIndices[0] ?? null
+  const precedesUnrenderedResult =
+    !quizIsFinalized && slideIndex === resultIndex - 1
+
+  const allowedNextIndex =
+    slideIsLast ||
+    precedesUnrenderedResult ||
+    (firstUnansweredQuestionIndex !== null &&
+      firstUnansweredQuestionIndex <= slideIndex)
+      ? null
+      : slideIndex + 1
+
   return {
     slide: {
       index: slideIndex,
@@ -493,6 +505,8 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
       isLast: slideIsLast,
       isQuestion: slideIsQuestion,
       isResult: slideIsResult,
+      allowedPrevIndex: slideIsFirst ? null : slideIndex - 1,
+      allowedNextIndex,
       ref: slide
     },
     quiz: {
@@ -508,18 +522,18 @@ function getQuizDataForSlide(elementInstances, slideIndex) {
 
 /**
  * @param {SlideQuizData} slideQuizData
- * @param {PrevNextIndices} indices
  * @returns {ControlPanelRevalidationOptions}
  */
-function getControlPanelRevalidationOptions(slideQuizData, indices) {
+function getControlPanelRevalidationOptions(slideQuizData) {
   const {
     isFinalized: quizIsFinalized,
     firstUnansweredQuestionIndex: firstUnansweredQuizQuestionIndex
   } = slideQuizData.quiz
+  const { allowedPrevIndex, allowedNextIndex } = slideQuizData.slide
 
   return {
-    prev: indices.prev !== null,
-    next: indices.next !== null,
+    prev: allowedPrevIndex !== null,
+    next: allowedNextIndex !== null,
     cta: {
       isSubmit: !quizIsFinalized,
       isEnabled:
@@ -561,28 +575,6 @@ function getProgressRevalidationOptions(slideQuizData) {
     highestEnabledLevelIndex: quizIsFinalized
       ? null
       : firstUnansweredQuestionIndex ?? resultIndex - 1
-  }
-}
-
-/**
- * @param {SlideQuizData} slideQuizData
- * @returns {PrevNextIndices}
- */
-function getSlidePrevNextIndices(slideQuizData) {
-  const { index, isFirst, isLast } = slideQuizData.slide
-  const { isFinalized, resultIndex, firstUnansweredQuestionIndex } =
-    slideQuizData.quiz
-  const precedesUnrenderedResult = !isFinalized && index === resultIndex - 1
-
-  return {
-    prev: isFirst ? null : index - 1,
-    next:
-      isLast ||
-      precedesUnrenderedResult ||
-      (firstUnansweredQuestionIndex !== null &&
-        firstUnansweredQuestionIndex <= index)
-        ? null
-        : index + 1
   }
 }
 
@@ -698,10 +690,7 @@ function revalidateQuiz({
   presentation.revalidate({ shownSlideIndex: slideIndex })
   progress.revalidate(getProgressRevalidationOptions(appropriateSlideQuizData))
   controlPanel.revalidate(
-    getControlPanelRevalidationOptions(
-      appropriateSlideQuizData,
-      getSlidePrevNextIndices(appropriateSlideQuizData)
-    )
+    getControlPanelRevalidationOptions(appropriateSlideQuizData)
   )
 }
 
@@ -1090,13 +1079,13 @@ export default class Quiz extends Component {
   /** @param {"prev" | "next"} button */
   $handleCPanelBtnClick(button) {
     const { $elementInstances, $presentation } = this
-    const currentSlideData = getQuizDataForSlide(
+    const { allowedPrevIndex, allowedNextIndex } = getQuizDataForSlide(
       $elementInstances,
       $presentation.currentSlideIndex()
-    )
+    ).slide
 
-    const { prev, next } = getSlidePrevNextIndices(currentSlideData)
-    const appropriateIndex = button === "prev" ? prev : next
+    const appropriateIndex =
+      button === "prev" ? allowedPrevIndex : allowedNextIndex
     if (typeof appropriateIndex !== "number") return
     this.$revalidate(appropriateIndex)
   }
