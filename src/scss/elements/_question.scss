@@ -1,0 +1,51 @@
+@use "../core/theme";
+@use "../core/custom";
+@use "../core/utils";
+
+// ========================================================
+// ============== CONFIGURABLE VARIABLES ==================
+// ========================================================
+
+$question-configurable-variables: (
+  "deselected-option-color": theme.color("surface-foreground-muted"),
+  "deselected-option-color-foreground": theme.color("surface-foreground"),
+  "deselected-option-hover-color": theme.color("primary"),
+  "deselected-option-hover-color-foreground": theme.color("primary-foreground"),
+  "selected-option-color": theme.color("primary-variant"),
+  "selected-option-color-foreground": theme.color("primary-variant-foreground"),
+  "correct-option-color": theme.color("success"),
+  "correct-option-color-foreground": theme.color("success-foreground"),
+  "incorrect-option-color": theme.color("error"),
+  "incorrect-option-color-foreground": theme.color("error-foreground"),
+  "option-focus-color": theme.color("surface-foreground"),
+  "expl-primary-color": theme.color("container"),
+  "expl-primary-color-foreground": theme.color("container-foreground"),
+  "expl-secondary-color": theme.color("container-bolder"),
+  "expl-secondary-color-foreground": theme.color("container-bolder-foreground"),
+  "expl-button-focus-color": theme.color("container-foreground"),
+  "scrollbar-track-color": custom.scrollbar-variable("track-color"),
+  "scrollbar-thumb-color": custom.scrollbar-variable("thumb-color"),
+  "scrollbar-webkit-width": custom.scrollbar-variable("webkit-width"),
+  "scrollbar-width": custom.scrollbar-variable("width")
+);
+
+$question-configurable-variables-prefix: "question";
+$question-configurable-variables-map: utils.create-variable-map(
+  $question-configurable-variables,
+  $question-configurable-variables-prefix
+);
+
+@mixin configurable-variables-declarations() {
+  @include utils.variable-declarations(
+    $question-configurable-variables,
+    $question-configurable-variables-prefix
+  );
+}
+
+@function variable($variable) {
+  @return utils.get-variable(
+    $question-configurable-variables-map,
+    $variable,
+    "question variable"
+  );
+}

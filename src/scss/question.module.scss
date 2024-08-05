@@ -1,12 +1,34 @@
 @use "sass:math";
 @use "core/custom";
 @use "core/theme";
+@use "elements/question";
 @use "elements/presentation";
 @use "elements/scroll-shadow";
 
-$gap-between-question-elements: theme.constant("element-spacing");
-$min-option-width: 50px;
-$option-letter-span: 30px;
+$elements-gap: theme.constant("element-spacing");
+$option-letter-dimension: 30px;
+
+$deselected-option-color: question.variable("deselected-option-color");
+$deselected-option-color-fg: question.variable(
+  "deselected-option-color-foreground"
+);
+$deselected-option-hover-color: question.variable(
+  "deselected-option-hover-color"
+);
+$deselected-option-hover-color-fg: question.variable(
+  "deselected-option-hover-color-foreground"
+);
+$selected-option-color: question.variable("selected-option-color");
+$selected-option-color-fg: question.variable(
+  "selected-option-color-foreground"
+);
+$correct-option-color: question.variable("correct-option-color");
+$correct-option-color-fg: question.variable("correct-option-color-foreground");
+$incorrect-option-color: question.variable("incorrect-option-color");
+$incorrect-option-color-fg: question.variable(
+  "incorrect-option-color-foreground"
+);
+$option-focus-color: question.variable("option-focus-color");
 
 .Question {
   display: flex;
@@ -24,8 +46,13 @@ $option-letter-span: 30px;
     overflow-y: auto;
     width: 100%;
 
-    @include custom.scrollbar();
     @include scroll-shadow.scrollable();
+    @include custom.scrollbar(
+      $track-color: question.variable("scrollbar-track-color"),
+      $thumb-color: question.variable("scrollbar-thumb-color"),
+      $width: question.variable("scrollbar-width"),
+      $webkit-width: question.variable("scrollbar-webkit-width")
+    );
   }
 
   &__Title {
@@ -38,19 +65,17 @@ $option-letter-span: 30px;
 .OptionsContainer {
   display: flex;
   flex-wrap: wrap;
-  gap: $gap-between-question-elements;
-  margin-top: $gap-between-question-elements;
+  gap: $elements-gap;
+  margin-top: $elements-gap;
 }
 
 .Option {
   $option-spacing-length: 8px;
-  $total-occupiable-horizontal-space: calc(
-    100% - $gap-between-question-elements
-  );
+  $total-occupiable-horizontal-space: calc(100% - $elements-gap);
   $half-of-occupiable-space: calc($total-occupiable-horizontal-space / 2);
 
   flex: 1 max-content;
-  min-width: max($half-of-occupiable-space, $min-option-width);
+  min-width: $half-of-occupiable-space;
   position: relative;
 
   .Question:disabled &:not(.Option_correct, .Option_incorrect) {
@@ -72,23 +97,19 @@ $option-letter-span: 30px;
     top: 0;
   }
 
-  $selected-option-dark-color: theme.color("primary-variant");
-  $correct-option-color: theme.color("success");
-  $incorrect-option-color: theme.color("error");
-
   &__Content {
-    border: 2px solid theme.color("surface-foreground-muted");
+    border: 2px solid $deselected-option-color;
     border-radius: theme.constant("border-radius");
     cursor: pointer;
     display: grid;
     gap: $option-spacing-length;
-    grid-template-columns: $option-letter-span 1fr;
+    grid-template-columns: $option-letter-dimension 1fr;
     height: 100%;
     padding: $option-spacing-length;
 
     &:hover {
-      background-color: theme.color("primary");
-      border-color: theme.color("primary");
+      background-color: $deselected-option-hover-color;
+      border-color: $deselected-option-hover-color;
     }
 
     .Option_correct & {
@@ -101,8 +122,8 @@ $option-letter-span: 30px;
       border-color: $incorrect-option-color;
     }
 
-    .Option__Input:focus + & {
-      outline: 2px solid theme.color("surface-foreground");
+    .Option__Input:focus-visible + & {
+      outline: 2px solid $option-focus-color;
       outline-offset: -2px;
     }
 
@@ -111,54 +132,81 @@ $option-letter-span: 30px;
     }
 
     .Option__Input:checked:not(.Option_correct *, .Option_incorrect *) + & {
-      background-color: $selected-option-dark-color;
-      border-color: $selected-option-dark-color;
+      background-color: $selected-option-color;
+      border-color: $selected-option-color;
     }
   }
 
   &__Letter {
-    align-items: center;
-    background-color: theme.color("primary");
-    border-radius: theme.constant("border-radius");
     display: flex;
-    font-weight: 500;
+    align-items: center;
     justify-content: center;
-    line-height: $option-letter-span;
+
+    background-color: $deselected-option-color;
+    color: $deselected-option-color-fg;
+
+    border-radius: theme.constant("border-radius");
+    font-weight: 500;
+    line-height: $option-letter-dimension;
 
     .Option_correct & {
-      background-color: theme.color("primary-foreground");
+      background-color: $correct-option-color-fg;
       color: $correct-option-color;
     }
 
     .Option_incorrect & {
-      background-color: theme.color("primary-foreground");
+      background-color: $incorrect-option-color-fg;
       color: $incorrect-option-color;
     }
 
     .Option__Content:hover & {
-      background-color: theme.color("primary-foreground");
-      color: theme.color("primary");
+      background-color: $deselected-option-hover-color-fg;
+      color: $deselected-option-hover-color;
     }
 
     .Option__Input:checked + .Option__Content & {
-      background-color: theme.color("primary-foreground");
-      color: $selected-option-dark-color;
+      background-color: $selected-option-color-fg;
+      color: $selected-option-color;
     }
   }
 
   &__Text {
-    align-items: center;
     display: flex;
+    align-items: center;
+
     padding-left: math.div($option-spacing-length, 2);
+    color: $deselected-option-color-fg;
+
+    .Option_correct & {
+      color: $correct-option-color-fg;
+    }
+
+    .Option_incorrect & {
+      color: $incorrect-option-color-fg;
+    }
+
+    .Option__Content:hover & {
+      color: $deselected-option-hover-color-fg;
+    }
+
+    .Option__Input:checked + .Option__Content & {
+      color: $selected-option-color-fg;
+    }
   }
 }
 
+$expl-primary-color: question.variable("expl-primary-color");
+$expl-primary-color-fg: question.variable("expl-primary-color-foreground");
+$expl-secondary-color: question.variable("expl-secondary-color");
+$expl-secondary-color-fg: question.variable("expl-secondary-color-foreground");
+$expl-button-focus-color: question.variable("expl-button-focus-color");
+
 .Explanation {
-  background-color: theme.color("container");
+  background-color: $expl-primary-color;
   border-radius: theme.constant("border-radius");
   display: none;
-  margin-top: $gap-between-question-elements;
-  padding: $gap-between-question-elements;
+  margin-top: $elements-gap;
+  padding: $elements-gap;
 
   &_enabled {
     // Used to show or hide explanation (button and content)
@@ -171,30 +219,25 @@ $option-letter-span: 30px;
 
   &__Button {
     background-color: transparent;
-    border: 2px solid theme.color("container-foreground");
+    border: 2px solid $expl-primary-color-fg;
     border-radius: theme.constant("border-radius");
-    color: theme.color("container-foreground");
+    color: $expl-primary-color-fg;
     cursor: pointer;
     font-size: 1em;
     font-weight: 500;
     padding: 6px 10px;
-    transition: background-color linear 0.1s;
-
-    &:focus {
-      background-color: theme.color("container-bolder");
-    }
 
     &:focus-visible {
-      outline: 2px solid theme.color("container-foreground");
+      outline: 2px solid $expl-button-focus-color;
       outline-offset: 2px;
     }
 
     &:hover {
-      background-color: theme.color("container-bolder");
+      text-decoration: underline;
     }
   }
 
-  @mixin shown-and-hidden-with-explanation-root {
+  @mixin shown-or-hidden-based-on-explanation-root {
     display: none;
 
     .Explanation_shown & {
@@ -203,20 +246,22 @@ $option-letter-span: 30px;
   }
 
   &__Divider {
-    background-color: theme.color("container-bolder");
+    background-color: $expl-secondary-color;
     height: 1px;
-    margin-top: $gap-between-question-elements;
+    margin-top: $elements-gap;
     width: 100%;
 
-    @include shown-and-hidden-with-explanation-root();
+    @include shown-or-hidden-based-on-explanation-root();
   }
 
   &__Content {
-    background-color: theme.color("container-bolder");
+    background-color: $expl-secondary-color;
+    color: $expl-secondary-color-fg;
+
     border-radius: theme.constant("border-radius");
-    margin-top: $gap-between-question-elements;
+    margin-top: $elements-gap;
     padding: 8px;
 
-    @include shown-and-hidden-with-explanation-root();
+    @include shown-or-hidden-based-on-explanation-root();
   }
 }
