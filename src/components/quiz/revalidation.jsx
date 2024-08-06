@@ -11,6 +11,7 @@ import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
  * @typedef {import("@/components/presentation").default} Presentation
  * @typedef {import("@/components/control-panel").default} ControlPanel
  *
+ * @typedef {import("./base").QuizAnswerSelectionMode} QuizAnswerSelectionMode
  * @typedef {import("./base").SlideQuizData} SlideQuizData
  * @typedef {import("./base").QuizElementInstance} QuizElementInstance
  */
@@ -50,7 +51,8 @@ function getProgressRevalidationOptions(slideQuizData) {
       lastElementIndex,
       unansweredQuestionIndices: unresolvedIndices,
       isFinalized: quizIsFinalized,
-      resultIndex
+      resultIndex,
+      answerSelectionMode
     }
   } = slideQuizData
 
@@ -59,17 +61,22 @@ function getProgressRevalidationOptions(slideQuizData) {
 
   for (let i = 0; i <= lastElementIndex; i += 1) {
     if (unresolvedSet.has(i)) continue // eslint-disable-line no-continue
-    if (i !== resultIndex || quizIsFinalized) {
-      resolvedLevelIndices.push(i)
-    }
+    if (i !== resultIndex || quizIsFinalized) resolvedLevelIndices.push(i)
+  }
+
+  let highestEnabledIndex = /** @type {number | null} */ (null)
+  if (quizIsFinalized) {
+    highestEnabledIndex = null
+  } else if (answerSelectionMode === "sequential") {
+    highestEnabledIndex = firstUnansweredQuestionIndex ?? resultIndex - 1
+  } else if (answerSelectionMode === "free") {
+    highestEnabledIndex = resultIndex - 1
   }
 
   return {
     activeLevelIndex: slideIndex,
     resolvedLevelIndices,
-    highestEnabledLevelIndex: quizIsFinalized
-      ? null
-      : firstUnansweredQuestionIndex ?? resultIndex - 1
+    highestEnabledLevelIndex: highestEnabledIndex
   }
 }
 
@@ -81,6 +88,7 @@ function getProgressRevalidationOptions(slideQuizData) {
  * @param {Presentation} param0.presentation
  * @param {Tabs} param0.tabs
  * @param {Progress} param0.progress
+ * @param {QuizAnswerSelectionMode} param0.answerSelectionMode
  */
 export function revalidateQuiz({
   slideIndex,
@@ -88,11 +96,13 @@ export function revalidateQuiz({
   controlPanel,
   presentation,
   tabs,
-  progress
+  progress,
+  answerSelectionMode
 }) {
   const appropriateSlideQuizData = getQuizDataForSlide(
     elementInstances,
-    slideIndex
+    slideIndex,
+    answerSelectionMode
   )
 
   tabs.setActiveTab(quizElementIndexToTabName(slideIndex))

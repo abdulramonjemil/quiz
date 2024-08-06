@@ -66,6 +66,7 @@ export class Quiz extends Component {
       animateResultIndicator,
       customRootClass,
       elements,
+      answerSelectionMode,
       finalized,
       header,
       headerLevel,
@@ -126,6 +127,7 @@ export class Quiz extends Component {
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
 
+    const quizAnswerSelectionMode = answerSelectionMode ?? "sequential"
     const progressRH = /** @type {typeof rh<Progress>} */ (rh)(null)
     const presentationRH = /** @type {typeof rh<Presentation>} */ (rh)(null)
     const cPanelRH = /** @type {typeof rh<ControlPanel>} */ (rh)(null)
@@ -139,6 +141,7 @@ export class Quiz extends Component {
         controlPanel: cPanelRH.ref,
         presentation: presentationRH.ref,
         progress: progressRH.ref,
+        answerSelectionMode: quizAnswerSelectionMode,
         tabs
       }
     })
@@ -211,18 +214,29 @@ export class Quiz extends Component {
       progress: progressRH.ref,
       controlPanel: cPanelRH.ref,
       presentation: presentationRH.ref,
-      tabs
+      tabs,
+      answerSelectionMode: quizAnswerSelectionMode
     })
 
     super(props, quizNode)
 
     quizRH.ref = this
 
-    this.$metadata =
-      /** @type {{ autoSave: false } | { autoSave: true, storageKey: string }} */ ({
-        autoSave: Boolean(autosave),
-        ...(!!autosave && { storageKey: getStorageKey(autosave) })
-      })
+    /**
+     * @typedef {(
+     *   | { enabled: false, storageKey: null }
+     *   | { enabled: true, storageKey: string }
+     * )} AutosaveMetadata
+     */
+    const autosaveMetadata = /** @type {AutosaveMetadata} */ ({
+      enabled: Boolean(autosave),
+      storageKey: autosave ? getStorageKey(autosave) : null
+    })
+
+    this.$metadata = {
+      autosave: autosaveMetadata,
+      answerSelectionMode: quizAnswerSelectionMode
+    }
     this.$elementInstances = elementInstances
 
     this.$tabs = tabs
@@ -233,10 +247,11 @@ export class Quiz extends Component {
 
   /** @param {"prev" | "next"} button */
   $handleCPanelBtnClick(button) {
-    const { $elementInstances, $presentation } = this
+    const { $elementInstances, $presentation, $metadata } = this
     const { allowedPrevIndex, allowedNextIndex } = getQuizDataForSlide(
       $elementInstances,
-      $presentation.currentSlideIndex()
+      $presentation.currentSlideIndex(),
+      $metadata.answerSelectionMode
     ).slide
 
     const appropriateIndex =
@@ -259,8 +274,9 @@ export class Quiz extends Component {
     finalizeQuiz(availableFinalizedElements, this.$elementInstances)
     this.$revalidate(this.$elementInstances.length - 1)
 
-    if (this.$metadata.autoSave) {
-      storeQuizData(availableFinalizedElements, this.$metadata.storageKey)
+    const autosaveMetadata = this.$metadata.autosave
+    if (autosaveMetadata.enabled) {
+      storeQuizData(availableFinalizedElements, autosaveMetadata.storageKey)
     }
 
     if (typeof this.$props.onSubmit === "function") {
@@ -298,6 +314,7 @@ export class Quiz extends Component {
       $controlPanel,
       $presentation,
       $progress,
+      $metadata,
       $tabs
     } = this
 
@@ -307,7 +324,8 @@ export class Quiz extends Component {
       tabs: $tabs,
       controlPanel: $controlPanel,
       presentation: $presentation,
-      progress: $progress
+      progress: $progress,
+      answerSelectionMode: $metadata.answerSelectionMode
     })
   }
 }

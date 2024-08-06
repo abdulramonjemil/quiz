@@ -12,6 +12,7 @@ import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
  * @typedef {import("@/components/presentation").default} Presentation
  * @typedef {import("@/components/control-panel").default} ControlPanel
  *
+ * @typedef {import("./base").QuizAnswerSelectionMode} QuizAnswerSelectionMode
  * @typedef {import("./base").QuizSlideElement} QuizSlideElement
  * @typedef {import("./base").QuizElementInstance} QuizElementInstance
  */
@@ -107,7 +108,8 @@ export const createQuizShortcutHandlersCreator = () => {
    *   controlPanel: ControlPanel,
    *   presentation: Presentation,
    *   progress: Progress,
-   *   tabs: Tabs
+   *   tabs: Tabs,
+   *   answerSelectionMode: QuizAnswerSelectionMode
    * }} QuizDataGetter
    *
    * @typedef {(
@@ -119,14 +121,24 @@ export const createQuizShortcutHandlersCreator = () => {
 
   /** @type {QuizShortcutKeyboardEventHandler} */
   const shortcutKeyDownHandler = (getter, mutableShortcutData, event) => {
-    const { controlPanel, presentation, progress, elementInstances, tabs } =
-      getter.call(null)
+    const {
+      controlPanel,
+      presentation,
+      progress,
+      elementInstances,
+      tabs,
+      answerSelectionMode
+    } = getter.call(null)
     const mutableData = mutableShortcutData
 
     // Shortcut to select question answer
     if (["a", "b", "c", "d"].includes(event.key.toLowerCase())) {
       const slideIndex = presentation.currentSlideIndex()
-      const slideData = getQuizDataForSlide(elementInstances, slideIndex)
+      const slideData = getQuizDataForSlide(
+        elementInstances,
+        slideIndex,
+        answerSelectionMode
+      )
 
       if (slideData.slide.isQuestion) {
         assertIsInstance(slideData.slide.ref, Question)
@@ -150,7 +162,11 @@ export const createQuizShortcutHandlersCreator = () => {
     // Shortcut to show explanation for answered question
     if (event.key.toLowerCase() === "e") {
       const currentSlideIndex = presentation.currentSlideIndex()
-      const slideData = getQuizDataForSlide(elementInstances, currentSlideIndex)
+      const slideData = getQuizDataForSlide(
+        elementInstances,
+        currentSlideIndex,
+        answerSelectionMode
+      )
 
       if (slideData.quiz.isFinalized && slideData.slide.isQuestion) {
         assertIsInstance(slideData.slide.ref, Question)
@@ -163,7 +179,11 @@ export const createQuizShortcutHandlersCreator = () => {
     // Shortcut to show result
     if (event.key.toLocaleLowerCase() === "r") {
       const currentSlideIndex = presentation.currentSlideIndex()
-      const slideData = getQuizDataForSlide(elementInstances, currentSlideIndex)
+      const slideData = getQuizDataForSlide(
+        elementInstances,
+        currentSlideIndex,
+        answerSelectionMode
+      )
 
       if (slideData.quiz.isFinalized) {
         progress.simulateClick(slideData.quiz.resultIndex)

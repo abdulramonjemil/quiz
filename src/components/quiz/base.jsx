@@ -62,20 +62,22 @@ import Styles from "@/scss/quiz.module.scss"
  * @typedef {{
  *   elements: DecodedStoredQuizElement[]
  * }} DecodedStoredQuizData
+ * @typedef {"sequential" | "free"} QuizAnswerSelectionMode
  *
  * @typedef {{
- *   header: string,
- *   elements: (QuizInquiryElement | FinalizedQuizInquiryElement)[],
- *   finalized: boolean,
- *   onSubmit?: ((data: QuizFinalizationData) => void) | undefined,
  *   autosave?: {
  *     identifier: string,
  *     saveWithPathname: boolean
  *   } | null | undefined,
- *   rootElementType?: "div" | "section" | "main" | (string & {}) | undefined | null,
- *   customRootClass?: string | null | undefined,
+ *   header: string,
  *   headerLevel?: HeaderLevel | null | undefined,
+ *   answerSelectionMode?: QuizAnswerSelectionMode | null | undefined,
+ *   finalized: boolean,
+ *   elements: (QuizInquiryElement | FinalizedQuizInquiryElement)[],
+ *   customRootClass?: string | null | undefined,
+ *   rootElementType?: "div" | "section" | "main" | (string & {}) | undefined | null,
  *   codeBoardTheme?: CodeBoardProps["theme"],
+ *   onSubmit?: ((data: QuizFinalizationData) => void) | undefined,
  *   animateResultIndicator?: boolean | undefined,
  *   getResultSummaryText?: ((data: QuizFinalizationData) => string) | null | undefined
  * }} QuizProps
@@ -102,8 +104,13 @@ export function quizElementIndexToTabName(index) {
 /**
  * @param {QuizElementInstance[]} elementInstances
  * @param {number} slideIndex
+ * @param {QuizAnswerSelectionMode} answerSelectionMode
  */
-export function getQuizDataForSlide(elementInstances, slideIndex) {
+export function getQuizDataForSlide(
+  elementInstances,
+  slideIndex,
+  answerSelectionMode
+) {
   const slide = elementInstances[slideIndex]
   const resultIndex = elementInstances.length - 1
   const resultInstance = elementInstances[resultIndex]
@@ -115,17 +122,12 @@ export function getQuizDataForSlide(elementInstances, slideIndex) {
   const slideIsResult = slide === resultInstance
 
   const slideIsQuestion = slide instanceof Question
-  const slideIsAnsweredQuestion = slideIsQuestion && slide.isAnswered()
-
-  const questionInstances = elementInstances.filter(
-    /** @returns {element is Question} */ (element) =>
-      element instanceof Question
-  )
+  const slideIsNotUnansweredQuestion = slideIsQuestion && slide.isAnswered()
 
   const answeredQuestionIndices = /** @type {number[]} */ ([])
   const unansweredQuestionIndices = /** @type {number[]} */ ([])
 
-  questionInstances.forEach((element, index) => {
+  elementInstances.forEach((element, index) => {
     if (!(element instanceof Question)) return
     if (element.isAnswered()) answeredQuestionIndices.push(index)
     else unansweredQuestionIndices.push(index)
@@ -135,18 +137,26 @@ export function getQuizDataForSlide(elementInstances, slideIndex) {
   const precedesUnrenderedResult =
     !quizIsFinalized && slideIndex === resultIndex - 1
 
-  const allowedNextIndex =
-    slideIsLast ||
-    precedesUnrenderedResult ||
-    (firstUnansweredQuestionIndex !== null &&
-      firstUnansweredQuestionIndex <= slideIndex)
-      ? null
-      : slideIndex + 1
+  let allowedNextIndex = /** @type {number | null} */ (null)
+
+  if (answerSelectionMode === "sequential") {
+    if (slideIsLast || precedesUnrenderedResult) {
+      allowedNextIndex = null
+    } else {
+      const isNotBeforeUnanswered =
+        firstUnansweredQuestionIndex !== null &&
+        slideIndex >= firstUnansweredQuestionIndex
+      allowedNextIndex = isNotBeforeUnanswered ? null : slideIndex + 1
+    }
+  } else if (answerSelectionMode === "free") {
+    allowedNextIndex =
+      slideIsLast || precedesUnrenderedResult ? null : slideIndex + 1
+  }
 
   return {
     slide: {
       index: slideIndex,
-      isAnsweredQuestion: slideIsAnsweredQuestion,
+      isNotUnansweredQuestion: slideIsNotUnansweredQuestion,
       isFirst: slideIsFirst,
       isLast: slideIsLast,
       isQuestion: slideIsQuestion,
@@ -156,12 +166,13 @@ export function getQuizDataForSlide(elementInstances, slideIndex) {
       ref: slide
     },
     quiz: {
+      resultIndex,
+      answerSelectionMode,
       answeredQuestionIndices,
       unansweredQuestionIndices,
       firstUnansweredQuestionIndex: unansweredQuestionIndices[0] ?? null,
       isFinalized: quizIsFinalized,
-      lastElementIndex: elementInstances.length - 1,
-      resultIndex
+      lastElementIndex: elementInstances.length - 1
     }
   }
 }

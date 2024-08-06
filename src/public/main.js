@@ -57,6 +57,7 @@ Quiz.create({
     header: "Test quiz 1",
     elements: SAMPLE_QUIZ_DATA.slice(2, 5),
     autosave: null,
+    answerSelectionMode: "free",
     finalized: false,
     customRootClass: "sample-quiz-1",
     onSubmit: (data) => {

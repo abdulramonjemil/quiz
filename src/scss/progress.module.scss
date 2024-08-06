@@ -116,7 +116,6 @@ $operational-progress-element-color: progress.variable(
     }
 
     .Progress__Level_active & {
-      border-style: solid;
       color: transparent;
 
       &::after {
