@@ -56,6 +56,7 @@ $option-focus-color: question.variable("option-focus-color");
   }
 
   &__Title {
+    color: question.variable("title-color");
     display: block;
     width: 100%;
     text-align: center;

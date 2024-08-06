@@ -36,7 +36,6 @@
     @extend %reset-element;
 
     background-color: quiz.variable("background-color");
-    color: theme.color("surface-foreground");
 
     font-size: 14px;
     padding: 25px 16px;

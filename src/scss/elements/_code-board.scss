@@ -7,9 +7,10 @@
 // ========================================================
 
 $code-board-configurable-variables: (
-  "background-color": theme.color("tertiary"),
-  "code-color": theme.color("tertiary-foreground"),
-  "focus-color": theme.color("surface-foreground"),
+  "board-color": theme.color("tertiary"),
+  "board-color-foreground": theme.color("tertiary-foreground"),
+  "board-focus-color": theme.color("surface-foreground"),
+  "title-color": theme.color("surface-foreground"),
   "scrollbar-track-color": transparent,
   "scrollbar-thumb-color": custom.scrollbar-variable("thumb-color"),
   "scrollbar-webkit-width": custom.scrollbar-variable("webkit-width"),

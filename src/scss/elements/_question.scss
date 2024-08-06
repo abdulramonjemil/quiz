@@ -7,6 +7,7 @@
 // ========================================================
 
 $question-configurable-variables: (
+  "title-color": theme.color("surface-foreground"),
   "deselected-option-color": theme.color("surface-foreground-muted"),
   "deselected-option-color-foreground": theme.color("surface-foreground"),
   "deselected-option-hover-color": theme.color("primary"),

@@ -13,6 +13,7 @@ $code-board-scrollbar-main-size: 8px;
   @include presentation.contained-content();
 
   &__Title {
+    color: code-board.variable("title-color");
     flex: 0 0 max-content;
     text-align: center;
   }
@@ -40,11 +41,11 @@ $code-board-scrollbar-main-size: 8px;
   );
 
   &:focus-visible {
-    outline: 2px solid code-board.variable("focus-color");
+    outline: 2px solid code-board.variable("board-focus-color");
   }
 
   &[class*="language-"] {
-    $background-color: code-board.variable("background-color");
+    $background-color: code-board.variable("board-color");
 
     background: $background-color;
     margin: 0;
@@ -65,7 +66,7 @@ $code-board-scrollbar-main-size: 8px;
 
   &_basicThemed[class*="language-"] {
     @extend %internal-themed;
-    color: code-board.variable("code-color");
+    color: code-board.variable("board-color-foreground");
   }
 
   &_defaultThemed[class*="language-"] {
