@@ -305,7 +305,7 @@ function jsx(type, props, key) {
     return createComponentElement(type, fProps, children)
   }
 
-  throw new TypeError("`type` must be a string or a function")
+  throw new TypeError("JSX Element type must be a string or a function")
 }
 
 /**
