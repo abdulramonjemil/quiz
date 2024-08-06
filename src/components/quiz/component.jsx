@@ -69,6 +69,7 @@ export class Quiz extends Component {
       finalized,
       header,
       headerLevel,
+      rootElementType,
       codeBoardTheme,
       getResultSummaryText
     } = props
@@ -141,9 +142,11 @@ export class Quiz extends Component {
         tabs
       }
     })
+    const RootElementType = rootElementType ?? "div"
 
     const quizNode = (
-      <section className={cn(customRootClass, quizClasses.root)}>
+      // @ts-expect-error
+      <RootElementType className={cn(customRootClass, quizClasses.root)}>
         <div
           aria-labelledby={quizLabellingId}
           tabIndex={-1}
@@ -188,7 +191,7 @@ export class Quiz extends Component {
             instanceRefHolder={cPanelRH}
           />
         </div>
-      </section>
+      </RootElementType>
     )
 
     const appropriateIndex = resultInstance.isFinalized() ? resultIndex : 0

@@ -72,6 +72,7 @@ import Styles from "@/scss/quiz.module.scss"
  *     identifier: string,
  *     saveWithPathname: boolean
  *   } | null | undefined,
+ *   rootElementType?: "div" | "section" | "main" | (string & {}) | undefined | null,
  *   customRootClass?: string | null | undefined,
  *   headerLevel?: HeaderLevel | null | undefined,
  *   codeBoardTheme?: CodeBoardProps["theme"],
