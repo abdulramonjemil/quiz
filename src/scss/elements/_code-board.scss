@@ -26,7 +26,7 @@ $code-board-configurable-variables-prefix: "code-board";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $code-board-configurable-variables,
     $key: $variable,
     $prefix: $code-board-configurable-variables-prefix,

@@ -16,7 +16,7 @@
   }
 }
 
-@function var($variables, $key, $prefix, $type) {
+@function get-var-string($variables, $key, $prefix, $type) {
   @if not map-has-key($variables, $key) {
     @error "Unknown #{$type} with key: '#{$key}'";
   }

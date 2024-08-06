@@ -19,7 +19,7 @@ $header-configurable-variables-prefix: "header";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $header-configurable-variables,
     $key: $variable,
     $prefix: $header-configurable-variables-prefix,

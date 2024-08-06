@@ -24,7 +24,7 @@ $presentation-configurable-variables-prefix: "presentation";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $presentation-configurable-variables,
     $key: $variable,
     $prefix: $presentation-configurable-variables-prefix,

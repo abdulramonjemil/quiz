@@ -21,7 +21,7 @@ $progress-configurable-variables-prefix: "progress";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $progress-configurable-variables,
     $key: $variable,
     $prefix: $progress-configurable-variables-prefix,

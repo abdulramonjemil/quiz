@@ -22,7 +22,7 @@ $scrollbar-configurable-variables-prefix: "custom-scrollbar";
 }
 
 @function scrollbar-variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $scrollbar-configurable-variables,
     $key: $variable,
     $prefix: $scrollbar-configurable-variables-prefix,

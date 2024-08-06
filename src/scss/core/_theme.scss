@@ -45,7 +45,7 @@ $theme-constants-variables-prefix: "theme-constant";
 }
 
 @function color($color) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $theme-colors,
     $key: $color,
     $prefix: $theme-colors-variables-prefix,
@@ -54,7 +54,7 @@ $theme-constants-variables-prefix: "theme-constant";
 }
 
 @function constant($constant) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $theme-constants,
     $key: $constant,
     $prefix: $theme-constants-variables-prefix,

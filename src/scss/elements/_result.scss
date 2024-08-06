@@ -29,7 +29,7 @@ $result-configurable-variables-prefix: "result";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $result-configurable-variables,
     $key: $variable,
     $prefix: $result-configurable-variables-prefix,

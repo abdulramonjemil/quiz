@@ -23,7 +23,7 @@ $control-panel-configurable-variables-prefix: "control-panel";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $control-panel-configurable-variables,
     $key: $variable,
     $prefix: $control-panel-configurable-variables-prefix,

@@ -38,7 +38,7 @@ $question-configurable-variables-prefix: "question";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $question-configurable-variables,
     $key: $variable,
     $prefix: $question-configurable-variables-prefix,

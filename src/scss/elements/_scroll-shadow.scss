@@ -21,7 +21,7 @@ $scroll-shadow-configurable-variables-prefix: "scroll-shadow";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $scroll-shadow-configurable-variables,
     $key: $variable,
     $prefix: $scroll-shadow-configurable-variables-prefix,

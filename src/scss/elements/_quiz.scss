@@ -21,7 +21,7 @@ $quiz-configurable-variables-prefix: "quiz";
 }
 
 @function variable($variable) {
-  @return utils.var(
+  @return utils.get-var-string(
     $variables: $quiz-configurable-variables,
     $key: $variable,
     $prefix: $quiz-configurable-variables-prefix,
