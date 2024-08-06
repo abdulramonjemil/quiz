@@ -1,4 +1,4 @@
-import { htmlStringToFragment } from "./base"
+import { htmlStringToFragment } from "@/lib/dom"
 import { FormatFactory } from "./format-factory"
 
 const codeFormatFactory = new FormatFactory("`", "code")
