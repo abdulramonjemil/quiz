@@ -29,10 +29,6 @@ $question-configurable-variables: (
 );
 
 $question-configurable-variables-prefix: "question";
-$question-configurable-variables-map: utils.create-variable-map(
-  $question-configurable-variables,
-  $question-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -42,9 +38,10 @@ $question-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $question-configurable-variables-map,
-    $variable,
-    "question variable"
+  @return utils.var(
+    $variables: $question-configurable-variables,
+    $key: $variable,
+    $prefix: $question-configurable-variables-prefix,
+    $type: "question variable"
   );
 }

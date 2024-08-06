@@ -10,10 +10,6 @@ $header-configurable-variables: (
 );
 
 $header-configurable-variables-prefix: "header";
-$header-configurable-variables-map: utils.create-variable-map(
-  $header-configurable-variables,
-  $header-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -23,9 +19,10 @@ $header-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $header-configurable-variables-map,
-    $variable,
-    "header variable"
+  @return utils.var(
+    $variables: $header-configurable-variables,
+    $key: $variable,
+    $prefix: $header-configurable-variables-prefix,
+    $type: "header variable"
   );
 }

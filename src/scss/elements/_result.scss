@@ -20,10 +20,6 @@ $result-configurable-variables: (
 );
 
 $result-configurable-variables-prefix: "result";
-$result-configurable-variables-map: utils.create-variable-map(
-  $result-configurable-variables,
-  $result-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -33,9 +29,10 @@ $result-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $result-configurable-variables-map,
-    $variable,
-    "result variable"
+  @return utils.var(
+    $variables: $result-configurable-variables,
+    $key: $variable,
+    $prefix: $result-configurable-variables-prefix,
+    $type: "result variable"
   );
 }

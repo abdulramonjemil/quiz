@@ -17,10 +17,6 @@ $code-board-configurable-variables: (
 );
 
 $code-board-configurable-variables-prefix: "code-board";
-$code-board-configurable-variables-map: utils.create-variable-map(
-  $code-board-configurable-variables,
-  $code-board-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -30,9 +26,10 @@ $code-board-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $code-board-configurable-variables-map,
-    $variable,
-    "code board variable"
+  @return utils.var(
+    $variables: $code-board-configurable-variables,
+    $key: $variable,
+    $prefix: $code-board-configurable-variables-prefix,
+    $type: "code board variable"
   );
 }

@@ -12,10 +12,6 @@ $progress-configurable-variables: (
 );
 
 $progress-configurable-variables-prefix: "progress";
-$progress-configurable-variables-map: utils.create-variable-map(
-  $progress-configurable-variables,
-  $progress-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -25,9 +21,10 @@ $progress-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $progress-configurable-variables-map,
-    $variable,
-    "progress variable"
+  @return utils.var(
+    $variables: $progress-configurable-variables,
+    $key: $variable,
+    $prefix: $progress-configurable-variables-prefix,
+    $type: "progress variable"
   );
 }

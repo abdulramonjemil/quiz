@@ -15,10 +15,6 @@ $presentation-configurable-variables: (
 );
 
 $presentation-configurable-variables-prefix: "presentation";
-$presentation-configurable-variables-map: utils.create-variable-map(
-  $presentation-configurable-variables,
-  $presentation-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -28,10 +24,11 @@ $presentation-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $presentation-configurable-variables-map,
-    $variable,
-    "presentation variable"
+  @return utils.var(
+    $variables: $presentation-configurable-variables,
+    $key: $variable,
+    $prefix: $presentation-configurable-variables-prefix,
+    $type: "presentation variable"
   );
 }
 

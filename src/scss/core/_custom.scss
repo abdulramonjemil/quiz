@@ -13,10 +13,6 @@ $scrollbar-configurable-variables: (
 );
 
 $scrollbar-configurable-variables-prefix: "custom-scrollbar";
-$scrollbar-configurable-variables-map: utils.create-variable-map(
-  $scrollbar-configurable-variables,
-  $scrollbar-configurable-variables-prefix
-);
 
 @mixin scrollbar-configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -26,10 +22,11 @@ $scrollbar-configurable-variables-map: utils.create-variable-map(
 }
 
 @function scrollbar-variable($variable) {
-  @return utils.get-variable(
-    $scrollbar-configurable-variables-map,
-    $variable,
-    "custom scrollbar variable"
+  @return utils.var(
+    $variables: $scrollbar-configurable-variables,
+    $key: $variable,
+    $prefix: $scrollbar-configurable-variables-prefix,
+    $type: "custom scrollbar variable"
   );
 }
 

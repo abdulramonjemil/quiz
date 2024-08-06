@@ -12,10 +12,6 @@ $quiz-configurable-variables: (
 );
 
 $quiz-configurable-variables-prefix: "quiz";
-$quiz-configurable-variables-map: utils.create-variable-map(
-  $quiz-configurable-variables,
-  $quiz-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -25,9 +21,10 @@ $quiz-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $quiz-configurable-variables-map,
-    $variable,
-    "quiz variable"
+  @return utils.var(
+    $variables: $quiz-configurable-variables,
+    $key: $variable,
+    $prefix: $quiz-configurable-variables-prefix,
+    $type: "quiz variable"
   );
 }

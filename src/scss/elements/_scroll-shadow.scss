@@ -12,10 +12,6 @@ $scroll-shadow-configurable-variables: (
 );
 
 $scroll-shadow-configurable-variables-prefix: "scroll-shadow";
-$scroll-shadow-configurable-variables-map: utils.create-variable-map(
-  $scroll-shadow-configurable-variables,
-  $scroll-shadow-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -25,10 +21,11 @@ $scroll-shadow-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $scroll-shadow-configurable-variables-map,
-    $variable,
-    "scroll shadow variable"
+  @return utils.var(
+    $variables: $scroll-shadow-configurable-variables,
+    $key: $variable,
+    $prefix: $scroll-shadow-configurable-variables-prefix,
+    $type: "scroll shadow variable"
   );
 }
 

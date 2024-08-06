@@ -14,10 +14,6 @@ $control-panel-configurable-variables: (
 );
 
 $control-panel-configurable-variables-prefix: "control-panel";
-$control-panel-configurable-variables-map: utils.create-variable-map(
-  $control-panel-configurable-variables,
-  $control-panel-configurable-variables-prefix
-);
 
 @mixin configurable-variables-declarations() {
   @include utils.variable-declarations(
@@ -27,9 +23,10 @@ $control-panel-configurable-variables-map: utils.create-variable-map(
 }
 
 @function variable($variable) {
-  @return utils.get-variable(
-    $control-panel-configurable-variables-map,
-    $variable,
-    "control panel variable"
+  @return utils.var(
+    $variables: $control-panel-configurable-variables,
+    $key: $variable,
+    $prefix: $control-panel-configurable-variables-prefix,
+    $type: "control panel variable"
   );
 }

@@ -32,16 +32,6 @@ $theme-constants: (
 $theme-colors-variables-prefix: "theme-color";
 $theme-constants-variables-prefix: "theme-constant";
 
-$colors-variables-map: utils.create-variable-map(
-  $theme-colors,
-  $theme-colors-variables-prefix
-);
-
-$constants-variables-map: utils.create-variable-map(
-  $theme-constants,
-  $theme-constants-variables-prefix
-);
-
 @mixin variables-declarations() {
   @include utils.variable-declarations(
     $theme-colors,
@@ -55,13 +45,19 @@ $constants-variables-map: utils.create-variable-map(
 }
 
 @function color($color) {
-  @return utils.get-variable($colors-variables-map, $color, "theme color");
+  @return utils.var(
+    $variables: $theme-colors,
+    $key: $color,
+    $prefix: $theme-colors-variables-prefix,
+    $type: "theme color"
+  );
 }
 
 @function constant($constant) {
-  @return utils.get-variable(
-    $constants-variables-map,
-    $constant,
-    "theme constant"
+  @return utils.var(
+    $variables: $theme-constants,
+    $key: $constant,
+    $prefix: $theme-constants-variables-prefix,
+    $type: "theme constant"
   );
 }
