@@ -1,10 +1,10 @@
 import { htmlStringToFragment } from "./base"
-import { createFormatFactory } from "./format"
+import { FormatFactory } from "./format-factory"
 
-const codeFormatFactory = createFormatFactory("`", "code")
-const italicFormatFactory = createFormatFactory("_", "em")
-const boldFormatFactory = createFormatFactory("*", "strong")
-const strikeThroughFormatFactory = createFormatFactory("~", "del")
+const codeFormatFactory = new FormatFactory("`", "code")
+const italicFormatFactory = new FormatFactory("_", "em")
+const boldFormatFactory = new FormatFactory("*", "strong")
+const strikeThroughFormatFactory = new FormatFactory("~", "del")
 
 const ContentPrefixes = /** @type {const} */ ({
   html: "html:",
@@ -42,10 +42,10 @@ export function contentNode(content) {
     boldFormatFactory,
     strikeThroughFormatFactory
   ].reduce((val, factory) => {
-    const { char, format } = factory
+    const { char } = factory
     // No need to format if it'll surely return same thing
     if (val.lastIndexOf(char) - val.indexOf(char) <= 1) return val
-    return format(val)
+    return factory.format(FormatFactory.prepare(val))
   }, contentValue)
 
   if (formatted === contentValue) return document.createTextNode(contentValue)
