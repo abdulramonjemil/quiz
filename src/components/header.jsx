@@ -1,4 +1,4 @@
-import { contentNode } from "@/core"
+import { contentNode } from "@/core/content"
 import { cn } from "@/lib/dom"
 import Styles from "@/scss/header.module.scss"
 

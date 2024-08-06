@@ -6,7 +6,7 @@ import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
  *   import("@/components/control-panel").ControlPanelRevalidationOptions
  * )} ControlPanelRevalidationOptions
  *
- * @typedef {import("@/ui").Tabs} Tabs
+ * @typedef {import("@/ui/tabs").Tabs} Tabs
  * @typedef {import("@/components/progress").default} Progress
  * @typedef {import("@/components/presentation").default} Presentation
  * @typedef {import("@/components/control-panel").default} ControlPanel

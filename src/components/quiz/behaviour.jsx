@@ -2,7 +2,7 @@ import Question from "@/components/question"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import { attemptElementFocus } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
-import { Tabs } from "@/ui"
+import { Tabs } from "@/ui/tabs"
 import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
 
 /**

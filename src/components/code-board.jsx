@@ -2,7 +2,7 @@
 import Prism from "prismjs"
 import "prismjs/plugins/autoloader/prism-autoloader"
 
-import { contentNode } from "@/core"
+import { contentNode } from "@/core/content"
 import Styles from "@/scss/code-board.module.scss"
 import { rh } from "@/jsx"
 import { cn } from "@/lib/dom"

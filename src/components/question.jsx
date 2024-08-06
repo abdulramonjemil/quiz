@@ -1,5 +1,5 @@
 import { Component, rh } from "@/jsx"
-import { contentNode } from "@/core"
+import { contentNode } from "@/core/content"
 import {
   addClasses,
   attemptElementFocus,

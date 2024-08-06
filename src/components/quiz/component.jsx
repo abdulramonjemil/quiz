@@ -2,7 +2,7 @@ import { mrh, rh, Component } from "@/jsx"
 import { attemptElementFocus, cn } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
 import { assertIsDefined, assertIsInstance, bind } from "@/lib/value"
-import { Tabs } from "@/ui"
+import { Tabs } from "@/ui/tabs"
 
 // Import before components to allow overrides
 import "@/scss/quiz.module.scss"

@@ -1,5 +1,5 @@
 import { Component, Slot, ns, rh } from "@/jsx"
-import { contentNode } from "@/core"
+import { contentNode } from "@/core/content"
 import { addClasses, cn, css } from "@/lib/dom"
 import Styles from "@/scss/result.module.scss"
 import ScrollShadow from "./scroll-shadow"
