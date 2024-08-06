@@ -91,7 +91,6 @@ Quiz.create({
 Quiz.create({
   container: container3,
   props: {
-    header: "Test quiz 3",
     autosave: null,
     customRootClass: "sample-quiz-3",
     elements: createFinalizedInquiryElements(SAMPLE_QUIZ_DATA.slice(9, 14)),

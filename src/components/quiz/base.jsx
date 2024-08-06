@@ -69,7 +69,7 @@ import Styles from "@/scss/quiz.module.scss"
  *     identifier: string,
  *     saveWithPathname: boolean
  *   } | null | undefined,
- *   header: string,
+ *   header?: string | null | undefined,
  *   headerLevel?: HeaderLevel | null | undefined,
  *   answerSelectionMode?: QuizAnswerSelectionMode | null | undefined,
  *   finalized: boolean,

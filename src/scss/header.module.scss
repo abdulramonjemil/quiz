@@ -2,6 +2,7 @@
 
 .Header {
   container-type: inline-size;
+  margin-bottom: 20px;
 
   &__Element {
     color: header.variable("color");

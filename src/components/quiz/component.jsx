@@ -157,9 +157,11 @@ export class Quiz extends Component {
           onKeyUpCapture={shortcutHandlers.keyup}
           className={quizClasses.inner}
         >
-          <Header labellingId={quizLabellingId} level={headerLevel}>
-            {header}
-          </Header>
+          {header && (
+            <Header labellingId={quizLabellingId} level={headerLevel}>
+              {header}
+            </Header>
+          )}
           <Progress
             levelsCount={elementInstances.length}
             lastAsCompletionLevel
@@ -200,7 +202,7 @@ export class Quiz extends Component {
     const appropriateIndex = resultInstance.isFinalized() ? resultIndex : 0
 
     tabs = setupQuizTabs({
-      tablistLabel: header,
+      tablistLabel: header ?? null,
       elements: fullQuizElements,
       progress: progressRH.ref,
       presentation: presentationRH.ref,

@@ -22,11 +22,11 @@ import { UIComponent } from "./component"
  *   elements: {
  *     tablist: {
  *       ref: HTMLElement
- *       ariaLabel: string
+ *       ariaLabel?: string | null | undefined
  *     }
  *     tabItems: {
  *       name: string,
- *       triggerAriaLabel?: string | undefined
+ *       triggerAriaLabel?: string | null | undefined
  *       triggerId: string,
  *       contentId: string,
  *       refs: {
@@ -204,8 +204,8 @@ export class Tabs extends UIComponent {
     return {
       tablist: {
         role: "tablist",
-        "aria-label": tablist.ariaLabel,
-        "aria-orientation": "horizontal"
+        "aria-orientation": "horizontal",
+        ...(tablist.ariaLabel && { "aria-label": tablist.ariaLabel })
       },
       tabItems: tabItems.map((item) => ({
         trigger: {

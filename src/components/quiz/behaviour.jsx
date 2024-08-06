@@ -19,7 +19,7 @@ import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
 
 /**
  * @param {Object} param0
- * @param {string} param0.tablistLabel
+ * @param {string | null} param0.tablistLabel
  * @param {QuizSlideElement[]} param0.elements
  * @param {Presentation} param0.presentation
  * @param {Progress} param0.progress
