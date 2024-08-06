@@ -68,6 +68,7 @@ export default function CodeBoard({ title, language, snippet, theme }) {
       <div className={codeClasses.content}>
         <pre
           className={cn([
+            `language-${language}`,
             codeClasses.pre.base,
             [basicThemed, codeClasses.pre.basicThemed],
             [defaultThemed, codeClasses.pre.defaultThemed]
