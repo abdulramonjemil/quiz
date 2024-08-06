@@ -2,10 +2,10 @@
 import { SAMPLE_QUIZ_DATA } from "./sample.js"
 
 /**
- * @typedef {import("@/components/quiz").QuizClass} QuizClass
- * @typedef {import("@/components/quiz").QuizProps} QuizProps
- * @typedef {import("@/components/quiz").QuizInquiryElement} QuizInquiryElement
- * @typedef {import("@/components/quiz").FinalizedQuizInquiryElement} FinalizedQuizInquiryElement
+ * @typedef {import("@/components/quiz/").QuizClass} QuizClass
+ * @typedef {import("@/components/quiz/").QuizProps} QuizProps
+ * @typedef {import("@/components/quiz/").QuizInquiryElement} QuizInquiryElement
+ * @typedef {import("@/components/quiz/").FinalizedQuizInquiryElement} FinalizedQuizInquiryElement
  */
 
 /**
