@@ -161,3 +161,49 @@ export function bind(func, getThis, ...params1) {
   /** @param {B} params2 */
   return (...params2) => func.call(getThis(), ...params1, ...params2)
 }
+
+/**
+ * Checks whether a class extends another class (directly or
+ * indirectly). For example, if class 'C' extends class 'B', and class 'B'
+ * extends class 'A', this function will return true when passed 'C' and 'A'
+ * (in that order).
+ *
+ * @template {new (...args: any[]) => any} T
+ * @param {any} value
+ * @param {T} parentClass
+ * @returns {value is new (...args: any[]) => InstanceType<T>}
+ */
+export function isExtender(value, parentClass) {
+  if (typeof value !== "function") return false
+  if (
+    typeof value.prototype !== "object" ||
+    value.prototype === null ||
+    typeof parentClass.prototype !== "object" ||
+    parentClass.prototype === null
+  ) {
+    return false
+  }
+
+  let mediatorClass = value
+  while (mediatorClass !== null) {
+    const protoOfMediatorClass = Object.getPrototypeOf(mediatorClass)
+    const protoOfMediatorClassPrototype = Object.getPrototypeOf(
+      mediatorClass.prototype
+    )
+
+    if (protoOfMediatorClassPrototype !== protoOfMediatorClass.prototype) {
+      return false
+    }
+
+    if (
+      protoOfMediatorClass === parentClass &&
+      protoOfMediatorClassPrototype === parentClass.prototype
+    ) {
+      return true
+    }
+
+    mediatorClass = protoOfMediatorClass
+  }
+
+  return false
+}

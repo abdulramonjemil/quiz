@@ -1,6 +1,8 @@
 import { uniqueId } from "@/lib/factory"
+import { isExtender } from "@/lib/value"
 import { resolveToNode } from "./base"
 import { isRH } from "./ref"
+import { Component } from "./component"
 
 /**
  * @typedef {import("./base").JSXIntrinsicElementType} JSXIntrinsicElementType
@@ -8,8 +10,6 @@ import { isRH } from "./ref"
  * @typedef {import("./base").JSXClassElementType} JSXClassElementType
  * @typedef {import("./base").JSXElementType} JSXElementType
  * @typedef {import("./base").ElementProps} ElementProps
- *
- * @typedef {import("./component").Component} Component
  * @typedef {import("./component").ComponentProps} ComponentProps
  */
 
@@ -271,15 +271,15 @@ function createComponentElement(func, props, children) {
   let node = /** @type {Node | null} */ (null)
   let instance = /** @type {Component | null} */ (null)
 
-  try {
+  if (isExtender(func, Component)) {
+    // Component is class if error is thrown
+    const C = func
+    instance = new C(executionProps)
+    node = instance.rootNode()
+  } else {
     node = resolveToNode(
       /** @type {JSXFunctionElementType} */ (func).call(null, executionProps)
     )
-  } catch {
-    // Component is class if error is thrown
-    const C = /** @type {JSXClassElementType} */ (func)
-    instance = new C(executionProps)
-    node = instance.rootNode()
   }
 
   assignComponentElementRef(props, node, instance ?? undefined)
