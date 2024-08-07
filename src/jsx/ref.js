@@ -1,5 +1,5 @@
 // Used to brand ref holders
-const REF_HOLER_BRAND_KEY_SYMBOL = Symbol("REF_HOLER_BRAND_KEY")
+const REF_HOLER_SYMBOL_KEY = Symbol("REF_HOLER_SYMBOL_KEY")
 const IMMUTABLE_REF_HOLDER_SYMBOL = Symbol("IMMUTABLE_REF_HOLDER")
 const MUTABLE_REF_HOLDER_SYMBOL = Symbol("MUTABLE_REF_HOLDER")
 
@@ -7,7 +7,7 @@ const MUTABLE_REF_HOLDER_SYMBOL = Symbol("MUTABLE_REF_HOLDER")
  * @template {any} T
  * @typedef {{
  *   readonly ref: T,
- *   readonly [REF_HOLER_BRAND_KEY_SYMBOL]: typeof IMMUTABLE_REF_HOLDER_SYMBOL
+ *   readonly [REF_HOLER_SYMBOL_KEY]: typeof IMMUTABLE_REF_HOLDER_SYMBOL
  * }} RefHolder
  */
 
@@ -15,7 +15,7 @@ const MUTABLE_REF_HOLDER_SYMBOL = Symbol("MUTABLE_REF_HOLDER")
  * @template {any} T
  * @typedef {{
  *   ref: T,
- *   readonly [REF_HOLER_BRAND_KEY_SYMBOL]: typeof MUTABLE_REF_HOLDER_SYMBOL
+ *   readonly [REF_HOLER_SYMBOL_KEY]: typeof MUTABLE_REF_HOLDER_SYMBOL
  * }} MutableRefHolder
  */
 
@@ -65,13 +65,13 @@ export function rh(...value) {
   if (value.length > 0) {
     return {
       ref: value[0],
-      [REF_HOLER_BRAND_KEY_SYMBOL]: IMMUTABLE_REF_HOLDER_SYMBOL
+      [REF_HOLER_SYMBOL_KEY]: IMMUTABLE_REF_HOLDER_SYMBOL
     }
   }
 
   return {
     ref: null,
-    [REF_HOLER_BRAND_KEY_SYMBOL]: IMMUTABLE_REF_HOLDER_SYMBOL
+    [REF_HOLER_SYMBOL_KEY]: IMMUTABLE_REF_HOLDER_SYMBOL
   }
 }
 
@@ -116,13 +116,13 @@ export function mrh(...value) {
   if (value.length > 0) {
     return {
       ref: value[0],
-      [REF_HOLER_BRAND_KEY_SYMBOL]: MUTABLE_REF_HOLDER_SYMBOL
+      [REF_HOLER_SYMBOL_KEY]: MUTABLE_REF_HOLDER_SYMBOL
     }
   }
 
   return {
     ref: null,
-    [REF_HOLER_BRAND_KEY_SYMBOL]: MUTABLE_REF_HOLDER_SYMBOL
+    [REF_HOLER_SYMBOL_KEY]: MUTABLE_REF_HOLDER_SYMBOL
   }
 }
 
@@ -136,7 +136,7 @@ export function isRH(value) {
     typeof value === "object" &&
     value !== null &&
     Object.prototype.hasOwnProperty.call(value, "ref") &&
-    value[REF_HOLER_BRAND_KEY_SYMBOL] === IMMUTABLE_REF_HOLDER_SYMBOL
+    value[REF_HOLER_SYMBOL_KEY] === IMMUTABLE_REF_HOLDER_SYMBOL
   )
 }
 
@@ -146,6 +146,6 @@ export function isMRH(value) {
     typeof value === "object" &&
     value !== null &&
     Object.prototype.hasOwnProperty.call(value, "ref") &&
-    value[REF_HOLER_BRAND_KEY_SYMBOL] === MUTABLE_REF_HOLDER_SYMBOL
+    value[REF_HOLER_SYMBOL_KEY] === MUTABLE_REF_HOLDER_SYMBOL
   )
 }

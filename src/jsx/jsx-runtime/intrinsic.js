@@ -1,6 +1,9 @@
 import { resolveToNode } from "@/jsx/base"
 import { isRH } from "@/jsx/ref"
-import { __forbiddenPopContextArray__, isContextData } from "@/jsx/context"
+import {
+  __forbiddenPopContextDataFromStack__,
+  isContextData
+} from "@/jsx/context"
 import { nsCtx } from "./context"
 
 /**
@@ -90,7 +93,7 @@ function assignIntrinsicElementAttrs(element, props) {
     if (name === s.namespace && isContextData(value)) {
       attrProps[s.namespace] = nsCtx.value()
       // The current element is at the root element where it is placed
-      __forbiddenPopContextArray__(value)
+      __forbiddenPopContextDataFromStack__(value)
       return
     }
     delete attrProps[name]
