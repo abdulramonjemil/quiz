@@ -1,6 +1,6 @@
 import { resolveToNode } from "@/jsx/base"
 import { isRH } from "@/jsx/ref"
-import { Namespaces, SpecialIntrinsicProps } from "./base"
+import { __forbiddenPopContextArray__, isContextData } from "@/jsx/context"
 import { nsCtx } from "./context"
 
 /**
@@ -11,6 +11,12 @@ import { nsCtx } from "./context"
 
 /** Only usable via `element.property` */
 const IntrinsicElementPropertyAPIOnlyAttrs = ["className", "htmlFor"]
+
+export const SpecialIntrinsicProps = /** @type {const} */ ({
+  interfaceRH: "refHolder",
+  nodeRH: "nodeRefHolder",
+  namespace: "xmlns"
+})
 
 const EventAttr = /** @type {const} */ ({
   startString: "on",
@@ -74,15 +80,17 @@ function getEventDetails(attribute) {
 /**
  * @param {Element} element
  * @param {NormalizedElementProps} props
- * @param {string | null} derivedNS
  */
-function assignIntrinsicElementAttrs(element, props, derivedNS) {
-  const nsAttr = nsCtx.attrFor(props, derivedNS)
+function assignIntrinsicElementAttrs(element, props) {
   const s = SpecialIntrinsicProps
   const attrProps = { ...props }
+
   ;[s.namespace, s.interfaceRH, s.nodeRH].forEach((name) => {
-    if (name === s.namespace && nsAttr !== null) {
-      attrProps[s.namespace] = nsAttr
+    const value = attrProps[name]
+    if (name === s.namespace && isContextData(value)) {
+      attrProps[s.namespace] = nsCtx.value()
+      // The current element is at the root element where it is placed
+      __forbiddenPopContextArray__(value)
       return
     }
     delete attrProps[name]
@@ -124,25 +132,12 @@ function assignIntrinsicElementAttrs(element, props, derivedNS) {
  * @param {ElementChildren} children
  */
 export function createInstrinsicElement(tagName, props, children) {
-  const namespace = nsCtx.mutate(props)
+  const namespace = nsCtx.value()
   /** @type {Element | null} */
-  let element = null
-
-  if (namespace !== null) {
-    element = document.createElementNS(namespace, tagName)
-  } else {
-    element = document.createElement(tagName)
-    if (element instanceof HTMLUnknownElement) {
-      element = document.createElementNS(Namespaces.svg, tagName)
-      if (element.constructor === SVGElement) {
-        // SVGElement is generic so element is not svg element
-        element = document.createElementNS(Namespaces.mathml, tagName)
-      }
-    }
-  }
+  const element = document.createElementNS(namespace, tagName)
 
   assignIntrinsicElementRef(props, element)
-  assignIntrinsicElementAttrs(element, props, namespace)
+  assignIntrinsicElementAttrs(element, props)
   if (children !== undefined) element.appendChild(resolveToNode(children))
   return element
 }

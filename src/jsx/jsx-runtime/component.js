@@ -2,7 +2,6 @@ import { resolveToNode } from "@/jsx/base"
 import { Component } from "@/jsx/component"
 import { isRH } from "@/jsx/ref"
 import { isExtender } from "@/lib/value"
-import { SpecialComponentProps } from "./base"
 
 /**
  * @typedef {import("@/jsx/base").JSXFunctionElementType} JSXFunctionElementType
@@ -11,6 +10,11 @@ import { SpecialComponentProps } from "./base"
  * @typedef {import("./base").NormalizedElementProps} NormalizedElementProps
  * @typedef {import("./base").ElementChildren} ElementChildren
  */
+
+export const SpecialComponentProps = /** @type {const} */ ({
+  instanceRH: "instanceRefHolder",
+  nodeRH: "nodeRefHolder"
+})
 
 /**
  * @param {NormalizedElementProps} elementProps
