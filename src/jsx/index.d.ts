@@ -11,6 +11,7 @@ export type {
 
 export { ns } from "./jsx-runtime"
 export { Component, type ComponentProps } from "./component"
+export { Slot, type SlotProps, type SlotRevalidator } from "./slot"
 
 export {
   type RefHolder,
@@ -21,7 +22,13 @@ export {
   rh
 } from "./ref"
 
-export { Slot, type SlotProps, type SlotRevalidator } from "./slot"
+export {
+  ctx,
+  ContextProvider,
+  isContextData,
+  type Context,
+  type ContextData
+} from "./context"
 
 export namespace CustomJSX {
   type Element = Node
