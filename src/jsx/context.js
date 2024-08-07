@@ -107,7 +107,7 @@ export function ctx(...defaultValue) {
  * @param {ContextData} contextData
  */
 // eslint-disable-next-line no-underscore-dangle
-export function __restrictedPopContextArray__(contextData) {
+export function __forbiddenPopContextArray__(contextData) {
   const { contextId, usageId, value } = contextData
   const contextArray = CONTEXT_MAP.get(contextId)
   if (!Array.isArray(contextArray)) {
@@ -139,7 +139,7 @@ export function __restrictedPopContextArray__(contextData) {
  */
 export function ContextProvider({ children, data }) {
   if (!Array.isArray(data)) {
-    __restrictedPopContextArray__(data)
+    __forbiddenPopContextArray__(data)
     return children
   }
 
@@ -157,7 +157,7 @@ export function ContextProvider({ children, data }) {
       )
     }
 
-    __restrictedPopContextArray__(d)
+    __forbiddenPopContextArray__(d)
     poppedContextIDs.add(d.contextId)
   })
   return children
