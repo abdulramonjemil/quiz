@@ -9,7 +9,7 @@ export type {
   ElementProps
 } from "./base"
 
-export { ns } from "./jsx-runtime"
+export { ns } from "./jsx-runtime/context"
 export { Component, type ComponentProps } from "./component"
 export { Slot, type SlotProps, type SlotRevalidator } from "./slot"
 
