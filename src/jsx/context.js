@@ -44,7 +44,7 @@ export function isContextData(value) {
 }
 
 /* -------------------------------- *\
-Overloads for `ctx` start here
+Overloads for `createContext` start here
 \* -------------------------------- */
 
 /**
@@ -65,7 +65,7 @@ Overloads for `ctx` start here
  * @param {T[]} defaultValue
  * @returns {Context<T | null>}
  */
-export function ctx(...defaultValue) {
+export function createContext(...defaultValue) {
   const values = /** @type {ContextData<T | null>[]} */ ([])
   const contextId = uniqueId()
   CONTEXT_MAP.set(contextId, values)

@@ -24,7 +24,7 @@ export {
 } from "./ref"
 
 export {
-  ctx,
+  createContext,
   ContextProvider,
   isContextData,
   type Context,

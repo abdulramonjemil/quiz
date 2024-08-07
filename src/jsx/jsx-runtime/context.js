@@ -1,7 +1,9 @@
-import { ctx } from "@/jsx/context"
+import { createContext } from "@/jsx/context"
 import { Namespaces } from "./base"
 
-export const nsCtx = /** @type {typeof ctx<string>} */ (ctx)(Namespaces.html)
+export const nsCtx = /** @type {typeof createContext<string>} */ (
+  createContext
+)(Namespaces.html)
 export const ns = {
   ...nsCtx,
   /** @param {string} namespace */
