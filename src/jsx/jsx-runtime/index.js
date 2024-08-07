@@ -1,6 +1,6 @@
 import { resolveToNode } from "@/jsx/base"
 import { createInstrinsicElement } from "./intrinsic"
-import { createComponentElement } from "./component"
+import { createComponentElement } from "./value-based"
 
 /**
  * @typedef {import("@/jsx/base").JSXElementType} JSXElementType

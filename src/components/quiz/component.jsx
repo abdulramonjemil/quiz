@@ -1,8 +1,7 @@
-import { mrh, rh, Component, ContextProvider } from "@/jsx"
+import { mrh, rh, Component } from "@/jsx"
 import { attemptElementFocus, cn } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
 import { assertIsDefined, assertIsInstance, bind } from "@/lib/value"
-import { globalConfigCtx } from "@/core/data"
 import { Tabs } from "@/ui/tabs"
 
 // Import before components to allow overrides
@@ -150,57 +149,55 @@ export class Quiz extends Component {
     const RootElementType = rootElementType ?? "div"
 
     const quizNode = (
-      <ContextProvider data={globalConfigCtx.use({ classPrefix: "ui" })}>
-        {/* @ts-expect-error */}
-        <RootElementType className={cn(customRootClass, quizClasses.root)}>
-          <div
-            aria-labelledby={quizLabellingId}
-            tabIndex={-1}
-            onKeyDownCapture={shortcutHandlers.keydown}
-            onKeyUpCapture={shortcutHandlers.keyup}
-            className={quizClasses.inner}
-          >
-            {header && (
-              <Header labellingId={quizLabellingId} level={headerLevel}>
-                {header}
-              </Header>
+      // @ts-expect-error
+      <RootElementType className={cn(customRootClass, quizClasses.root)}>
+        <div
+          aria-labelledby={quizLabellingId}
+          tabIndex={-1}
+          onKeyDownCapture={shortcutHandlers.keydown}
+          onKeyUpCapture={shortcutHandlers.keyup}
+          className={quizClasses.inner}
+        >
+          {header && (
+            <Header labellingId={quizLabellingId} level={headerLevel}>
+              {header}
+            </Header>
+          )}
+          <Progress
+            levelsCount={elementInstances.length}
+            lastAsCompletionLevel
+            instanceRefHolder={progressRH}
+          />
+          <Presentation
+            id={presentationControllingId}
+            instanceRefHolder={presentationRH}
+            slides={elementNodes}
+          />
+          <ControlPanel
+            controlledElementId={presentationControllingId}
+            getAlternateFocusable={() => {
+              assertIsInstance(tabs, Tabs)
+              return tabs.activeTab().content
+            }}
+            handlePrevButtonClick={bind(
+              p.$handleCPanelBtnClick,
+              getThis,
+              "prev"
             )}
-            <Progress
-              levelsCount={elementInstances.length}
-              lastAsCompletionLevel
-              instanceRefHolder={progressRH}
-            />
-            <Presentation
-              id={presentationControllingId}
-              instanceRefHolder={presentationRH}
-              slides={elementNodes}
-            />
-            <ControlPanel
-              controlledElementId={presentationControllingId}
-              getAlternateFocusable={() => {
-                assertIsInstance(tabs, Tabs)
-                return tabs.activeTab().content
-              }}
-              handlePrevButtonClick={bind(
-                p.$handleCPanelBtnClick,
-                getThis,
-                "prev"
-              )}
-              handleNextButtonClick={bind(
-                p.$handleCPanelBtnClick,
-                getThis,
-                "next"
-              )}
-              handleCTAButtonClick={() => {
-                const shouldJumpToResult = resultInstance.isFinalized()
-                if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
-                else this.$handleCPanelSubmitCTAClick()
-              }}
-              instanceRefHolder={cPanelRH}
-            />
-          </div>
-        </RootElementType>
-      </ContextProvider>
+            handleNextButtonClick={bind(
+              p.$handleCPanelBtnClick,
+              getThis,
+              "next"
+            )}
+            handleCTAButtonClick={() => {
+              const shouldJumpToResult = resultInstance.isFinalized()
+              if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
+              else this.$handleCPanelSubmitCTAClick()
+            }}
+            instanceRefHolder={cPanelRH}
+          />
+        </div>
+      </RootElementType>
     )
 
     const appropriateIndex = resultInstance.isFinalized() ? resultIndex : 0
