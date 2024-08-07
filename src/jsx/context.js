@@ -24,6 +24,11 @@ const CONTEXT_MAP = /** @type {Map<string, ContextData[]>} */ (new Map())
  */
 
 /**
+ * @template T
+ * @typedef {T extends Context<infer R> ? R : never} ContextType
+ */
+
+/**
  * @param {any} value
  * @returns {value is ContextData}
  */

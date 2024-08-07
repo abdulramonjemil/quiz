@@ -16,6 +16,7 @@ export { Slot, type SlotProps, type SlotRevalidator } from "./slot"
 export {
   type RefHolder,
   type MutableRefHolder,
+  type RefType,
   isMRH,
   isRH,
   mrh,
@@ -27,7 +28,8 @@ export {
   ContextProvider,
   isContextData,
   type Context,
-  type ContextData
+  type ContextData,
+  type ContextType
 } from "./context"
 
 export namespace CustomJSX {

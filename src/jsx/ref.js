@@ -19,6 +19,15 @@ const MUTABLE_REF_HOLDER_SYMBOL = Symbol("MUTABLE_REF_HOLDER")
  * }} MutableRefHolder
  */
 
+/**
+ * @template T
+ * @typedef {(
+ *   T extends RefHolder<infer R>
+ *     ? R
+ *     : T extends MutableRefHolder<infer R> ? R : never
+ * )} RefType
+ */
+
 /* -------------------------------- *\
 Overloads for `rh()` start here
 \* -------------------------------- */
