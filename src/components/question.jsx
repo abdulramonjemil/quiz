@@ -286,20 +286,6 @@ export default class Question extends Component {
     return selectedOptionInput === $elements.answerInput
   }
 
-  doReset() {
-    const { $elements } = this
-
-    const selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
-    if (selectedOptionInput !== null) {
-      setOptionSelectionState(selectedOptionInput, "deselected")
-      styleOption(selectedOptionInput, "reset")
-    }
-
-    styleOption($elements.answerInput, "reset")
-    setExplanationState($elements.explanation, "disabled")
-    setQuestionState($elements.fieldSet, "enabled")
-  }
-
   /**
    * Returns the answer selection data if the question is answered, and `null`
    * otherwise.
