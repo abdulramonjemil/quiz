@@ -95,7 +95,7 @@ $operational-progress-element-color: progress.variable(
     line-height: $content-height;
     text-align: center;
     width: $progress-number-span;
-    transition: border-color 0.1, color 0.1;
+    transition: border-color 0.1s, color 0.1s;
 
     &:disabled {
       color: $muted-progress-element-color;
