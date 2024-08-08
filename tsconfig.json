@@ -19,5 +19,5 @@
     "target": "ESNext",
     "typeRoots": []
   },
-  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.d.ts"]
+  "include": ["src/**/*.js", "src/**/*.jsx", "src/**/*.d.ts", "__notes.js"]
 }
