@@ -7,7 +7,11 @@ const baseConfig = require("./webpack.config")
 
 module.exports = merge(baseConfig, {
   devServer: {
-    devMiddleware: { writeToDisk: true },
+    devMiddleware: {
+      writeToDisk(filePath) {
+        return !/hot-update/i.test(filePath)
+      }
+    },
     open: false,
     port: 8000,
     static: [
