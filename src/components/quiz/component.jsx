@@ -1,7 +1,8 @@
 import { mrh, rh, Component } from "@/jsx"
 import { attemptElementFocus, cn } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
-import { assertIsDefined, assertIsInstance, bind } from "@/lib/value"
+import { tuple } from "@/lib/types"
+import { assertIsDefined, assertIsInstance, bindReturn } from "@/lib/value"
 import { Tabs } from "@/ui/tabs"
 
 // Import before components to allow overrides
@@ -98,14 +99,19 @@ export class Quiz extends Component {
       return getResultSummaryText(getQuizFinalizationData(data))
     }
 
-    const getThis = () => quizRH.ref
     const { elementNodes, elementInstances } = buildQuizSlideElements({
       elements: fullQuizElements,
       codeBoardTheme,
       animateResultIndicator,
       getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
-      handleQuestionOptionChange: bind(p.$handleQuestionOptionChange, getThis),
-      handleResultCTAButtonClick: bind(p.$handleResultCTAButtonClick, getThis)
+      handleQuestionOptionChange: bindReturn(
+        p.$handleQuestionOptionChange,
+        () => tuple(quizRH.ref)
+      ),
+      handleResultCTAButtonClick: bindReturn(
+        p.$handleResultCTAButtonClick,
+        () => tuple(quizRH.ref)
+      )
     })
     instanceRH.ref = elementInstances
 
@@ -179,15 +185,11 @@ export class Quiz extends Component {
               assertIsInstance(tabs, Tabs)
               return tabs.activeTab().content
             }}
-            handlePrevButtonClick={bind(
-              p.$handleCPanelBtnClick,
-              getThis,
-              "prev"
+            handlePrevButtonClick={bindReturn(p.$handleCPanelBtnClick, () =>
+              tuple(quizRH.ref, /** @type {const} */ ("prev"))
             )}
-            handleNextButtonClick={bind(
-              p.$handleCPanelBtnClick,
-              getThis,
-              "next"
+            handleNextButtonClick={bindReturn(p.$handleCPanelBtnClick, () =>
+              tuple(quizRH.ref, /** @type {const} */ ("next"))
             )}
             handleCTAButtonClick={() => {
               const shouldJumpToResult = resultInstance.isFinalized()
@@ -208,7 +210,7 @@ export class Quiz extends Component {
       progress: progressRH.ref,
       presentation: presentationRH.ref,
       defaultTabIndex: appropriateIndex,
-      tabChangeHandler: bind(p.$handleTabChange, getThis)
+      tabChangeHandler: bindReturn(p.$handleTabChange, () => tuple(quizRH.ref))
     })
 
     revalidateQuiz({

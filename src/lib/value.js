@@ -1,4 +1,8 @@
 /**
+ * @import { TupleSlice } from "./types"
+ */
+
+/**
  * @param {string} value
  * @returns {{ success: true, value: unknown } | { success: false }}
  */
@@ -150,16 +154,16 @@ export const findLast = (array, predicate, highestIndex = array.length - 1) => {
 
 /**
  * @template T
- * @template {any[]} A
- * @template {any[]} B
+ * @template {any[]} P
+ * @template {TupleSlice<P>} A
  * @template R
- * @param {(this: T, ...params: [...A, ...B]) => R} func
- * @param {() => T} getThis
- * @param {A} params1
+ * @param {(this: T, ...params: P) => R} func
+ * @param {() => [T, ...A]} getParams
  */
-export function bind(func, getThis, ...params1) {
-  /** @param {B} params2 */
-  return (...params2) => func.call(getThis(), ...params1, ...params2)
+export function bindReturn(func, getParams) {
+  /** @param {P extends [...A, ...infer B] ? B : []} params */
+  // @ts-expect-error
+  return (...params) => func.call(...getParams(), ...params)
 }
 
 /**
