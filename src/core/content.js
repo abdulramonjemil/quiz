@@ -1,5 +1,5 @@
 import { htmlStringToFragment } from "@/lib/dom"
-import { FormatFactory } from "./format-factory"
+import { FormatFactory } from "./format"
 
 const codeFormatFactory = new FormatFactory("`", "code")
 const italicFormatFactory = new FormatFactory("_", "em")
