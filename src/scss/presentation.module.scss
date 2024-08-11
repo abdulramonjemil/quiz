@@ -5,10 +5,10 @@
   @include presentation.container();
 
   &_Slide {
-    @include presentation.contained-content();
-
     display: none;
     margin-top: 20px;
+
+    @include presentation.contained-content();
 
     &:focus-visible {
       outline: 2px solid presentation.variable("slide-focus-color");

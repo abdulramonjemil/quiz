@@ -36,8 +36,8 @@ $indicator-circle-circumference: 2 * math.$pi * $indicator-circle-radius;
   justify-content: center;
   align-items: center;
 
-  @include presentation.contained-content();
   @include scroll-shadow.root($position: relative);
+  @include presentation.contained-content();
 
   &__Inner {
     display: flex;
