@@ -2,7 +2,7 @@ module.exports = {
   extends: ["plugin:import/recommended", "airbnb", "prettier"],
   env: { browser: true },
   parserOptions: {
-    ecmaVersion: 2020
+    ecmaVersion: "latest"
   },
   settings: {
     "import/resolver": {
@@ -15,6 +15,7 @@ module.exports = {
   rules: {
     "import/extensions": ["error", "always", { js: "never", jsx: "never" }],
     "import/prefer-default-export": "off",
+    "no-underscore-dangle": "off",
     "react/destructuring-assignment": "off",
     "react/jsx-no-bind": "off",
     "react/jsx-props-no-spreading": "off",
