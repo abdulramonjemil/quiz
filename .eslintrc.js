@@ -8,12 +8,16 @@ module.exports = {
     "import/resolver": {
       alias: {
         map: [["@", "./src"]],
-        extensions: [".js", ".jsx"]
+        extensions: [".js", ".jsx", ".ts", ".tsx"]
       }
     }
   },
   rules: {
-    "import/extensions": ["error", "always", { js: "never", jsx: "never" }],
+    "import/extensions": [
+      "error",
+      "always",
+      { js: "never", jsx: "never", ts: "never", tsx: "never" }
+    ],
     "import/prefer-default-export": "off",
     "no-underscore-dangle": "off",
     "react/destructuring-assignment": "off",
