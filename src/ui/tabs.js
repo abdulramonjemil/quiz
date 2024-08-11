@@ -61,7 +61,7 @@ export class Tabs extends UIComponent {
     )
 
     if (activeTabIndex === -1) {
-      throw throwInvalidTabNameError(config.defaultTabName)
+      throwInvalidTabNameError(config.defaultTabName)
     }
 
     /** @type {TabsState} */

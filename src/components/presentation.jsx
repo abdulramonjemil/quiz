@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { Component } from "@/jsx"
 import { addClasses, cn, hasClasses, removeClasses } from "@/lib/dom"
 import { assertIsDefined } from "@/lib/value"

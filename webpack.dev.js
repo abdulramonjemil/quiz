@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable import/no-extraneous-dependencies */
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const path = require("path")
@@ -5,7 +6,9 @@ const { merge } = require("webpack-merge")
 const baseConfig = require("./webpack.config")
 /* eslint-enable import/no-extraneous-dependencies */
 
-module.exports = merge(baseConfig, {
+/** @import { Configuration } from "webpack" */
+
+const extendedConfig = /** @type {Configuration} */ ({
   devServer: {
     devMiddleware: {
       writeToDisk(filePath) {
@@ -35,3 +38,5 @@ module.exports = merge(baseConfig, {
   },
   plugins: [new MiniCssExtractPlugin({ filename: "quiz.bundle.css" })]
 })
+
+module.exports = merge(baseConfig, extendedConfig)

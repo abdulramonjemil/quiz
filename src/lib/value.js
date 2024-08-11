@@ -162,6 +162,7 @@ export const findLast = (array, predicate, highestIndex = array.length - 1) => {
 export function bindReturn(func, getParams) {
   /** @typedef {ReturnType<F>} R */
   /** @param {Parameters<F> extends [...A, ...infer B] ? B : []} params */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return (...params) => /** @type {R} */ (func.call(...getParams(), ...params))
 }
 

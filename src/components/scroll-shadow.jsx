@@ -72,7 +72,6 @@ export default function ScrollShadow({ observerConfig, children }) {
     scrollShadow
   )
 
-  /* eslint-disable-next-line react/destructuring-assignment */
   scrollableElement.addEventListener("scroll", adjustShadow)
   new ResizeObserver(adjustShadow).observe(scrollableElement)
 

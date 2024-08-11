@@ -80,7 +80,6 @@ export class UIComponent {
    * @protected
    * @returns {void}
    */
-  // eslint-disable-next-line class-methods-use-this
   $doEventHandlerSetup() {
     throwAbsentMethodError(this.constructor, "$doEventHandlerSetup")
   }
@@ -89,20 +88,17 @@ export class UIComponent {
    * @protected
    * @returns {void}
    */
-  // eslint-disable-next-line class-methods-use-this
   $doStaticMarkupRender() {
     throwAbsentMethodError(this.constructor, "$doStaticMarkupRender")
   }
 
   /** @type {() => UIComponentElementsAttributeSet} */
-  // eslint-disable-next-line class-methods-use-this
   getManagedElementAttributeSets() {
     throwAbsentMethodError(this.constructor, "getManagedElementAttributeSets")
     return {} // prevent TS Error
   }
 
   /** @type {() => UIComponentElementsAttributeSet} */
-  // eslint-disable-next-line class-methods-use-this
   getStaticElementAttributeSets() {
     throwAbsentMethodError(this.constructor, "getStaticElementAttributeSets")
     return {} // prevent TS Error

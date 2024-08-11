@@ -16,11 +16,8 @@ export class Component {
    * @param {any} node
    */
   constructor(props, node) {
-    if (new.target === Component)
+    if (new.target === Component) {
       throw new Error("An instance of 'Component' cannot be created directly")
-
-    if (typeof props !== "object" || props === null) {
-      throw new TypeError("'props' must be an object")
     }
 
     /**

@@ -1,7 +1,8 @@
 import { CustomJSX } from "@/jsx"
 
 declare global {
-  // @ts-expect-error
+  // @ts-expect-error -- For some reason, TS throws an error here even though it
+  // works (define default export of scss files as Record<string, string>)
   module "*.scss" {
     const content: Record<string, string>
     export default content

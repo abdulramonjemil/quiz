@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
-module.exports = {
+/** @import { Configuration } from "webpack" */
+
+module.exports = /** @type {Configuration} */ ({
   entry: "./src/build.entry.js",
   module: {
     rules: [
@@ -74,4 +77,4 @@ module.exports = {
     },
     extensions: [".js", ".jsx", ".ts", ".tsx"]
   }
-}
+})

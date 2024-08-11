@@ -33,27 +33,27 @@ export {
 } from "./context"
 
 export namespace CustomJSX {
-  type Element = Node
-  type ElementType = JSXElementType
-  type ElementClass = InstanceType<JSXClassElementType>
+  export type Element = Node
+  export type ElementType = JSXElementType
+  export type ElementClass = InstanceType<JSXClassElementType>
 
-  interface ElementAttributesProperty {
-    $props: {}
+  export interface ElementAttributesProperty {
+    $props: object
   }
 
-  interface ElementChildrenAttribute {
-    children: {}
+  export interface ElementChildrenAttribute {
+    children: object
   }
 
-  interface IntrinsicAttributes {
+  export interface IntrinsicAttributes {
     nodeRefHolder?: RefHolder<Node>
   }
 
-  interface IntrinsicClassAttributes<T> {
+  export interface IntrinsicClassAttributes<T> {
     instanceRefHolder?: RefHolder<T>
   }
 
-  interface IntrinsicElements {
-    [x: string]: { [x: string]: any; refHolder?: RefHolder<Element> }
+  export interface IntrinsicElements {
+    [x: string]: { [x: string]: unknown; refHolder?: RefHolder<Element> }
   }
 }

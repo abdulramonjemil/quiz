@@ -16,5 +16,5 @@ if (!containerQueriesAreSupported) {
   document.head.appendChild(script)
 }
 
-// @ts-expect-error
+// @ts-expect-error -- Since type `Quiz` doesn't exist on `Window` by default
 window.Quiz = Quiz

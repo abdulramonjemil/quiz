@@ -16,13 +16,14 @@
     "paths": { "@/*": ["./src/*"] },
     "skipLibCheck": false,
     "strict": true,
-    "target": "ESNext",
-    "typeRoots": []
+    "target": "ESNext"
   },
   "include": [
     "src/**/*.js",
     "src/**/*.jsx",
     "src/**/*.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     "__jsnotes.js",
     "__tsnotes.ts"
   ]

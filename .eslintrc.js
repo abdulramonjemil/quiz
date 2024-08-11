@@ -1,9 +1,23 @@
 module.exports = {
-  extends: ["plugin:import/recommended", "airbnb", "prettier"],
+  extends: [
+    "plugin:import/recommended",
+    "airbnb",
+    "airbnb-typescript",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked",
+    "prettier"
+  ],
+
   env: { browser: true },
+  ignorePatterns: ["/*", "!src/", "!/__jsnotes.js", "!__tsnotes.ts"],
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
+
   parserOptions: {
-    ecmaVersion: "latest"
+    ecmaVersion: "latest",
+    project: "./tsconfig.eslint.json"
   },
+
   settings: {
     "import/resolver": {
       alias: {
@@ -12,7 +26,19 @@ module.exports = {
       }
     }
   },
+
   rules: {
+    "@typescript-eslint/consistent-indexed-object-style": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/restrict-template-expressions": [
+      "error",
+      { allowNever: true }
+    ],
+
     "import/extensions": [
       "error",
       "always",

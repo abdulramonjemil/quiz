@@ -78,7 +78,7 @@ export class Quiz extends Component {
     assertValidQuizPropsElementConfig(elements)
     /** @type {QuizSlideElement[]} */
     const fullQuizElements = [...elements, { type: "RESULT" }]
-    const p = Quiz.prototype
+    const qPrototype = Quiz.prototype
     const quizRH = /** @type {typeof mrh<Quiz>} */ (mrh)(null)
     const instanceRH = /** @type {typeof mrh<QuizElementInstance[]>} */ (mrh)(
       null
@@ -104,11 +104,13 @@ export class Quiz extends Component {
       animateResultIndicator,
       getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
       handleQuestionOptionChange: bindReturn(
-        p.$handleQuestionOptionChange,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        qPrototype.$handleQuestionOptionChange,
         () => [quizRH.ref]
       ),
       handleResultCTAButtonClick: bindReturn(
-        p.$handleResultCTAButtonClick,
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        qPrototype.$handleResultCTAButtonClick,
         () => [quizRH.ref]
       )
     })
@@ -154,7 +156,8 @@ export class Quiz extends Component {
     const RootElementType = rootElementType ?? "div"
 
     const quizNode = (
-      // @ts-expect-error
+      // @ts-expect-error -- TS takes `RootElementType` as Component even though
+      // it is of string type
       <RootElementType className={cn(customRootClass, quizClasses.root)}>
         <div
           aria-labelledby={quizLabellingId}
@@ -184,14 +187,16 @@ export class Quiz extends Component {
               assertIsInstance(tabs, Tabs)
               return tabs.activeTab().content
             }}
-            handlePrevButtonClick={bindReturn(p.$handleCPanelBtnClick, () => [
-              quizRH.ref,
-              /** @type {const} */ ("prev")
-            ])}
-            handleNextButtonClick={bindReturn(p.$handleCPanelBtnClick, () => [
-              quizRH.ref,
-              /** @type {const} */ ("next")
-            ])}
+            handlePrevButtonClick={bindReturn(
+              // eslint-disable-next-line @typescript-eslint/unbound-method
+              qPrototype.$handleCPanelBtnClick,
+              () => [quizRH.ref, /** @type {const} */ ("prev")]
+            )}
+            handleNextButtonClick={bindReturn(
+              // eslint-disable-next-line @typescript-eslint/unbound-method
+              qPrototype.$handleCPanelBtnClick,
+              () => [quizRH.ref, /** @type {const} */ ("next")]
+            )}
             handleCTAButtonClick={() => {
               const shouldJumpToResult = resultInstance.isFinalized()
               if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
@@ -211,7 +216,10 @@ export class Quiz extends Component {
       progress: progressRH.ref,
       presentation: presentationRH.ref,
       defaultTabIndex: appropriateIndex,
-      tabChangeHandler: bindReturn(p.$handleTabChange, () => [quizRH.ref])
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      tabChangeHandler: bindReturn(qPrototype.$handleTabChange, () => [
+        quizRH.ref
+      ])
     })
 
     revalidateQuiz({

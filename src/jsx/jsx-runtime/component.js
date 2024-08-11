@@ -28,7 +28,7 @@ function assignComponentElementRef(elementProps, node, instance) {
   if (instance) {
     if (instanceRH !== undefined && instanceRH !== null) {
       if (!isRH(instanceRH)) throw new Error("Invalid instance ref holder")
-      // @ts-expect-error
+      // @ts-expect-error -- Must be done to populate ref value
       instanceRH.ref = instance
     }
   }
@@ -37,7 +37,7 @@ function assignComponentElementRef(elementProps, node, instance) {
     if (!isRH(nodeRH)) {
       throw new Error("Invalid node ref holder")
     }
-    // @ts-expect-error
+    // @ts-expect-error -- Must be done to populate ref value
     nodeRH.ref = node
   }
 }
@@ -53,6 +53,7 @@ function getComponentExecutionProps(props, children) {
   ;[p.instanceRH, p.nodeRH].forEach((name) => {
     delete componentProps[name]
   })
+
   if (children !== undefined) componentProps.children = children
   return componentProps
 }

@@ -38,7 +38,7 @@ function assignIntrinsicElementRef(elementProps, element) {
     if (!isRH(interfaceRH)) {
       throw new Error("Invalid interface ref holder")
     }
-    // @ts-expect-error
+    // @ts-expect-error -- Must be done to populate ref value
     interfaceRH.ref = element
   }
 
@@ -46,7 +46,7 @@ function assignIntrinsicElementRef(elementProps, element) {
     if (!isRH(nodeRH)) {
       throw new Error("Invalid node ref holder")
     }
-    // @ts-expect-error
+    // @ts-expect-error -- Must be done to populate ref value
     nodeRH.ref = element
   }
 }
@@ -103,7 +103,7 @@ function assignIntrinsicElementAttrs(element, props) {
   Object.entries(attrProps).forEach(([key, value]) => {
     if (typeof value === "string" || typeof value === "number") {
       if (propertyAPIAttrSet.has(key)) {
-        // @ts-expect-error
+        // @ts-expect-error -- Required since key is not a literal string type
         element[key] = value // eslint-disable-line no-param-reassign
       } else {
         element.setAttribute(key, String(value))
