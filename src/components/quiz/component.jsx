@@ -1,7 +1,6 @@
 import { mrh, rh, Component } from "@/jsx"
 import { attemptElementFocus, cn } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
-import { tuple } from "@/lib/types"
 import { assertIsDefined, assertIsInstance, bindReturn } from "@/lib/value"
 import { Tabs } from "@/ui/tabs"
 
@@ -106,11 +105,11 @@ export class Quiz extends Component {
       getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
       handleQuestionOptionChange: bindReturn(
         p.$handleQuestionOptionChange,
-        () => tuple(quizRH.ref)
+        () => [quizRH.ref]
       ),
       handleResultCTAButtonClick: bindReturn(
         p.$handleResultCTAButtonClick,
-        () => tuple(quizRH.ref)
+        () => [quizRH.ref]
       )
     })
     instanceRH.ref = elementInstances
@@ -185,12 +184,14 @@ export class Quiz extends Component {
               assertIsInstance(tabs, Tabs)
               return tabs.activeTab().content
             }}
-            handlePrevButtonClick={bindReturn(p.$handleCPanelBtnClick, () =>
-              tuple(quizRH.ref, /** @type {const} */ ("prev"))
-            )}
-            handleNextButtonClick={bindReturn(p.$handleCPanelBtnClick, () =>
-              tuple(quizRH.ref, /** @type {const} */ ("next"))
-            )}
+            handlePrevButtonClick={bindReturn(p.$handleCPanelBtnClick, () => [
+              quizRH.ref,
+              /** @type {const} */ ("prev")
+            ])}
+            handleNextButtonClick={bindReturn(p.$handleCPanelBtnClick, () => [
+              quizRH.ref,
+              /** @type {const} */ ("next")
+            ])}
             handleCTAButtonClick={() => {
               const shouldJumpToResult = resultInstance.isFinalized()
               if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
@@ -210,7 +211,7 @@ export class Quiz extends Component {
       progress: progressRH.ref,
       presentation: presentationRH.ref,
       defaultTabIndex: appropriateIndex,
-      tabChangeHandler: bindReturn(p.$handleTabChange, () => tuple(quizRH.ref))
+      tabChangeHandler: bindReturn(p.$handleTabChange, () => [quizRH.ref])
     })
 
     revalidateQuiz({
