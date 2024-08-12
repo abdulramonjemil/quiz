@@ -69,7 +69,6 @@ export function createComponentElement(func, props, children) {
   let instance = /** @type {Component | null} */ (null)
 
   if (isExtender(func, Component)) {
-    // Component is class if error is thrown
     const C = func
     instance = new C(executionProps)
     node = instance.rootNode()
