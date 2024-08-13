@@ -2,7 +2,7 @@ import { rh } from "@/jsx"
 import { assertCondition, assertIsDefined } from "@/lib/value"
 import CodeBoard from "@/components/code-board"
 import Question from "@/components/question"
-import Result from "@/components/result"
+import Result, { type ResultProps } from "@/components/result"
 
 import {
   getStorageKey,
@@ -11,26 +11,22 @@ import {
   storedDataIsValidForQuiz
 } from "./storage"
 
-/**
- * @typedef {import("@/components/result").ResultProps} ResultProps
- *
- * @typedef {import("./base").QuizProps} QuizProps
- * @typedef {import("./base").QuizSlideElement} QuizSlideElement
- * @typedef {import("./base").QuizInquiryElement} QuizInquiryElement
- * @typedef {import("./base").QuizElementInstance} QuizElementInstance
- * @typedef {import("./base").FinalizedQuizInquiryElement} FinalizedQuizInquiryElement
- * @typedef {import("./base").FinalizedQuizQuestionElement} FinalizedQuizQuestionElement
- * @typedef {import("./base").DecodedStoredQuizElement} DecodedStoredQuizElement
- */
+import type {
+  QuizProps,
+  QuizSlideElement,
+  QuizInquiryElement,
+  QuizElementInstance,
+  FinalizedQuizInquiryElement,
+  FinalizedQuizQuestionElement,
+  DecodedStoredQuizElement
+} from "./base"
 
-/**
- * @param {QuizInquiryElement | FinalizedQuizInquiryElement} element
- * @returns {element is FinalizedQuizInquiryElement}
- */
-function isFinalizedQuizInquiryElement(element) {
+function isFinalizedQuizInquiryElement(
+  element: QuizInquiryElement | FinalizedQuizInquiryElement
+): element is FinalizedQuizInquiryElement {
   if (element.type === "CODE_BOARD") return true
   if (element.type === "QUESTION") {
-    const e = /** @type {FinalizedQuizQuestionElement} */ (element)
+    const e = element as FinalizedQuizQuestionElement
     return (
       e.selectedOptionIndex >= 0 && e.selectedOptionIndex < e.options.length
     )
@@ -38,12 +34,10 @@ function isFinalizedQuizInquiryElement(element) {
   return false
 }
 
-/**
- * @param {DecodedStoredQuizElement[]} decoded
- * @param {QuizInquiryElement[]} elements
- * @returns {FinalizedQuizInquiryElement[]}
- */
-export function decodedDataToFinalizedElement(decoded, elements) {
+export function decodedDataToFinalizedElement(
+  decoded: DecodedStoredQuizElement[],
+  elements: QuizInquiryElement[]
+): FinalizedQuizInquiryElement[] {
   return elements.map((element, index) => {
     if (element.type === "CODE_BOARD") return element
     const d = decoded[index]
@@ -53,10 +47,9 @@ export function decodedDataToFinalizedElement(decoded, elements) {
   })
 }
 
-/**
- * @param {QuizInquiryElement[]} elements
- */
-export function assertValidQuizPropsElementConfig(elements) {
+export function assertValidQuizPropsElementConfig(
+  elements: QuizInquiryElement[]
+) {
   const elementsCount = elements.length
   if (elementsCount < 1 || elementsCount > 5) {
     throw new TypeError("There can only be 1 to 5 quiz elements")
@@ -69,20 +62,17 @@ export function assertValidQuizPropsElementConfig(elements) {
   }
 }
 
-/**
- * @param {Object} param0
- * @param {(QuizInquiryElement | FinalizedQuizInquiryElement)[]} param0.elements
- * @param {QuizElementInstance[]} param0.elementInstances
- * @param {boolean} param0.previouslyFinalized
- * @param {QuizProps["autosave"]} param0.autoSaveConfig
- * @returns {FinalizedQuizInquiryElement[] | null}
- */
 export function getAvailableFinalizedElements({
   elements,
   elementInstances,
   previouslyFinalized,
   autoSaveConfig
-}) {
+}: {
+  elements: (QuizInquiryElement | FinalizedQuizInquiryElement)[]
+  elementInstances: QuizElementInstance[]
+  previouslyFinalized: boolean
+  autoSaveConfig: QuizProps["autosave"]
+}): FinalizedQuizInquiryElement[] | null {
   if (previouslyFinalized) {
     const filtered = elements.filter(isFinalizedQuizInquiryElement)
     if (filtered.length !== elements.length) {
@@ -111,7 +101,7 @@ export function getAvailableFinalizedElements({
   }
 
   const answerData = elementInstances
-    .filter(/** @returns {e is Question} */ (e) => e instanceof Question)
+    .filter((e): e is Question => e instanceof Question)
     .map((q) => q.getAnswerSelectionData())
   if (answerData.some((d) => d === null)) return null
 
@@ -123,23 +113,13 @@ export function getAvailableFinalizedElements({
     const msg = `answer selection data for question index: ${questionIndex}`
     assertIsDefined(d, msg)
     const { selectedOptionIndex } = d
-    return /** @satisfies {FinalizedQuizQuestionElement} */ {
+    return {
       ...element,
       selectedOptionIndex
-    }
+    } satisfies FinalizedQuizQuestionElement
   })
 }
 
-/**
- * @param {{
- *   elements: QuizSlideElement[],
- *   codeBoardTheme: QuizProps["codeBoardTheme"]
- *   getResultSummaryText: ResultProps["getSummaryText"],
- *   animateResultIndicator: QuizProps["animateResultIndicator"],
- *   handleQuestionOptionChange: () => void,
- *   handleResultCTAButtonClick: ResultProps["handleCTAButtonClick"]
- * }} param0
- */
 export function buildQuizSlideElements({
   elements,
   codeBoardTheme,
@@ -147,17 +127,20 @@ export function buildQuizSlideElements({
   getResultSummaryText,
   handleQuestionOptionChange,
   handleResultCTAButtonClick
+}: {
+  elements: QuizSlideElement[]
+  codeBoardTheme: QuizProps["codeBoardTheme"]
+  getResultSummaryText: ResultProps["getSummaryText"]
+  animateResultIndicator: QuizProps["animateResultIndicator"]
+  handleQuestionOptionChange: () => void
+  handleResultCTAButtonClick: ResultProps["handleCTAButtonClick"]
 }) {
-  /** @type {HTMLElement[]} */
-  const elementNodes = []
-  /** @type {QuizElementInstance[]} */
-  const elementInstances = []
+  const elementNodes: HTMLElement[] = []
+  const elementInstances: QuizElementInstance[] = []
 
   elements.forEach((element) => {
-    /** @type {HTMLElement} */
-    let slideNode
-    /** @type {QuizElementInstance} */
-    let slideInstance
+    let slideNode: HTMLElement
+    let slideInstance: QuizElementInstance
 
     if (element.type === "CODE_BOARD") {
       const node = (
@@ -168,10 +151,10 @@ export function buildQuizSlideElements({
           theme={codeBoardTheme}
         />
       )
-      slideNode = /** @type {HTMLElement} */ (node)
+      slideNode = node as HTMLElement
       slideInstance = null
     } else if (element.type === "QUESTION") {
-      const questionInstanceRH = /** @type {typeof rh<Question>} */ (rh)(null)
+      const questionInstanceRH = rh<Question>(null)
       const node = (
         <Question
           title={element.title}
@@ -182,10 +165,10 @@ export function buildQuizSlideElements({
           instanceRefHolder={questionInstanceRH}
         />
       )
-      slideNode = /** @type {HTMLElement} */ (node)
+      slideNode = node as HTMLElement
       slideInstance = questionInstanceRH.ref
     } else {
-      const resultRH = /** @type {typeof rh<Result>} */ (rh)(null)
+      const resultRH = rh<Result>(null)
       const questionsCount = elements.filter(
         (elem) => elem.type === "QUESTION"
       ).length
@@ -198,7 +181,7 @@ export function buildQuizSlideElements({
           instanceRefHolder={resultRH}
         />
       )
-      slideNode = /** @type {HTMLElement} */ (node)
+      slideNode = node as HTMLElement
       slideInstance = resultRH.ref
     }
 

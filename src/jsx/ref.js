@@ -40,7 +40,7 @@ Overloads for `rh()` start here
  */
 
 /**
- * This is meant for ref holders that are used with ref props e.g.
+ * This overload is meant for ref holders that are used with ref props e.g.
  * `instanceRefHolder` and `nodeRefHolder`.
  *
  * @template {any} T
@@ -91,7 +91,7 @@ Overloads for `mrh()` start here
  */
 
 /**
- * This is meant for ref holders that are used with ref props e.g.
+ * This overload is meant for ref holders that are used with ref props e.g.
  * `instanceRefHolder` and `nodeRefHolder`.
  *
  * @template {any} T

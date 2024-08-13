@@ -2,18 +2,16 @@ import { assertIsDefined } from "@/lib/value"
 import Question from "@/components/question"
 import Result from "@/components/result"
 
-/**
- * @typedef {import("./base").QuizFinalizationData} QuizFinalizationData
- * @typedef {import("./base").QuizElementInstance} QuizElementInstance
- * @typedef {import("./base").FinalizedQuizInquiryElement} FinalizedQuizInquiryElement
- * @typedef {import("./base").FinalizedQuizQuestionElement} FinalizedQuizQuestionElement
- */
+import type {
+  QuizFinalizationData,
+  QuizElementInstance,
+  FinalizedQuizQuestionElement,
+  FinalizedQuizInquiryElement
+} from "./base"
 
-/** @param {QuizElementInstance[]} elementInstances */
-function getQuizResultData(elementInstances) {
+function getQuizResultData(elementInstances: QuizElementInstance[]) {
   const questionInstances = elementInstances.filter(
-    /** @returns {element is Question} */ (element) =>
-      element instanceof Question
+    (element): element is Question => element instanceof Question
   )
 
   const gottenAnswersCount = questionInstances.reduce(
@@ -25,15 +23,13 @@ function getQuizResultData(elementInstances) {
   return { gottenAnswersCount }
 }
 
-/**
- * @param {FinalizedQuizInquiryElement[]} finalizedElements
- * @returns {QuizFinalizationData}
- */
-export function getQuizFinalizationData(finalizedElements) {
+export function getQuizFinalizationData(
+  finalizedElements: FinalizedQuizInquiryElement[]
+): QuizFinalizationData {
   const questions = finalizedElements.filter(
-    /** @returns {e is FinalizedQuizQuestionElement} */ (e) =>
-      e.type === "QUESTION"
+    (e): e is FinalizedQuizQuestionElement => e.type === "QUESTION"
   )
+
   const questionsCount = questions.length
   const codeboardsCount = finalizedElements.length - questions.length
   const gottenAnswersCount = questions.filter(
@@ -54,11 +50,10 @@ export function getQuizFinalizationData(finalizedElements) {
   }
 }
 
-/**
- * @param {FinalizedQuizInquiryElement[]} elementConfigs
- * @param {QuizElementInstance[]} elementInstances
- */
-export function finalizeQuiz(elementConfigs, elementInstances) {
+export function finalizeQuiz(
+  elements: FinalizedQuizInquiryElement[],
+  elementInstances: QuizElementInstance[]
+) {
   elementInstances.forEach((instance, index) => {
     if (instance instanceof Result) {
       const { gottenAnswersCount } = getQuizResultData(elementInstances)
@@ -66,9 +61,11 @@ export function finalizeQuiz(elementConfigs, elementInstances) {
     }
 
     if (!(instance instanceof Question)) return
-    const elementData = elementConfigs[index]
+
+    const elementData = elements[index]
     assertIsDefined(elementData, `finalized quiz data at index: ${index}`)
     if (elementData.type !== "QUESTION") return
+
     instance.finalize(elementData.selectedOptionIndex)
   })
 }

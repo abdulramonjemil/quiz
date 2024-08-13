@@ -2,30 +2,20 @@ import Question from "@/components/question"
 import { assertIsDefined, assertIsInstance } from "@/lib/value"
 import { attemptElementFocus } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
-import { Tabs } from "@/ui/tabs"
-import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
+import { Tabs, type TabChangeHandler } from "@/ui/tabs"
 
-/**
- * @typedef {import("@/ui/tabs").TabChangeHandler} TabChangeHandler
- *
- * @typedef {import("@/components/progress").default} Progress
- * @typedef {import("@/components/presentation").default} Presentation
- * @typedef {import("@/components/control-panel").default} ControlPanel
- *
- * @typedef {import("./base").QuizAnswerSelectionMode} QuizAnswerSelectionMode
- * @typedef {import("./base").QuizSlideElement} QuizSlideElement
- * @typedef {import("./base").QuizElementInstance} QuizElementInstance
- */
+import type Progress from "@/components/progress"
+import type Presentation from "@/components/presentation"
+import type ControlPanel from "@/components/control-panel"
 
-/**
- * @param {Object} param0
- * @param {string | null} param0.tablistLabel
- * @param {QuizSlideElement[]} param0.elements
- * @param {Presentation} param0.presentation
- * @param {Progress} param0.progress
- * @param {TabChangeHandler} param0.tabChangeHandler
- * @param {number} param0.defaultTabIndex
- */
+import {
+  getQuizDataForSlide,
+  quizElementIndexToTabName,
+  type QuizAnswerSelectionMode,
+  type QuizSlideElement,
+  type QuizElementInstance
+} from "./base"
+
 export function setupQuizTabs({
   tablistLabel,
   elements,
@@ -33,6 +23,13 @@ export function setupQuizTabs({
   progress,
   tabChangeHandler,
   defaultTabIndex
+}: {
+  tablistLabel: string | null
+  elements: QuizSlideElement[]
+  presentation: Presentation
+  progress: Progress
+  tabChangeHandler: TabChangeHandler
+  defaultTabIndex: number
 }) {
   const progressElements = progress.elements()
   const presentationSlides = presentation.slideNodes()
@@ -97,30 +94,31 @@ export function setupQuizTabs({
  * Important to not call this as an IIFE as there may be multiple quizzes
  */
 export const createQuizShortcutHandlersCreator = () => {
-  /**
-   * @typedef {{
-   *   pressedNumber: number | null,
-   *   pressedNumberIsUsed: boolean
-   * }} MutableShortcutData
-   *
-   * @typedef {() => {
-   *   elementInstances: QuizElementInstance[],
-   *   controlPanel: ControlPanel,
-   *   presentation: Presentation,
-   *   progress: Progress,
-   *   tabs: Tabs,
-   *   answerSelectionMode: QuizAnswerSelectionMode
-   * }} QuizDataGetter
-   *
-   * @typedef {(
-   *   quizDataGetter: QuizDataGetter,
-   *   mutableShortcutData: MutableShortcutData,
-   *   event: KeyboardEvent
-   * ) => void} QuizShortcutKeyboardEventHandler
-   */
+  interface MutableShortcutData {
+    pressedNumber: number | null
+    pressedNumberIsUsed: boolean
+  }
 
-  /** @type {QuizShortcutKeyboardEventHandler} */
-  const shortcutKeyDownHandler = (getter, mutableShortcutData, event) => {
+  type QuizDataGetter = () => {
+    elementInstances: QuizElementInstance[]
+    controlPanel: ControlPanel
+    presentation: Presentation
+    progress: Progress
+    tabs: Tabs
+    answerSelectionMode: QuizAnswerSelectionMode
+  }
+
+  type QuizShortcutKeyboardEventHandler = (
+    quizDataGetter: QuizDataGetter,
+    mutableShortcutData: MutableShortcutData,
+    event: KeyboardEvent
+  ) => void
+
+  const shortcutKeyDownHandler: QuizShortcutKeyboardEventHandler = (
+    getter,
+    mutableShortcutData,
+    event
+  ) => {
     const {
       controlPanel,
       presentation,
@@ -152,8 +150,8 @@ export const createQuizShortcutHandlersCreator = () => {
 
     // Shortcut to go to next/prev quiz element
     if (["p", "n"].includes(event.key.toLowerCase())) {
-      const key = /** @type {"p" | "n"} */ (event.key.toLowerCase())
-      const button = /** @type {const} */ ({ p: "prev", n: "next" })[key]
+      const key = event.key.toLowerCase() as "p" | "n"
+      const button = ({ p: "prev", n: "next" } as const)[key]
       const focused = controlPanel.simulateClick(button)
       if (focused) attemptElementFocus(tabs.activeTab().content)
       return
@@ -224,10 +222,12 @@ export const createQuizShortcutHandlersCreator = () => {
    * the intended slide can be 1, 11, or 12. If the key is released, we jump to
    * 1, else if another key is pressed (1 or 2) while holding down 1 (1 can be
    * pressed down to mean two 1's), we jump to the appropriate position.
-   *
-   * @type {QuizShortcutKeyboardEventHandler}
    */
-  const shortcutKeyUpHandler = (getter, mutableShortcutData, event) => {
+  const shortcutKeyUpHandler: QuizShortcutKeyboardEventHandler = (
+    getter,
+    mutableShortcutData,
+    event
+  ) => {
     const { progress } = getter.call(null)
     const mutableData = mutableShortcutData
     const { pressedNumber, pressedNumberIsUsed } = mutableData
@@ -241,10 +241,8 @@ export const createQuizShortcutHandlersCreator = () => {
     mutableData.pressedNumberIsUsed = false
   }
 
-  /** @param {QuizDataGetter} quizDataGetter */
-  return (quizDataGetter) => {
-    /** @type {MutableShortcutData} */
-    const mutableData = {
+  return (quizDataGetter: QuizDataGetter) => {
+    const mutableData: MutableShortcutData = {
       pressedNumber: null,
       pressedNumberIsUsed: false
     }

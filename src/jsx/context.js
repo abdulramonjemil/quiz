@@ -140,7 +140,6 @@ export function createContext(...defaultValue) {
 export function ContextProvider({ children, data }) {
   if (!Array.isArray(data)) {
     __forbiddenPopContextDataFromStack__(data)
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return children
   }
 
@@ -160,6 +159,5 @@ export function ContextProvider({ children, data }) {
     poppedContextIDs.add(d.contextId)
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return children
 }

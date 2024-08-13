@@ -2,7 +2,7 @@ import { mrh, rh, Component } from "@/jsx"
 import { attemptElementFocus, cn } from "@/lib/dom"
 import { uniqueId } from "@/lib/factory"
 import { assertIsDefined, assertIsInstance, bindReturn } from "@/lib/value"
-import { Tabs } from "@/ui/tabs"
+import { Tabs, type TabChangeHandler } from "@/ui/tabs"
 
 // Import before components to allow overrides
 import "@/scss/quiz.module.scss"
@@ -15,52 +15,58 @@ import ControlPanel from "@/components/control-panel"
 
 import { finalizeQuiz, getQuizFinalizationData } from "./finalization"
 import { createQuizShortcutHandlersCreator, setupQuizTabs } from "./behaviour"
+import { revalidateQuiz } from "./revalidation"
+import { getStorageKey, storeQuizData } from "./storage"
 
 import {
   getQuizDataForSlide,
   quizClasses,
-  tabNameToQuizElementIndex
+  tabNameToQuizElementIndex,
+  type QuizProps,
+  type QuizSlideElement,
+  type QuizElementInstance
 } from "./base"
-import { revalidateQuiz } from "./revalidation"
 
 import {
   assertValidQuizPropsElementConfig,
   buildQuizSlideElements,
   getAvailableFinalizedElements
 } from "./element"
-import { getStorageKey, storeQuizData } from "./storage"
 
-/**
- * @typedef {import("@/ui/tabs").TabChangeHandler} TabChangeHandler
- *
- * @typedef {import("./base").QuizProps} QuizProps
- * @typedef {import("./base").QuizSlideElement} QuizSlideElement
- * @typedef {import("./base").QuizElementInstance} QuizElementInstance
- */
+// NOTE: Pick<QuizProps, keyof QuizProps> is used instead of `QuizProps`
+// directly because TS complains about `QuizProps` not having an index
+// signature. See https://github.com/microsoft/TypeScript/issues/15300
+// for more on the issue.
+type RQuizProps = Pick<QuizProps, keyof QuizProps>
 
-/**
- * @template {QuizProps} [Props=QuizProps]
- * @extends {Component<Props>}
- */
-export class Quiz extends Component {
-  /**
-   * @param {{
-   *   props: QuizProps,
-   *   container?: Element | undefined
-   * }} param0
-   */
-  static create({ props, container }) {
+export class Quiz<
+  Props extends RQuizProps = RQuizProps
+> extends Component<Props> {
+  protected _metadata
+  protected _elementInstances
+
+  protected _tabs
+  protected _progress
+  protected _presentation
+  protected _controlPanel
+
+  static create({
+    props,
+    container
+  }: {
+    props: QuizProps
+    container?: Element | undefined
+  }) {
     const containerIsElementInstance = container instanceof Element
-    const instanceRefHolder = /** @type {typeof rh<Quiz>} */ (rh)(null)
+    const instanceRefHolder = rh<Quiz>(null)
     const quizElement = (
       <Quiz {...props} instanceRefHolder={instanceRefHolder} />
     )
     if (containerIsElementInstance) container.replaceChildren(quizElement)
-    return /** @type {const} */ ([quizElement, instanceRefHolder.ref])
+    return [quizElement, instanceRefHolder.ref] as const
   }
 
-  /** @param {Props} props */
-  constructor(props) {
+  constructor(props: Props) {
     const {
       autosave,
       animateResultIndicator,
@@ -76,13 +82,9 @@ export class Quiz extends Component {
     } = props
 
     assertValidQuizPropsElementConfig(elements)
-    /** @type {QuizSlideElement[]} */
-    const fullQuizElements = [...elements, { type: "RESULT" }]
-    const qPrototype = Quiz.prototype
-    const quizRH = /** @type {typeof mrh<Quiz>} */ (mrh)(null)
-    const instanceRH = /** @type {typeof mrh<QuizElementInstance[]>} */ (mrh)(
-      null
-    )
+    const fullElements = [...elements, { type: "RESULT" }] as QuizSlideElement[]
+    const quizRH = mrh<Quiz>(null)
+    const instanceRH = mrh<QuizElementInstance[]>(null)
 
     const proxiedGetSummaryText = () => {
       const data = getAvailableFinalizedElements({
@@ -99,18 +101,18 @@ export class Quiz extends Component {
     }
 
     const { elementNodes, elementInstances } = buildQuizSlideElements({
-      elements: fullQuizElements,
+      elements: fullElements,
       codeBoardTheme,
       animateResultIndicator,
       getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
       handleQuestionOptionChange: bindReturn(
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        qPrototype._handleQuestionOptionChange,
+        Quiz.prototype._handleQuestionOptionChange,
         () => [quizRH.ref]
       ),
       handleResultCTAButtonClick: bindReturn(
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        qPrototype._handleResultCTAButtonClick,
+        Quiz.prototype._handleResultCTAButtonClick,
         () => [quizRH.ref]
       )
     })
@@ -135,10 +137,10 @@ export class Quiz extends Component {
     const presentationControllingId = uniqueId()
 
     const quizAnswerSelectionMode = answerSelectionMode ?? "sequential"
-    const progressRH = /** @type {typeof rh<Progress>} */ (rh)(null)
-    const presentationRH = /** @type {typeof rh<Presentation>} */ (rh)(null)
-    const cPanelRH = /** @type {typeof rh<ControlPanel>} */ (rh)(null)
-    let tabs = /** @type {Tabs | null} */ (null)
+    const progressRH = rh<Progress>(null)
+    const presentationRH = rh<Presentation>(null)
+    const cPanelRH = rh<ControlPanel>(null)
+    let tabs = null as Tabs | null
 
     const createQuizShortcutHandlers = createQuizShortcutHandlersCreator()
     const shortcutHandlers = createQuizShortcutHandlers(() => {
@@ -189,13 +191,13 @@ export class Quiz extends Component {
             }}
             handlePrevButtonClick={bindReturn(
               // eslint-disable-next-line @typescript-eslint/unbound-method
-              qPrototype._handleCPanelBtnClick,
-              () => [quizRH.ref, /** @type {const} */ ("prev")]
+              Quiz.prototype._handleCPanelBtnClick,
+              () => [quizRH.ref, "prev" as const]
             )}
             handleNextButtonClick={bindReturn(
               // eslint-disable-next-line @typescript-eslint/unbound-method
-              qPrototype._handleCPanelBtnClick,
-              () => [quizRH.ref, /** @type {const} */ ("next")]
+              Quiz.prototype._handleCPanelBtnClick,
+              () => [quizRH.ref, "next" as const]
             )}
             handleCTAButtonClick={() => {
               const shouldJumpToResult = resultInstance.isFinalized()
@@ -212,12 +214,12 @@ export class Quiz extends Component {
 
     tabs = setupQuizTabs({
       tablistLabel: header ?? null,
-      elements: fullQuizElements,
+      elements: fullElements,
       progress: progressRH.ref,
       presentation: presentationRH.ref,
       defaultTabIndex: appropriateIndex,
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      tabChangeHandler: bindReturn(qPrototype._handleTabChange, () => [
+      tabChangeHandler: bindReturn(Quiz.prototype._handleTabChange, () => [
         quizRH.ref
       ])
     })
@@ -236,16 +238,14 @@ export class Quiz extends Component {
 
     quizRH.ref = this
 
-    /**
-     * @typedef {(
-     *   | { enabled: false, storageKey: null }
-     *   | { enabled: true, storageKey: string }
-     * )} AutosaveMetadata
-     */
-    const autosaveMetadata = /** @type {AutosaveMetadata} */ ({
+    type AutosaveMetadata =
+      | { enabled: false; storageKey: null }
+      | { enabled: true; storageKey: string }
+
+    const autosaveMetadata = {
       enabled: Boolean(autosave),
       storageKey: autosave ? getStorageKey(autosave) : null
-    })
+    } as AutosaveMetadata
 
     this._metadata = {
       autosave: autosaveMetadata,
@@ -259,8 +259,7 @@ export class Quiz extends Component {
     this._controlPanel = cPanelRH.ref
   }
 
-  /** @param {"prev" | "next"} button */
-  _handleCPanelBtnClick(button) {
+  _handleCPanelBtnClick(button: "prev" | "next") {
     const { _elementInstances, _presentation, _metadata } = this
     const { allowedPrevIndex, allowedNextIndex } = getQuizDataForSlide(
       _elementInstances,
@@ -315,14 +314,13 @@ export class Quiz extends Component {
     attemptElementFocus(this._tabs.activeTab().content)
   }
 
-  /** @type {TabChangeHandler} */
-  _handleTabChange(newTabname, _, source) {
+  _handleTabChange(...params: Parameters<TabChangeHandler>) {
+    const [newTabname, , source] = params
     if (source !== "event") return
     this._revalidate(tabNameToQuizElementIndex(newTabname))
   }
 
-  /** @param {number} slideIndex */
-  _revalidate(slideIndex) {
+  _revalidate(slideIndex: number) {
     const {
       _elementInstances,
       _controlPanel,

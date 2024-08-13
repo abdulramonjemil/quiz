@@ -1,26 +1,25 @@
-import { getQuizDataForSlide, quizElementIndexToTabName } from "./base"
+import Progress, {
+  type ProgressRevalidationOptions
+} from "@/components/progress"
 
-/**
- * @typedef {import("@/components/progress").ProgressRevalidationOptions} ProgressRevalidationOptions
- * @typedef {(
- *   import("@/components/control-panel").ControlPanelRevalidationOptions
- * )} ControlPanelRevalidationOptions
- *
- * @typedef {import("@/ui/tabs").Tabs} Tabs
- * @typedef {import("@/components/progress").default} Progress
- * @typedef {import("@/components/presentation").default} Presentation
- * @typedef {import("@/components/control-panel").default} ControlPanel
- *
- * @typedef {import("./base").QuizAnswerSelectionMode} QuizAnswerSelectionMode
- * @typedef {import("./base").SlideQuizData} SlideQuizData
- * @typedef {import("./base").QuizElementInstance} QuizElementInstance
- */
+import ControlPanel, {
+  type ControlPanelRevalidationOptions
+} from "@/components/control-panel"
 
-/**
- * @param {SlideQuizData} slideQuizData
- * @returns {ControlPanelRevalidationOptions}
- */
-function getControlPanelRevalidationOptions(slideQuizData) {
+import Presentation from "@/components/presentation"
+import type { Tabs } from "@/ui/tabs"
+
+import {
+  getQuizDataForSlide,
+  quizElementIndexToTabName,
+  type QuizAnswerSelectionMode,
+  type SlideQuizData,
+  type QuizElementInstance
+} from "./base"
+
+function getControlPanelRevalidationOptions(
+  slideQuizData: SlideQuizData
+): ControlPanelRevalidationOptions {
   const {
     isFinalized: quizIsFinalized,
     firstUnansweredQuestionIndex: firstUnansweredQuizQuestionIndex
@@ -39,11 +38,9 @@ function getControlPanelRevalidationOptions(slideQuizData) {
   }
 }
 
-/**
- * @param {SlideQuizData} slideQuizData
- * @returns {ProgressRevalidationOptions}
- */
-function getProgressRevalidationOptions(slideQuizData) {
+function getProgressRevalidationOptions(
+  slideQuizData: SlideQuizData
+): ProgressRevalidationOptions {
   const {
     slide: { index: slideIndex },
     quiz: {
@@ -56,7 +53,7 @@ function getProgressRevalidationOptions(slideQuizData) {
     }
   } = slideQuizData
 
-  const resolvedLevelIndices = /** @type {number[]} */ ([])
+  const resolvedLevelIndices = [] as number[]
   const unresolvedSet = new Set(unresolvedIndices)
 
   for (let i = 0; i <= lastElementIndex; i += 1) {
@@ -64,7 +61,7 @@ function getProgressRevalidationOptions(slideQuizData) {
     if (i !== resultIndex || quizIsFinalized) resolvedLevelIndices.push(i)
   }
 
-  let highestEnabledIndex = /** @type {number | null} */ (null)
+  let highestEnabledIndex = null as number | null
   if (quizIsFinalized) {
     highestEnabledIndex = null
   } else if (answerSelectionMode === "sequential") {
@@ -80,16 +77,6 @@ function getProgressRevalidationOptions(slideQuizData) {
   }
 }
 
-/**
- * @param {Object} param0
- * @param {number} param0.slideIndex
- * @param {QuizElementInstance[]} param0.elementInstances
- * @param {ControlPanel} param0.controlPanel
- * @param {Presentation} param0.presentation
- * @param {Tabs} param0.tabs
- * @param {Progress} param0.progress
- * @param {QuizAnswerSelectionMode} param0.answerSelectionMode
- */
 export function revalidateQuiz({
   slideIndex,
   elementInstances,
@@ -98,6 +85,14 @@ export function revalidateQuiz({
   tabs,
   progress,
   answerSelectionMode
+}: {
+  slideIndex: number
+  elementInstances: QuizElementInstance[]
+  controlPanel: ControlPanel
+  presentation: Presentation
+  tabs: Tabs
+  progress: Progress
+  answerSelectionMode: QuizAnswerSelectionMode
 }) {
   const appropriateSlideQuizData = getQuizDataForSlide(
     elementInstances,

@@ -104,7 +104,7 @@ function assignIntrinsicElementAttrs(element, props) {
     if (typeof value === "string" || typeof value === "number") {
       if (propertyAPIAttrSet.has(key)) {
         // @ts-expect-error -- Required since key is not a literal string type
-        element[key] = value // eslint-disable-line no-param-reassign
+        element[key] = value
       } else {
         element.setAttribute(key, String(value))
       }
