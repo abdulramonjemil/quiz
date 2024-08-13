@@ -124,8 +124,8 @@ export type QuizElementInstance = Question | Result | null
 // ========================================================
 
 export const quizClasses = {
-  root: cn("quiz", Styles.Quiz),
-  inner: cn("quiz-inner", Styles.Quiz__Inner)
+  root: cn("quiz-root", Styles.Quiz),
+  inner: cn("quiz-root-inner", Styles.Quiz__Inner)
 }
 
 export function tabNameToQuizElementIndex(tabName: string) {
