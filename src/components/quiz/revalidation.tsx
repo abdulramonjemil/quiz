@@ -9,11 +9,10 @@ import ControlPanel, {
 import Presentation from "@/components/presentation"
 import type { Tabs } from "@/ui/tabs"
 
+import { getQuizDataForSlide, type SlideQuizData } from "./data"
 import {
-  getQuizDataForSlide,
   quizElementIndexToTabName,
   type QuizAnswerSelectionMode,
-  type SlideQuizData,
   type QuizElementInstance
 } from "./base"
 

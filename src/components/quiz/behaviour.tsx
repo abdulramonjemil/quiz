@@ -8,8 +8,8 @@ import type Progress from "@/components/progress"
 import type Presentation from "@/components/presentation"
 import type ControlPanel from "@/components/control-panel"
 
+import { getQuizDataForSlide } from "./data"
 import {
-  getQuizDataForSlide,
   quizElementIndexToTabName,
   type QuizAnswerSelectionMode,
   type QuizSlideElement,

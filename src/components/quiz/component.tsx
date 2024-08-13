@@ -19,7 +19,6 @@ import { revalidateQuiz } from "./revalidation"
 import { getStorageKey, storeQuizData } from "./storage"
 
 import {
-  getQuizDataForSlide,
   quizClasses,
   tabNameToQuizElementIndex,
   type QuizProps,
@@ -27,11 +26,21 @@ import {
   type QuizElementInstance
 } from "./base"
 
+import { getQuizDataForSlide } from "./data"
 import {
   assertValidQuizPropsElementConfig,
   buildQuizSlideElements,
   getAvailableFinalizedElements
 } from "./element"
+
+function applyDefaultConfigs(props: QuizProps) {
+  return {
+    ...props,
+    rootElementType: props.rootElementType ?? "div",
+    customRootClass: props.customRootClass ?? null,
+    answerSelectionMode: props.answerSelectionMode ?? "sequential"
+  }
+}
 
 // NOTE: Pick<QuizProps, keyof QuizProps> is used instead of `QuizProps`
 // directly because TS complains about `QuizProps` not having an index
@@ -69,17 +78,17 @@ export class Quiz<
   constructor(props: Props) {
     const {
       autosave,
-      animateResultIndicator,
-      customRootClass,
       elements,
       answerSelectionMode,
       finalized,
       header,
       headerLevel,
-      rootElementType,
+      customRootClass,
+      rootElementType: RootElementType,
       codeBoardTheme,
+      animateResultIndicator,
       getResultSummaryText
-    } = props
+    } = applyDefaultConfigs(props)
 
     assertValidQuizPropsElementConfig(elements)
     const fullElements = [...elements, { type: "RESULT" }] as QuizSlideElement[]
@@ -136,7 +145,6 @@ export class Quiz<
     const quizLabellingId = uniqueId()
     const presentationControllingId = uniqueId()
 
-    const quizAnswerSelectionMode = answerSelectionMode ?? "sequential"
     const progressRH = rh<Progress>(null)
     const presentationRH = rh<Presentation>(null)
     const cPanelRH = rh<ControlPanel>(null)
@@ -150,12 +158,10 @@ export class Quiz<
         controlPanel: cPanelRH.ref,
         presentation: presentationRH.ref,
         progress: progressRH.ref,
-        answerSelectionMode: quizAnswerSelectionMode,
+        answerSelectionMode,
         tabs
       }
     })
-
-    const RootElementType = rootElementType ?? "div"
 
     const quizNode = (
       // @ts-expect-error -- TS takes `RootElementType` as Component even though
@@ -231,7 +237,7 @@ export class Quiz<
       controlPanel: cPanelRH.ref,
       presentation: presentationRH.ref,
       tabs,
-      answerSelectionMode: quizAnswerSelectionMode
+      answerSelectionMode
     })
 
     super(props, quizNode)
@@ -249,7 +255,7 @@ export class Quiz<
 
     this._metadata = {
       autosave: autosaveMetadata,
-      answerSelectionMode: quizAnswerSelectionMode
+      answerSelectionMode
     }
     this._elementInstances = elementInstances
 
