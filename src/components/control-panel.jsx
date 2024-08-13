@@ -38,7 +38,6 @@ export default class ControlPanel extends Component {
   /** @param {Props} props */
   constructor(props) {
     const {
-      getAlternateFocusable,
       controlledElementId,
       handlePrevButtonClick,
       handleNextButtonClick,
@@ -88,12 +87,6 @@ export default class ControlPanel extends Component {
     /**
      * @protected
      * @readonly
-     * @type {GetAlternateFocusable}
-     */
-    this._alternateFocusableGetter = getAlternateFocusable
-    /**
-     * @protected
-     * @readonly
      * @type {HTMLButtonElement}
      */
     this._prevButton = prevButtonRH.ref
@@ -137,7 +130,7 @@ export default class ControlPanel extends Component {
     })
 
     if (data) {
-      attemptElementFocus(this._alternateFocusableGetter.call(null, data[0]))
+      attemptElementFocus(this._props.getAlternateFocusable(data[0]))
     }
     this._cta.innerText = ctaIsSubmit ? "Submit" : "Jump to Result"
 
