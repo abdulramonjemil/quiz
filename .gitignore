@@ -11,8 +11,8 @@
 /.VSCodeCounter
 
 # notes
-/__jsnotes.js
-/__tsnotes.ts
+/__jsnotes.jsx
+/__tsnotes.tsx
 
 # ts
 tsconfig.tsbuildinfo

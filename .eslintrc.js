@@ -9,7 +9,7 @@ module.exports = {
   ],
 
   env: { browser: true },
-  ignorePatterns: ["/*", "!src/", "!/__jsnotes.js", "!__tsnotes.ts"],
+  ignorePatterns: ["/*", "!src/", "!__jsnotes.jsx", "!__tsnotes.tsx"],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint"],
 
