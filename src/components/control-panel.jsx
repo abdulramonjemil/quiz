@@ -90,32 +90,32 @@ export default class ControlPanel extends Component {
      * @readonly
      * @type {GetAlternateFocusable}
      */
-    this.$alternateFocusableGetter = getAlternateFocusable
+    this._alternateFocusableGetter = getAlternateFocusable
     /**
      * @protected
      * @readonly
      * @type {HTMLButtonElement}
      */
-    this.$prevButton = prevButtonRH.ref
+    this._prevButton = prevButtonRH.ref
     /**
      * @protected
      * @readonly
      * @type {HTMLButtonElement}
      */
-    this.$nextButton = nextButtonRH.ref
+    this._nextButton = nextButtonRH.ref
     /**
      * @protected
      * @readonly
      * @type {HTMLButtonElement}
      */
-    this.$cta = ctaButtonRH.ref
+    this._cta = ctaButtonRH.ref
   }
 
   /** @param {"next" | "prev" | "cta"} button */
   buttonIsEnabled(button) {
-    if (button === "prev") return !this.$prevButton.disabled
-    if (button === "next") return !this.$nextButton.disabled
-    if (button === "cta") return !this.$cta.disabled
+    if (button === "prev") return !this._prevButton.disabled
+    if (button === "next") return !this._nextButton.disabled
+    if (button === "cta") return !this._cta.disabled
     throw new Error(`Unknown control panel button: '${button}'`)
   }
 
@@ -128,36 +128,36 @@ export default class ControlPanel extends Component {
     } = options
 
     const data = /** @type {const} */ ([
-      ["prev", this.$prevButton, enablePrev],
-      ["next", this.$nextButton, enableNext],
-      ["cta", this.$cta, enableCTA]
+      ["prev", this._prevButton, enablePrev],
+      ["next", this._nextButton, enableNext],
+      ["cta", this._cta, enableCTA]
     ]).find(([, button, buttonWillRemainEnabled]) => {
       const buttonIsActive = button.contains(document.activeElement)
       return buttonIsActive && !buttonWillRemainEnabled
     })
 
     if (data) {
-      attemptElementFocus(this.$alternateFocusableGetter.call(null, data[0]))
+      attemptElementFocus(this._alternateFocusableGetter.call(null, data[0]))
     }
-    this.$cta.innerText = ctaIsSubmit ? "Submit" : "Jump to Result"
+    this._cta.innerText = ctaIsSubmit ? "Submit" : "Jump to Result"
 
-    this.$prevButton.disabled = !enablePrev
-    this.$nextButton.disabled = !enableNext
-    this.$cta.disabled = !enableCTA
+    this._prevButton.disabled = !enablePrev
+    this._nextButton.disabled = !enableNext
+    this._cta.disabled = !enableCTA
   }
 
   /** @param {"next" | "prev" | "cta"} button */
   simulateClick(button) {
     let focused = false
     if (button === "prev") {
-      focused = attemptElementFocus(this.$prevButton)
-      this.$prevButton.click()
+      focused = attemptElementFocus(this._prevButton)
+      this._prevButton.click()
     } else if (button === "next") {
-      focused = attemptElementFocus(this.$nextButton)
-      this.$nextButton.click()
+      focused = attemptElementFocus(this._nextButton)
+      this._nextButton.click()
     } else if (button === "cta") {
-      focused = attemptElementFocus(this.$cta)
-      this.$cta.click()
+      focused = attemptElementFocus(this._cta)
+      this._cta.click()
     } else throw new Error(`Unknown control panel button: '${button}'`)
 
     return focused

@@ -34,8 +34,8 @@ export class UIComponent {
   /** @type {(extender: new (...args: any[]) => UIComponent ) => void} */
   static assertComponentValidity(extender) {
     assertOverwrittenParentMethods(UIComponent, extender, [
-      "$doStaticMarkupRender",
-      "$doEventHandlerSetup",
+      "_doStaticMarkupRender",
+      "_doEventHandlerSetup",
       "getStaticElementAttributeSets",
       "getManagedElementAttributeSets",
       "render"
@@ -63,16 +63,16 @@ export class UIComponent {
      * @protected
      * @type {State}
      */
-    this.$state = state
+    this._state = state
 
     /**
      * @protected
      * @type {Config}
      */
-    this.$config = config
+    this._config = config
 
-    this.$doStaticMarkupRender()
-    this.$doEventHandlerSetup()
+    this._doStaticMarkupRender()
+    this._doEventHandlerSetup()
     this.render()
   }
 
@@ -80,16 +80,16 @@ export class UIComponent {
    * @protected
    * @returns {void}
    */
-  $doEventHandlerSetup() {
-    throwAbsentMethodError(this.constructor, "$doEventHandlerSetup")
+  _doEventHandlerSetup() {
+    throwAbsentMethodError(this.constructor, "_doEventHandlerSetup")
   }
 
   /**
    * @protected
    * @returns {void}
    */
-  $doStaticMarkupRender() {
-    throwAbsentMethodError(this.constructor, "$doStaticMarkupRender")
+  _doStaticMarkupRender() {
+    throwAbsentMethodError(this.constructor, "_doStaticMarkupRender")
   }
 
   /** @type {() => UIComponentElementsAttributeSet} */

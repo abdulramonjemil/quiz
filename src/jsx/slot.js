@@ -27,11 +27,11 @@ export class Slot extends Component {
 
   /** @param {Parameters<SlotProps<R>["children"]>} params  */
   revalidate(...params) {
-    const revalidator = this.$props.children
+    const revalidator = this._props.children
     const value = revalidator.call(null, ...params)
     if (value === undefined) return
     const valueNode = resolveToNode(value)
-    this.$rootNode.parentNode?.replaceChild(valueNode, this.$rootNode)
-    this.$rootNode = valueNode
+    this._rootNode.parentNode?.replaceChild(valueNode, this._rootNode)
+    this._rootNode = valueNode
   }
 }

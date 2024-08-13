@@ -69,11 +69,11 @@ export class Tabs extends UIComponent {
     super(config, DEFAULT_STATE)
   }
 
-  $doEventHandlerSetup() {
-    const { tabItems } = this.$config.elements
+  _doEventHandlerSetup() {
+    const { tabItems } = this._config.elements
     tabItems.forEach(({ refs: { trigger } }, index) => {
       trigger.addEventListener("click", () => {
-        this.$handleTabTriggerClick(index)
+        this._handleTabTriggerClick(index)
       })
 
       trigger.addEventListener("keydown", (event) => {
@@ -82,19 +82,19 @@ export class Tabs extends UIComponent {
           event.key === AriaKeys.ArrowRight
         ) {
           const type = event.key === AriaKeys.ArrowLeft ? "left" : "right"
-          this.$handleTabTriggerLeftRightKeyDown(event, type)
+          this._handleTabTriggerLeftRightKeyDown(event, type)
         }
 
         if (event.key === AriaKeys.Home || event.key === AriaKeys.End) {
           const type = event.key === AriaKeys.Home ? "home" : "end"
-          this.$handleTabTriggerHomeEndKeyDown(event, type)
+          this._handleTabTriggerHomeEndKeyDown(event, type)
         }
       })
     })
   }
 
-  $doStaticMarkupRender() {
-    const { elements } = this.$config
+  _doStaticMarkupRender() {
+    const { elements } = this._config
     const attributes = this.getStaticElementAttributeSets()
     UIComponent.setElementAttributes(elements.tablist.ref, attributes.tablist)
     elements.tabItems.forEach(({ refs }, index) => {
@@ -106,12 +106,12 @@ export class Tabs extends UIComponent {
   }
 
   /** @param {number} index */
-  $handleTabTriggerClick(index) {
-    const { activeTabIndex } = this.$state
+  _handleTabTriggerClick(index) {
+    const { activeTabIndex } = this._state
     if (activeTabIndex === index) return
 
-    const oldTabItem = this.$config.elements.tabItems[activeTabIndex]
-    const newTabItem = this.$config.elements.tabItems[index]
+    const oldTabItem = this._config.elements.tabItems[activeTabIndex]
+    const newTabItem = this._config.elements.tabItems[index]
 
     assertIsDefined(oldTabItem, `old tab item at index: ${activeTabIndex}`)
     assertIsDefined(newTabItem, `new tab item at index: ${index}`)
@@ -119,18 +119,18 @@ export class Tabs extends UIComponent {
     const oldTabName = oldTabItem.name
     const newTabName = newTabItem.name
 
-    this.$state = /** @satisfies {TabsState} */ { activeTabIndex: index }
+    this._state = /** @satisfies {TabsState} */ { activeTabIndex: index }
     this.render()
 
-    this.$config.onTabChange?.(newTabName, oldTabName, "event")
+    this._config.onTabChange?.(newTabName, oldTabName, "event")
   }
 
   /**
    * @param {KeyboardEvent} event
    * @param {"home" | "end"} type
    */
-  $handleTabTriggerHomeEndKeyDown(event, type) {
-    const { tabItems } = this.$config.elements
+  _handleTabTriggerHomeEndKeyDown(event, type) {
+    const { tabItems } = this._config.elements
     /** @param {(typeof tabItems)[number]} item */
     const acceptsFocus = (item) => attemptElementFocus(item.refs.trigger)
 
@@ -149,9 +149,9 @@ export class Tabs extends UIComponent {
    * @param {KeyboardEvent} event
    * @param {"left" | "right"} type
    */
-  $handleTabTriggerLeftRightKeyDown(event, type) {
-    const { activeTabIndex } = this.$state
-    const { tabItems } = this.$config.elements
+  _handleTabTriggerLeftRightKeyDown(event, type) {
+    const { activeTabIndex } = this._state
+    const { tabItems } = this._config.elements
 
     /** @param {(typeof tabItems)[number]} item */
     const acceptsFocus = (item) => attemptElementFocus(item.refs.trigger)
@@ -167,8 +167,8 @@ export class Tabs extends UIComponent {
   }
 
   activeTab() {
-    const { activeTabIndex } = this.$state
-    const item = this.$config.elements.tabItems[activeTabIndex]
+    const { activeTabIndex } = this._state
+    const item = this._config.elements.tabItems[activeTabIndex]
     assertIsDefined(item, `active tab item at index: ${activeTabIndex}`)
 
     return {
@@ -179,8 +179,8 @@ export class Tabs extends UIComponent {
   }
 
   getManagedElementAttributeSets() {
-    const { elements } = this.$config
-    const { activeTabIndex } = this.$state
+    const { elements } = this._config
+    const { activeTabIndex } = this._state
 
     return {
       tabItems: elements.tabItems.map((item, index) => {
@@ -199,7 +199,7 @@ export class Tabs extends UIComponent {
   }
 
   getStaticElementAttributeSets() {
-    const { tablist, tabItems } = this.$config.elements
+    const { tablist, tabItems } = this._config.elements
 
     return {
       tablist: {
@@ -226,7 +226,7 @@ export class Tabs extends UIComponent {
 
   render() {
     const attributes = this.getManagedElementAttributeSets().tabItems
-    this.$config.elements.tabItems.forEach(({ refs }, index) => {
+    this._config.elements.tabItems.forEach(({ refs }, index) => {
       const attrs = attributes[index]
       assertIsDefined(attrs, `tab item managed attrs at index: ${index}`)
       UIComponent.setElementAttributes(refs.trigger, attrs.trigger)
@@ -236,7 +236,7 @@ export class Tabs extends UIComponent {
 
   /** @param {string} tabName */
   setActiveTab(tabName) {
-    const { elements } = this.$config
+    const { elements } = this._config
 
     const intendedItemIndex = elements.tabItems.findIndex(
       (item) => item.name === tabName
@@ -246,17 +246,17 @@ export class Tabs extends UIComponent {
       throwInvalidTabNameError(tabName)
     }
 
-    const { activeTabIndex } = this.$state
-    const oldTabItem = this.$config.elements.tabItems[activeTabIndex]
+    const { activeTabIndex } = this._state
+    const oldTabItem = this._config.elements.tabItems[activeTabIndex]
     assertIsDefined(oldTabItem, `old tab item at index: ${activeTabIndex}`)
     const oldTabName = oldTabItem.name
 
-    this.$state = /** @satisfies {TabsState} */ {
+    this._state = /** @satisfies {TabsState} */ {
       activeTabIndex: intendedItemIndex
     }
     this.render()
 
-    this.$config.onTabChange?.(tabName, oldTabName, "api")
+    this._config.onTabChange?.(tabName, oldTabName, "api")
   }
 }
 

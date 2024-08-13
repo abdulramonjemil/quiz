@@ -25,15 +25,15 @@ export class Component {
      * @protected
      * @type {Props}
      */
-    this.$props = props
+    this._props = props
 
     /**
      * @protected
      * @type {Node} */
-    this.$rootNode = resolveToNode(node)
+    this._rootNode = resolveToNode(node)
   }
 
   rootNode() {
-    return this.$rootNode
+    return this._rootNode
   }
 }

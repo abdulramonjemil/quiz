@@ -105,12 +105,12 @@ export class Quiz extends Component {
       getResultSummaryText: getResultSummaryText ? proxiedGetSummaryText : null,
       handleQuestionOptionChange: bindReturn(
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        qPrototype.$handleQuestionOptionChange,
+        qPrototype._handleQuestionOptionChange,
         () => [quizRH.ref]
       ),
       handleResultCTAButtonClick: bindReturn(
         // eslint-disable-next-line @typescript-eslint/unbound-method
-        qPrototype.$handleResultCTAButtonClick,
+        qPrototype._handleResultCTAButtonClick,
         () => [quizRH.ref]
       )
     })
@@ -189,18 +189,18 @@ export class Quiz extends Component {
             }}
             handlePrevButtonClick={bindReturn(
               // eslint-disable-next-line @typescript-eslint/unbound-method
-              qPrototype.$handleCPanelBtnClick,
+              qPrototype._handleCPanelBtnClick,
               () => [quizRH.ref, /** @type {const} */ ("prev")]
             )}
             handleNextButtonClick={bindReturn(
               // eslint-disable-next-line @typescript-eslint/unbound-method
-              qPrototype.$handleCPanelBtnClick,
+              qPrototype._handleCPanelBtnClick,
               () => [quizRH.ref, /** @type {const} */ ("next")]
             )}
             handleCTAButtonClick={() => {
               const shouldJumpToResult = resultInstance.isFinalized()
-              if (shouldJumpToResult) this.$handleCPanelResultJumpCTAClick()
-              else this.$handleCPanelSubmitCTAClick()
+              if (shouldJumpToResult) this._handleCPanelResultJumpCTAClick()
+              else this._handleCPanelSubmitCTAClick()
             }}
             instanceRefHolder={cPanelRH}
           />
@@ -217,7 +217,7 @@ export class Quiz extends Component {
       presentation: presentationRH.ref,
       defaultTabIndex: appropriateIndex,
       // eslint-disable-next-line @typescript-eslint/unbound-method
-      tabChangeHandler: bindReturn(qPrototype.$handleTabChange, () => [
+      tabChangeHandler: bindReturn(qPrototype._handleTabChange, () => [
         quizRH.ref
       ])
     })
@@ -247,99 +247,99 @@ export class Quiz extends Component {
       storageKey: autosave ? getStorageKey(autosave) : null
     })
 
-    this.$metadata = {
+    this._metadata = {
       autosave: autosaveMetadata,
       answerSelectionMode: quizAnswerSelectionMode
     }
-    this.$elementInstances = elementInstances
+    this._elementInstances = elementInstances
 
-    this.$tabs = tabs
-    this.$progress = progressRH.ref
-    this.$presentation = presentationRH.ref
-    this.$controlPanel = cPanelRH.ref
+    this._tabs = tabs
+    this._progress = progressRH.ref
+    this._presentation = presentationRH.ref
+    this._controlPanel = cPanelRH.ref
   }
 
   /** @param {"prev" | "next"} button */
-  $handleCPanelBtnClick(button) {
-    const { $elementInstances, $presentation, $metadata } = this
+  _handleCPanelBtnClick(button) {
+    const { _elementInstances, _presentation, _metadata } = this
     const { allowedPrevIndex, allowedNextIndex } = getQuizDataForSlide(
-      $elementInstances,
-      $presentation.currentSlideIndex(),
-      $metadata.answerSelectionMode
+      _elementInstances,
+      _presentation.currentSlideIndex(),
+      _metadata.answerSelectionMode
     ).slide
 
     const appropriateIndex =
       button === "prev" ? allowedPrevIndex : allowedNextIndex
     if (typeof appropriateIndex !== "number") return
-    this.$revalidate(appropriateIndex)
+    this._revalidate(appropriateIndex)
   }
 
-  $handleCPanelSubmitCTAClick() {
+  _handleCPanelSubmitCTAClick() {
     const availableFinalizedElements = getAvailableFinalizedElements({
-      elements: this.$props.elements,
-      elementInstances: this.$elementInstances,
-      previouslyFinalized: this.$props.finalized,
-      autoSaveConfig: this.$props.autosave
+      elements: this._props.elements,
+      elementInstances: this._elementInstances,
+      previouslyFinalized: this._props.finalized,
+      autoSaveConfig: this._props.autosave
     })
 
     const desc = "available finalized element when clicking submit"
     assertIsDefined(availableFinalizedElements, desc)
 
-    finalizeQuiz(availableFinalizedElements, this.$elementInstances)
-    this.$revalidate(this.$elementInstances.length - 1)
+    finalizeQuiz(availableFinalizedElements, this._elementInstances)
+    this._revalidate(this._elementInstances.length - 1)
 
-    const autosaveMetadata = this.$metadata.autosave
+    const autosaveMetadata = this._metadata.autosave
     if (autosaveMetadata.enabled) {
       storeQuizData(availableFinalizedElements, autosaveMetadata.storageKey)
     }
 
-    if (typeof this.$props.onSubmit === "function") {
+    if (typeof this._props.onSubmit === "function") {
       const data = getQuizFinalizationData(availableFinalizedElements)
-      this.$props.onSubmit.call(null, data)
+      this._props.onSubmit.call(null, data)
     }
   }
 
-  $handleCPanelResultJumpCTAClick() {
-    const { $elementInstances } = this
-    const resultIndexIfPresent = $elementInstances.length - 1
-    this.$revalidate(resultIndexIfPresent)
+  _handleCPanelResultJumpCTAClick() {
+    const { _elementInstances } = this
+    const resultIndexIfPresent = _elementInstances.length - 1
+    this._revalidate(resultIndexIfPresent)
   }
 
-  $handleQuestionOptionChange() {
-    const currentSlideIndex = this.$presentation.currentSlideIndex()
-    this.$revalidate(currentSlideIndex)
+  _handleQuestionOptionChange() {
+    const currentSlideIndex = this._presentation.currentSlideIndex()
+    this._revalidate(currentSlideIndex)
   }
 
-  $handleResultCTAButtonClick() {
-    this.$revalidate(0)
-    attemptElementFocus(this.$tabs.activeTab().content)
+  _handleResultCTAButtonClick() {
+    this._revalidate(0)
+    attemptElementFocus(this._tabs.activeTab().content)
   }
 
   /** @type {TabChangeHandler} */
-  $handleTabChange(newTabname, _, source) {
+  _handleTabChange(newTabname, _, source) {
     if (source !== "event") return
-    this.$revalidate(tabNameToQuizElementIndex(newTabname))
+    this._revalidate(tabNameToQuizElementIndex(newTabname))
   }
 
   /** @param {number} slideIndex */
-  $revalidate(slideIndex) {
+  _revalidate(slideIndex) {
     const {
-      $elementInstances,
-      $controlPanel,
-      $presentation,
-      $progress,
-      $metadata,
-      $tabs
+      _elementInstances,
+      _controlPanel,
+      _presentation,
+      _progress,
+      _metadata,
+      _tabs
     } = this
 
     revalidateQuiz({
       slideIndex,
-      elementInstances: $elementInstances,
-      tabs: $tabs,
-      controlPanel: $controlPanel,
-      presentation: $presentation,
-      progress: $progress,
-      answerSelectionMode: $metadata.answerSelectionMode
+      elementInstances: _elementInstances,
+      tabs: _tabs,
+      controlPanel: _controlPanel,
+      presentation: _presentation,
+      progress: _progress,
+      answerSelectionMode: _metadata.answerSelectionMode
     })
   }
 }

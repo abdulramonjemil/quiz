@@ -272,7 +272,7 @@ export default class Question extends Component {
     const fieldSet = /** @type {HTMLFieldSetElement} */ (fieldSetRH.ref)
     const optionInputs = Array.from(fieldSet.getElementsByTagName("input"))
 
-    this.$elements = {
+    this._elements = {
       explanation: explanationRH.ref,
       fieldSet,
       optionInputs,
@@ -281,9 +281,9 @@ export default class Question extends Component {
   }
 
   correctAnswerIsPicked() {
-    const { $elements } = this
-    const selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
-    return selectedOptionInput === $elements.answerInput
+    const { _elements } = this
+    const selectedOptionInput = getSelectedOptionInput(_elements.optionInputs)
+    return selectedOptionInput === _elements.answerInput
   }
 
   /**
@@ -293,63 +293,63 @@ export default class Question extends Component {
    * @returns {AnswerSelectionData | null}
    */
   getAnswerSelectionData() {
-    const index = getSelectedOptionIndex(this.$elements.optionInputs)
+    const index = getSelectedOptionIndex(this._elements.optionInputs)
     if (index === null) return null
     return { selectedOptionIndex: index }
   }
 
   /** @param {number | null | undefined} selectedOptionIndex */
   finalize(selectedOptionIndex = null) {
-    const { $elements } = this
+    const { _elements } = this
     /** @type {HTMLInputElement | null} */
     let selectedOptionInput = null
 
     if (typeof selectedOptionIndex !== "number") {
-      selectedOptionInput = getSelectedOptionInput($elements.optionInputs)
+      selectedOptionInput = getSelectedOptionInput(_elements.optionInputs)
       if (!selectedOptionInput) throw new Error("No answer is selected")
     } else {
-      assertValidOptionIndex(selectedOptionIndex, $elements.optionInputs)
+      assertValidOptionIndex(selectedOptionIndex, _elements.optionInputs)
       selectedOptionInput = /** @type {HTMLInputElement} */ (
-        $elements.optionInputs[selectedOptionIndex]
+        _elements.optionInputs[selectedOptionIndex]
       )
       setOptionSelectionState(selectedOptionInput, "selected")
     }
 
-    assertIsDefined($elements.answerInput, "answer input")
-    styleOption($elements.answerInput, "correct")
-    if (selectedOptionInput !== $elements.answerInput) {
+    assertIsDefined(_elements.answerInput, "answer input")
+    styleOption(_elements.answerInput, "correct")
+    if (selectedOptionInput !== _elements.answerInput) {
       styleOption(selectedOptionInput, "incorrect")
     }
 
-    setExplanationState($elements.explanation, "enabled")
-    setQuestionState($elements.fieldSet, "disabled")
+    setExplanationState(_elements.explanation, "enabled")
+    setQuestionState(_elements.fieldSet, "disabled")
   }
 
   isFinalized() {
-    const { $elements } = this
+    const { _elements } = this
     return (
-      getQuestionState($elements.fieldSet) === "disabled" &&
-      getExplanationState($elements.explanation) === "enabled"
+      getQuestionState(_elements.fieldSet) === "disabled" &&
+      getExplanationState(_elements.explanation) === "enabled"
     )
   }
 
   isAnswered() {
-    return getSelectedOptionIndex(this.$elements.optionInputs) !== null
+    return getSelectedOptionIndex(this._elements.optionInputs) !== null
   }
 
   /** @param {{ type: "option", index: OptionIndex } | { type: "toggle" }} options  */
   simulateClick(options) {
-    const { $elements } = this
+    const { _elements } = this
     let focused = false
 
     if (options.type === "toggle") {
-      const toggleButton = getExplanationButton($elements.explanation)
+      const toggleButton = getExplanationButton(_elements.explanation)
       if (!(toggleButton instanceof HTMLElement)) return false
 
       focused = attemptElementFocus(toggleButton)
       toggleButton.click()
     } else {
-      const input = $elements.optionInputs[options.index]
+      const input = _elements.optionInputs[options.index]
       if (options.index >= 0 && input instanceof HTMLElement) {
         focused = attemptElementFocus(input)
         input.click()

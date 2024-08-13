@@ -290,19 +290,19 @@ export default class Result extends Component {
 
     super(props, resultNode)
     /** @private */
-    this.$slot = slotRH.ref
+    this._slot = slotRH.ref
     /** @private */
-    this.$isFinalized = false
+    this._isFinalized = false
   }
 
   /** @param {number} answersGotten */
   finalize(answersGotten) {
-    if (this.$isFinalized) return
-    this.$slot.revalidate(answersGotten)
-    this.$isFinalized = true
+    if (this._isFinalized) return
+    this._slot.revalidate(answersGotten)
+    this._isFinalized = true
   }
 
   isFinalized() {
-    return this.$isFinalized
+    return this._isFinalized
   }
 }

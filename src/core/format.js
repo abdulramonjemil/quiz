@@ -58,13 +58,13 @@ export class FormatFactory {
       `<${tagName}>${content.trim()}</${tagName}>`
 
     /** @protected @readonly */
-    this.$charFormatRegex = charFormatRegex
+    this._charFormatRegex = charFormatRegex
     /** @protected @readonly */
-    this.$escapeRegexp = escapeRegexp
+    this._escapeRegexp = escapeRegexp
     /** @protected @readonly */
-    this.$charReplacer = charReplacer
+    this._charReplacer = charReplacer
     /** @protected @readonly */
-    this.$escapeReplacer = escapeReplacer
+    this._escapeReplacer = escapeReplacer
 
     /** @readonly */
     this.char = char
@@ -74,10 +74,10 @@ export class FormatFactory {
 
   /** @param {string} value */
   format(value) {
-    const { $charFormatRegex, $charReplacer, $escapeRegexp, $escapeReplacer } =
+    const { _charFormatRegex, _charReplacer, _escapeRegexp, _escapeReplacer } =
       this
 
-    const charReplaced = value.replace($charFormatRegex, $charReplacer)
-    return charReplaced.replace($escapeRegexp, $escapeReplacer)
+    const charReplaced = value.replace(_charFormatRegex, _charReplacer)
+    return charReplaced.replace(_escapeRegexp, _escapeReplacer)
   }
 }

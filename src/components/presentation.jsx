@@ -103,11 +103,11 @@ export default class Presentation extends Component {
      * @readonly
      * @protected
      * @type {HTMLElement[]} */
-    this.$slideNodes = slideNodes
+    this._slideNodes = slideNodes
   }
 
   currentSlideIndex() {
-    const index = getShownSlideIndex(this.$slideNodes)
+    const index = getShownSlideIndex(this._slideNodes)
     assertIsDefined(index, "current slide index")
     return index
   }
@@ -115,16 +115,16 @@ export default class Presentation extends Component {
   /** @param {PresentationRevalidationOptions} options */
   revalidate(options) {
     const { shownSlideIndex } = options
-    assertValidSlideIndex(shownSlideIndex, this.$slideNodes)
-    showSlide(this.$slideNodes, shownSlideIndex)
+    assertValidSlideIndex(shownSlideIndex, this._slideNodes)
+    showSlide(this._slideNodes, shownSlideIndex)
   }
 
   slideNodes() {
-    assertIsDefined(this.$slideNodes, "presentation slide nodes")
-    return [...this.$slideNodes]
+    assertIsDefined(this._slideNodes, "presentation slide nodes")
+    return [...this._slideNodes]
   }
 
   slidesCount() {
-    return this.$slideNodes.length
+    return this._slideNodes.length
   }
 }

@@ -38,7 +38,7 @@ export namespace CustomJSX {
   export type ElementClass = InstanceType<JSXClassElementType>
 
   export interface ElementAttributesProperty {
-    $props: object
+    _props: object
   }
 
   export interface ElementChildrenAttribute {

@@ -184,48 +184,48 @@ export default class Progress extends Component {
     super(props, progressNode)
 
     /** @type {HTMLUListElement} */
-    this.$listRoot = listRootRH.ref
+    this._listRoot = listRootRH.ref
     /** @type {HTMLElement[]} */
-    this.$progressLevels = progressLevels
+    this._progressLevels = progressLevels
   }
 
   activeLevelIndex() {
-    return getActiveLevelIndex(this.$progressLevels)
+    return getActiveLevelIndex(this._progressLevels)
   }
 
   elements() {
     return {
-      listRoot: /** @type {HTMLElement} */ (this.$listRoot),
-      buttons: this.$progressLevels.map((level) => getLevelButton(level))
+      listRoot: /** @type {HTMLElement} */ (this._listRoot),
+      buttons: this._progressLevels.map((level) => getLevelButton(level))
     }
   }
 
   hasCompletionLevel() {
     const lastProgressLevel =
-      this.$progressLevels[this.$progressLevels.length - 1]
+      this._progressLevels[this._progressLevels.length - 1]
     assertIsDefined(lastProgressLevel, "last progress level")
     return levelIsCompletionLevel(lastProgressLevel)
   }
 
   levelsCount() {
-    return this.$progressLevels.length
+    return this._progressLevels.length
   }
 
   /** @param {ProgressRevalidationOptions} options */
   revalidate(options) {
     const { activeLevelIndex, highestEnabledLevelIndex, resolvedLevelIndices } =
       options
-    setActiveLevel(this.$progressLevels, activeLevelIndex)
-    setHigestEnabledLevelIndex(this.$progressLevels, highestEnabledLevelIndex)
-    setResolvedLevels(this.$progressLevels, resolvedLevelIndices)
+    setActiveLevel(this._progressLevels, activeLevelIndex)
+    setHigestEnabledLevelIndex(this._progressLevels, highestEnabledLevelIndex)
+    setResolvedLevels(this._progressLevels, resolvedLevelIndices)
   }
 
   /**
    * @param {number} levelIndex
    */
   simulateClick(levelIndex) {
-    assertValidLevelIndex(levelIndex, this.$progressLevels)
-    const level = /** @type {HTMLElement} */ (this.$progressLevels[levelIndex])
+    assertValidLevelIndex(levelIndex, this._progressLevels)
+    const level = /** @type {HTMLElement} */ (this._progressLevels[levelIndex])
     const levelButton = getLevelButton(level)
     const focused = attemptElementFocus(levelButton)
     levelButton.click()

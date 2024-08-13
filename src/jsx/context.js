@@ -3,7 +3,6 @@ import { uniqueId } from "@/lib/factory"
 const CONTEXT_DATA_SYMBOL_KEY = Symbol("CONTEXT_DATA_SYMBOL_KEY")
 const CONTEXT_DATA_SYMBOL = Symbol("CONTEXT_DATA")
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
 const __ContextDataMap__ = (() => {
   const map = /** @type {Map<string, ContextData[]>} */ (new Map())
   return { get: map.get.bind(map), set: map.set.bind(map) }
@@ -12,7 +11,6 @@ const __ContextDataMap__ = (() => {
 /**
  * @param {ContextData} contextData
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 export function __forbiddenPopContextDataFromStack__(contextData) {
   const { contextId, usageId, value } = contextData
   const contextStack = __ContextDataMap__.get(contextId)
