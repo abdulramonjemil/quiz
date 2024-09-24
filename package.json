@@ -2,7 +2,7 @@
   "name": "quiz",
   "version": "1.0.0",
   "private": false,
-  "description": "A simple library for creating styled quizzes",
+  "description": "A flexible library for creating quizzes",
   "license": "MIT",
   "main": "src/components/quiz.jsx",
   "module": "src/components/quiz.jsx",
