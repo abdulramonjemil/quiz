@@ -23,8 +23,6 @@
     "src/**/*.jsx",
     "src/**/*.d.ts",
     "src/**/*.ts",
-    "src/**/*.tsx",
-    "__jsnotes.jsx",
-    "__tsnotes.tsx"
+    "src/**/*.tsx"
   ]
 }

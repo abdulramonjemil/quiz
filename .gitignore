@@ -10,9 +10,5 @@
 # vscode counter extension
 /.VSCodeCounter
 
-# notes
-/__jsnotes.jsx
-/__tsnotes.tsx
-
 # ts
 tsconfig.tsbuildinfo
