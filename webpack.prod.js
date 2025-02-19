@@ -13,8 +13,8 @@ module.exports = merge(commonConfig, {
     minimizer: [new CssMinimizerPlugin(), "..."]
   },
   output: {
-    filename: "quiz.min.js",
+    filename: "quiz.bundle.js",
     path: path.resolve(__dirname, "dist")
   },
-  plugins: [new MiniCssExtractPlugin({ filename: "quiz.min.css" })]
+  plugins: [new MiniCssExtractPlugin({ filename: "quiz.bundle.css" })]
 })
